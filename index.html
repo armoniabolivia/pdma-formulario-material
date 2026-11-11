@@ -571,7 +571,7 @@ async function analizarArchivoIA(a){
     const t = await token();
     const res = await fetch('/api/analizar-media', {
       method: 'POST',
-      headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' },
+      headers: { 'X-Graph-Token': t, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         imageBase64: b64,
         mediaType: 'image/jpeg',
