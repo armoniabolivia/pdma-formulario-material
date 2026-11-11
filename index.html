@@ -75,15 +75,19 @@ h3 .req{font-size:12px;color:var(--muted);font-weight:400}
 .campo .err{color:var(--red);font-size:12.5px;display:none}
 .campo.error .err{display:block}
 
-/* archivos */
+/* archivos y miniaturas */
 .zona{border:2px dashed var(--azul);border-radius:12px;background:var(--cielo-cl);padding:22px;text-align:center;cursor:pointer}
 .zona.sobre{background:var(--cielo);border-style:solid}
 .zona b{display:block;font-size:16px;color:var(--azul-osc)}
 .zona span{font-size:13px;color:var(--muted)}
 .lista{margin-top:12px;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.fila{display:grid;grid-template-columns:34px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);background:#fff}
+.fila{display:grid;grid-template-columns:48px 1fr auto auto;gap:10px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);background:#fff}
 .fila:first-child{border-top:0}
-.fila .ic{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:var(--cielo-cl);color:var(--azul-osc);font-size:11px;font-weight:700}
+.fila .ic{width:48px;height:48px;border-radius:8px;display:grid;place-items:center;background:var(--cielo-cl);color:var(--azul-osc);font-size:11px;font-weight:700;overflow:hidden;position:relative;border:1px solid var(--line);flex:none}
+.fila .ic.previs{cursor:pointer;border-color:var(--azul);transition:transform .12s,box-shadow .12s}
+.fila .ic.previs:hover{transform:scale(1.04);box-shadow:0 2px 8px rgba(36,73,127,.22)}
+.fila .ic img{width:100%;height:100%;object-fit:cover;display:block}
+.fila .ic .play-badge{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.32);color:#fff;font-size:14px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
 .fila .nom{min-width:0}
 .fila .nom b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fila .nom span{font-size:12.5px;color:var(--muted)}
@@ -106,6 +110,20 @@ h3 .req{font-size:12px;color:var(--muted);font-weight:400}
 .ia-grid label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:2px}
 .ia-grid input{width:100%;border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;background:#fff}
 .ia-grid input:focus{outline:none;border-color:var(--azul)}
+
+/* modal de vista previa */
+.visor-backdrop{position:fixed;inset:0;background:rgba(18,28,38,.82);z-index:1000;display:grid;place-items:center;padding:16px}
+.visor-card{background:#fff;border-radius:12px;max-width:880px;width:100%;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.4)}
+.visor-cab{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fff}
+.visor-cab .tit{min-width:0}
+.visor-cab .tit b{display:block;color:var(--azul-osc);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.visor-cab .tit span{font-size:12.5px;color:var(--muted)}
+.visor-cuerpo{background:#111921;display:grid;place-items:center;padding:12px;overflow:auto;min-height:220px}
+.visor-cuerpo img,.visor-cuerpo video{max-width:100%;max-height:70vh;border-radius:6px;display:block}
+.visor-cuerpo audio{width:min(480px,100%);margin:24px 0}
+.visor-cuerpo .sin-soporte{color:#E6EEF6;text-align:center;padding:24px;font-size:14px}
+.visor-pie{padding:9px 14px;background:var(--cielo-cl);border-top:1px solid var(--line);font-size:13px;color:var(--text)}
+.visor-pie b{color:var(--azul-prof)}
 
 .st{font-size:12px;border-radius:999px;padding:1px 8px;border:1px solid var(--line);white-space:nowrap;background:#fff}
 .st-ok{color:var(--ok);border-color:var(--hoja);background:var(--ok-cl)}
@@ -165,7 +183,7 @@ details summary{cursor:pointer;color:var(--azul-osc);font-weight:700;font-size:1
   .campos,.ia-grid{grid-template-columns:1fr}
   .res{grid-template-columns:1fr;gap:0 0}
   .res dd{margin-bottom:6px}
-  .fila{grid-template-columns:34px 1fr auto}
+  .fila{grid-template-columns:48px 1fr auto}
   .fila .marcas{grid-column:2/-1;justify-content:flex-start}
   .fila .x{grid-row:1;grid-column:3}
   .destino b{white-space:normal}
@@ -263,6 +281,18 @@ details summary{cursor:pointer;color:var(--azul-osc);font-weight:700;font-size:1
   <button class="btn" id="bAtras">Atrás</button>
   <button class="btn p" id="bSig" disabled>Siguiente</button>
 </div></div>
+
+<!-- MODAL DE VISTA PREVIA -->
+<div class="visor-backdrop oculto" id="visorModal" role="dialog" aria-modal="true" aria-labelledby="visorTit">
+  <div class="visor-card">
+    <div class="visor-cab">
+      <div class="tit"><b id="visorTit"></b><span id="visorSub" class="num"></span></div>
+      <button type="button" class="btn" id="bCerrarVisor">Cerrar</button>
+    </div>
+    <div class="visor-cuerpo" id="visorCuerpo"></div>
+    <div class="visor-pie oculto" id="visorPie"></div>
+  </div>
+</div>
 
 <!-- Conexión (etapa 2): solo se cargan si la página se abre desde INICIAR_POC.bat (http://localhost:8765) -->
 <script src="config.js"></script>
@@ -472,6 +502,61 @@ async function leerFechaVideo(file){
 }
 function fechaDe(a){ return (a.exif && a.exif.fecha) || a.fechaVideo || null; }
 
+/* ---------- Vista previa modal ---------- */
+let visorUrl = null;
+function abrirVisor(a){
+  cerrarVisor();
+  const fc = fechaDe(a);
+  $('#visorTit').textContent = a.nombre;
+  $('#visorSub').textContent = fmtBytes(a.bytes) + (fc ? (a.tipo === 'video' ? ' · grabado ' : ' · tomada ') + fc.slice(0,10).split('-').reverse().join('-') : '');
+  const cuerpo = $('#visorCuerpo');
+  cuerpo.innerHTML = '';
+
+  if (a.tipo === 'imagen'){
+    visorUrl = URL.createObjectURL(a.file);
+    const img = document.createElement('img');
+    img.alt = a.nombre;
+    img.onerror = () => {
+      cuerpo.innerHTML = '<div class="sin-soporte">Este formato (' + esc((ext(a.nombre)||'RAW').toUpperCase()) + ') no tiene vista previa directa en el navegador, pero el archivo original está listo para enviarse.</div>';
+    };
+    img.src = visorUrl;
+    cuerpo.appendChild(img);
+  } else if (a.tipo === 'video'){
+    visorUrl = URL.createObjectURL(a.file);
+    const vid = document.createElement('video');
+    vid.controls = true; vid.autoplay = true; vid.playsInline = true;
+    vid.src = visorUrl;
+    cuerpo.appendChild(vid);
+  } else if (a.tipo === 'audio'){
+    visorUrl = URL.createObjectURL(a.file);
+    const aud = document.createElement('audio');
+    aud.controls = true; aud.autoplay = true;
+    aud.src = visorUrl;
+    cuerpo.appendChild(aud);
+  }
+
+  const pie = $('#visorPie');
+  const tieneIA = (a.etiquetas_ia && a.etiquetas_ia.length) || a.descripcion_ia;
+  pie.classList.toggle('oculto', !tieneIA);
+  if (tieneIA){
+    pie.innerHTML = (a.descripcion_ia ? '<div><b>Descripción IA:</b> ' + esc(a.descripcion_ia) + '</div>' : '') +
+                    (a.etiquetas_ia && a.etiquetas_ia.length ? '<div><b>Etiquetas IA:</b> ' + esc(a.etiquetas_ia.join(', ')) + '</div>' : '');
+  }
+  $('#visorModal').classList.remove('oculto');
+  $('#bCerrarVisor').focus();
+}
+function cerrarVisor(){
+  const modal = $('#visorModal');
+  if (!modal || modal.classList.contains('oculto')) return;
+  modal.querySelectorAll('video,audio').forEach(m => { try { m.pause(); m.src = ''; } catch(_){} });
+  $('#visorCuerpo').innerHTML = '';
+  if (visorUrl){ URL.revokeObjectURL(visorUrl); visorUrl = null; }
+  modal.classList.add('oculto');
+}
+$('#bCerrarVisor').onclick = cerrarVisor;
+$('#visorModal').onclick = e => { if (e.target === $('#visorModal')) cerrarVisor(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarVisor(); });
+
 /* ---------- Miniatura en navegador y análisis IA con Claude (/api/analizar-media) ---------- */
 function dibujarMiniaturaCanvas(fuente, anchoOrig, altoOrig){
   const maxDim = 800;
@@ -520,16 +605,24 @@ function generarMiniaturaBase64(file, tipo){
   });
 }
 
-function contextoEnvioIA(){
-  const partes = [
-    E.paisaje && 'Paisaje: ' + E.paisaje,
-    E.programa && 'Programa: ' + E.programa,
-    E.actividad && 'Actividad: ' + E.actividad,
-    $('#fLugar').value.trim() && 'Lugar: ' + $('#fLugar').value.trim(),
-    $('#fTema').value.trim() && 'Especies/tema: ' + $('#fTema').value.trim(),
-    $('#fDesc').value.trim() && 'Descripción: ' + $('#fDesc').value.trim()
-  ].filter(Boolean);
-  return partes.join(' | ');
+function renderIconoMiniatura(a){
+  const ic = a._icEl;
+  if (!ic) return;
+  if (a.thumbDataUrl){
+    ic.classList.add('previs');
+    ic.title = 'Haz clic para ver vista previa';
+    ic.innerHTML = '<img src="' + a.thumbDataUrl + '" alt="">' + (a.tipo === 'video' ? '<span class="play-badge">▶</span>' : '');
+    ic.onclick = () => abrirVisor(a);
+  } else if (a.tipo === 'imagen' || a.tipo === 'video' || a.tipo === 'audio'){
+    ic.classList.add('previs');
+    ic.title = a.tipo === 'audio' ? 'Haz clic para escuchar' : 'Haz clic para ver vista previa';
+    ic.textContent = (ext(a.nombre)||'?').toUpperCase().slice(0,4);
+    ic.onclick = () => abrirVisor(a);
+  } else {
+    ic.classList.remove('previs');
+    ic.textContent = (ext(a.nombre)||'?').toUpperCase().slice(0,4);
+    ic.onclick = null;
+  }
 }
 
 function actualizarTarjetaIA(a){
@@ -561,22 +654,26 @@ function actualizarTarjetaIA(a){
 
 async function analizarArchivoIA(a){
   if (a.bloqueo || (a.tipo !== 'imagen' && a.tipo !== 'video')) return;
+  if (!a.thumbB64){
+    const b64 = await generarMiniaturaBase64(a.file, a.tipo);
+    if (b64){
+      a.thumbB64 = b64;
+      a.thumbDataUrl = 'data:image/jpeg;base64,' + b64;
+      renderIconoMiniatura(a);
+    }
+  }
   if (CONFIG.modo !== 'graph'){ a.iaEstado = 'simulado'; actualizarTarjetaIA(a); return; }
+  if (!a.thumbB64){ a.iaEstado = 'sin_preview'; actualizarTarjetaIA(a); return; }
+
   a.iaEstado = 'analizando'; a.iaError = ''; actualizarTarjetaIA(a);
   try {
-    const b64 = await generarMiniaturaBase64(a.file, a.tipo);
-    if (!b64){
-      a.iaEstado = 'sin_preview'; actualizarTarjetaIA(a); return;
-    }
     const t = await token();
     const res = await fetch('/api/analizar-media', {
       method: 'POST',
       headers: { 'X-Graph-Token': t, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        imageBase64: b64,
-        mediaType: 'image/jpeg',
-        nombreArchivo: a.nombre,
-        contexto: contextoEnvioIA()
+        imageBase64: a.thumbB64,
+        mediaType: 'image/jpeg'
       })
     });
     const data = await res.json().catch(() => ({}));
@@ -598,6 +695,7 @@ async function agregar(files){
     const a = {
       file: f, nombre: f.name, bytes: f.size, tipo: tipoDe(f.name),
       modificado: new Date(f.lastModified).toISOString(), exif: null, avisos: [], bloqueo: null, progreso: 0,
+      thumbB64: null, thumbDataUrl: null,
       etiquetas_ia: [], descripcion_ia: '', iaEstado: 'pendiente', iaError: ''
     };
     if (['jpg','jpeg'].includes(ext(f.name))) a.exif = await leerExif(f);
@@ -660,10 +758,12 @@ function pintarLista(cont, conQuitar){
     const fc = fechaDe(a);
     const det = fmtBytes(a.bytes) + (fc ? (a.tipo === 'video' ? ' · grabado ' : ' · tomada ') + fc.slice(0,10).split('-').reverse().join('-') : '');
     const mostrarIA = conQuitar && !a.bloqueo && (a.tipo === 'imagen' || a.tipo === 'video');
-    d.innerHTML = '<div class="ic">'+esc((ext(a.nombre)||'?').toUpperCase().slice(0,4))+'</div><div class="nom"><b title="'+esc(a.nombre)+'">'+esc(a.nombre)+'</b><span class="num det">'+det+'</span></div><div class="marcas">'+marcas+'</div>' +
+    d.innerHTML = '<div class="ic"></div><div class="nom"><b title="'+esc(a.nombre)+'">'+esc(a.nombre)+'</b><span class="num det">'+det+'</span></div><div class="marcas">'+marcas+'</div>' +
       (conQuitar ? '<button class="x" title="Quitar" aria-label="Quitar '+esc(a.nombre)+'">×</button>' : '<span></span>') +
       (conQuitar ? '' : '<div class="barra"><i style="width:'+a.progreso+'%"></i></div>') +
-      (mostrarIA ? '<div class="ia-box"><div class="ia-cab"><b class="ia-estado"></b><button type="button" class="ia-btn">Analizar con IA</button></div><div class="ia-grid"><div><label>Etiquetas IA (separadas por coma)</label><input class="ia-etiq" placeholder="Ej.: fauna, ave, bosque, monitoreo"></div><div><label>Descripción IA</label><input class="ia-desc" placeholder="Descripción breve de la escena"></div></div></div>' : '');
+      (mostrarIA ? '<div class="ia-box"><div class="ia-cab"><b class="ia-estado"></b><button type="button" class="ia-btn">Analizar con IA</button></div><div class="ia-grid"><div><label>Etiquetas IA (separadas por coma)</label><input class="ia-etiq" placeholder="Ej.: Ave, Paraba Frente Roja, Bosque"></div><div><label>Descripción IA</label><input class="ia-desc" placeholder="Oración objetiva de máximo 15 palabras"></div></div></div>' : '');
+    a._icEl = d.querySelector('.ic');
+    renderIconoMiniatura(a);
     if (conQuitar) d.querySelector('.x').onclick = () => { E.archivos.splice(i, 1); revisarArchivos(); };
     if (mostrarIA){
       a._iaBox = d.querySelector('.ia-box');
@@ -841,6 +941,7 @@ $('#bDescargar').onclick = () => {
   const u = URL.createObjectURL(b), a = document.createElement('a'); a.href = u; a.download = E.ultimo.envio + '.json'; a.click(); setTimeout(() => URL.revokeObjectURL(u), 1000);
 };
 $('#bNuevo').onclick = () => {
+  cerrarVisor();
   Object.assign(E, { paso: 0, actividad: null, gestion: null, archivos: [], enviando: false });
   ['#fLugar','#fTema','#fDesc'].forEach(s => $(s).value = ''); $('#cuentaDesc').textContent = '0 / 500';
   $('#fConfirma').checked = false; $('#fConfirma').disabled = false; $('#bAtras').disabled = false;
