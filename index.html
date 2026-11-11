@@ -794,7 +794,7 @@ async function iniciar(){
   $('#modoTxt').textContent = 'POC · carpeta de prueba';
   $('#uNombre').textContent = 'Sin sesión'; $('#uCorreo').textContent = '';
   PCA = new msal.PublicClientApplication({
-    auth: { clientId: C.clientId, authority: 'https://login.microsoftonline.com/' + C.tenantId, redirectUri: location.origin + '/' },
+    auth: { clientId: C.clientId, authority: 'https://login.microsoftonline.com/' + C.tenantId, redirectUri: window.location.origin + window.location.pathname },
     cache: { cacheLocation: 'sessionStorage' }
   });
   await PCA.initialize();
