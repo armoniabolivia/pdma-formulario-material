@@ -1,0 +1,8 @@
+{
+  "name": "pdma-formulario-api",
+  "version": "1.0.0",
+  "description": "Backend seguro para análisis de miniaturas con Claude",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
