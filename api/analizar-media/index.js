@@ -9,9 +9,9 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // 1. Validar que la petición venga de un usuario autenticado en Microsoft 365
-  const authHeader = req.headers['authorization'] || '';
-  if (!authHeader.startsWith('Bearer ')) {
+// 1. Validar que la petición venga de un usuario autenticado en Microsoft 365
+  const graphToken = req.headers['x-graph-token'] || '';
+  if (!graphToken) {
     context.res = {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
@@ -22,13 +22,13 @@ module.exports = async function (context, req) {
 
   try {
     const graphCheck = await fetch('https://graph.microsoft.com/v1.0/me?$select=id', {
-      headers: { Authorization: authHeader }
+      headers: { Authorization: 'Bearer ' + graphToken }
     });
     if (!graphCheck.ok) {
       context.res = {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Token de Microsoft inválido o expirado.' }
+        body: { error: 'Token de Microsoft inválido o expirado (HTTP ' + graphCheck.status + ').' }
       };
       return;
     }
