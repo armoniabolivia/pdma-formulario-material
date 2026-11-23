@@ -183,18 +183,28 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .campo .err{color:var(--red);font-size:12px;display:none;margin-top:3px}
 .campo.error .err{display:block}
 
-.foto-toggle{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.foto-toggle button{
-  border:1px solid var(--line);background:var(--blanco);color:var(--text);
-  border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;
-  display:inline-flex;align-items:center;gap:6px;
+.foto-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:4px;
+  padding:3px;background:var(--gris-cl);border:1px solid var(--line);border-radius:8px;
+  margin-bottom:8px;
 }
-.foto-toggle button[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:var(--blanco)}
-.ac-wrap{position:relative}
+.foto-tabs button{
+  border:0;background:transparent;color:var(--muted);
+  border-radius:6px;padding:6px 8px;font-size:12.5px;font-weight:700;cursor:pointer;
+  text-align:center;transition:all .14s;line-height:1.25;
+}
+.foto-tabs button:hover:not([aria-pressed="true"]){color:var(--azul-prof);background:rgba(255,255,255,.55)}
+.foto-tabs button[aria-pressed="true"]{background:var(--blanco);color:var(--azul-prof);box-shadow:0 1px 3px rgba(0,51,102,.12)}
+.ac-wrap{position:relative;width:100%}
+.in-foto-busq{
+  width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 11px;
+  background:var(--blanco);font-size:13.5px;color:var(--text);
+}
+.in-foto-busq:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px var(--celeste-cl)}
 /* z-index 60 > barra inferior (.pie z-index: 30) */
 .ac-lista{
   position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:60;
-  background:var(--blanco);border:1px solid var(--azul);border-radius:10px;
+  background:var(--blanco);border:1px solid var(--azul);border-radius:8px;
   box-shadow:var(--shadow-md);max-height:240px;overflow-y:auto;
 }
 .ac-lista.arriba{top:auto;bottom:calc(100% + 4px)}
@@ -209,12 +219,21 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .ac-item b{display:block;color:var(--azul-prof)}
 .ac-item span{font-size:12px;color:var(--muted)}
 .ac-item.nuevo{background:var(--celeste-cl);color:var(--azul-osc);font-weight:700}
-.chip-persona{
-  display:inline-flex;align-items:center;gap:8px;
+.persona-sel{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
   background:var(--celeste-cl);border:1px solid var(--celeste);
-  border-radius:999px;padding:4px 12px;font-size:13px;color:var(--azul-prof);margin-top:6px;
+  border-radius:8px;padding:7px 10px;margin-top:8px;
 }
-.chip-persona button{border:0;background:none;color:var(--azul-osc);font-weight:700;cursor:pointer;font-size:15px;padding:0 2px}
+.persona-sel .p-info{min-width:0}
+.persona-sel .p-info b{display:block;font-size:13px;color:var(--azul-prof);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.persona-sel .p-info span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.persona-sel button{
+  border:0;background:rgba(0,51,102,.08);color:var(--azul-prof);
+  border-radius:6px;width:24px;height:24px;flex:none;font-weight:700;cursor:pointer;font-size:15px;line-height:1;
+}
+.persona-sel button:hover{background:var(--redbg);color:var(--red)}
+.foto-paso1-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:16px;align-items:start}
+#revAvisos:not(:empty){margin-bottom:14px}
 
 /* ==========================================================================
    ETAPA 2 · MESA DE CATALOGACIÓN VISUAL (ESTILO INATURALIST + GRUPOS)
@@ -432,7 +451,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
   .pasos li{justify-content:center;padding:7px 4px}
   .pasos li .p-txt{display:none}
   .paso-movil-bar{display:block}
-  .campos{grid-template-columns:1fr}
+  .campos,.foto-paso1-grid{grid-template-columns:1fr}
   .kpis{grid-template-columns:repeat(2,1fr)}
   .mesa-layout{grid-template-columns:1fr}
   .inspector{
@@ -558,9 +577,14 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
           <div class="op chips" id="opGestion" role="group" aria-label="Gestión"></div>
         </div>
 
-        <div id="bFotoDefault" class="oculto" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
-          <h3 style="margin-top:0">Fotógrafo/a predeterminado del grupo <span class="req">persona que capturó el material</span></h3>
-          <p class="sub" style="margin-bottom:8px">Se aplicará automáticamente a los archivos que agregues a este grupo (podrás cambiarlo individualmente o en bloque después).</p>
+      </div>
+
+      <div class="panel oculto" id="bFotoDefault">
+        <div class="foto-paso1-grid">
+          <div>
+            <h2 style="font-size:16.5px">Fotógrafo/a predeterminado <span class="req" style="font-size:11.5px;color:var(--muted);font-weight:400;background:var(--gris-cl);padding:1px 8px;border-radius:999px;vertical-align:middle">opcional en este paso</span></h2>
+            <p class="sub" style="margin:6px 0 0">Si las fotos o videos de este grupo fueron capturados por una misma persona, selecciónala aquí para asignarla automáticamente al cargar los archivos. También podrás asignarlo o cambiarlo por archivo en la siguiente etapa.</p>
+          </div>
           <div id="fotoDefaultContainer"></div>
         </div>
       </div>
@@ -1241,19 +1265,19 @@ function pintarEtapa1(){
 function renderSelectorFotografo(cont, valorActual, alCambiar){
   const modo = valorActual ? valorActual.tipo : 'interno';
   cont.innerHTML = `
-    <div class="foto-toggle" role="group" aria-label="Tipo de fotógrafo/a">
-      <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Fotógrafo/a interno (${CONFIG.dominioInterno})</button>
-      <button type="button" data-tf="externo" aria-pressed="${modo === 'externo'}">Fotógrafo/a externo (Catálogo)</button>
+    <div class="foto-tabs" role="group" aria-label="Tipo de fotógrafo/a">
+      <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Interno (${CONFIG.dominioInterno})</button>
+      <button type="button" data-tf="externo" aria-pressed="${modo === 'externo'}">Externo (Catálogo)</button>
     </div>
     <div class="ac-wrap">
-      <input type="text" class="in-foto-busq" placeholder="${modo === 'interno' ? 'Buscar nombre o correo @armonia-bo.org…' : 'Buscar o escribir nombre de fotógrafo/a externo…'}" value="${valorActual ? esc(valorActual.nombre) : ''}" autocomplete="off">
+      <input type="text" class="in-foto-busq" placeholder="${modo === 'interno' ? 'Buscar por nombre o correo institucional…' : 'Buscar o escribir nombre de fotógrafo/a externo…'}" value="${valorActual ? esc(valorActual.nombre) : ''}" autocomplete="off">
       <div class="ac-lista oculto"></div>
     </div>
     <div class="foto-feedback"></div>
   `;
 
   let tipoActivo = modo;
-  const btns = cont.querySelectorAll('.foto-toggle button');
+  const btns = cont.querySelectorAll('.foto-tabs button');
   const input = cont.querySelector('.in-foto-busq');
   const lista = cont.querySelector('.ac-lista');
   const feedback = cont.querySelector('.foto-feedback');
@@ -1272,14 +1296,19 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
 
   function pintarChip(val){
     if (!val){ feedback.innerHTML = ''; return; }
-    if (val.tipo === 'interno'){
-      feedback.innerHTML = `<div class="chip-persona"><span>✓ <b>${esc(val.nombre)}</b> · ${esc(val.correo || val.upn)}${val.id ? ' · SP ID #' + esc(val.id) : ''}</span><button type="button" title="Quitar fotógrafo/a">×</button></div>`;
-    } else {
-      const notaSP = val.nuevo
-        ? (val.guardadoEnSharePoint ? ' · Añadido a SharePoint' : ' · Nuevo (registrado en envío)')
-        : '';
-      feedback.innerHTML = `<div class="chip-persona"><span>✓ <b>${esc(val.nombre)}</b> · Externo${notaSP}</span><button type="button" title="Quitar fotógrafo/a">×</button></div>`;
-    }
+    const sub = val.tipo === 'interno'
+      ? (val.correo || val.upn || 'Equipo Armonía')
+      : (val.nuevo
+          ? (val.guardadoEnSharePoint ? 'Externo · Añadido a SharePoint' : 'Externo · Nuevo registro')
+          : 'Fotógrafo/a externo');
+    feedback.innerHTML = `
+      <div class="persona-sel">
+        <div class="p-info">
+          <b>✓ ${esc(val.nombre)}</b>
+          <span>${esc(sub)}</span>
+        </div>
+        <button type="button" title="Quitar selección" aria-label="Quitar fotógrafo/a">×</button>
+      </div>`;
     feedback.querySelector('button').onclick = () => {
       input.value = '';
       feedback.innerHTML = '';
@@ -1292,7 +1321,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
   btns.forEach(b => b.onclick = () => {
     tipoActivo = b.dataset.tf;
     btns.forEach(x => x.setAttribute('aria-pressed', x.dataset.tf === tipoActivo ? 'true' : 'false'));
-    input.placeholder = tipoActivo === 'interno' ? 'Buscar nombre o correo @armonia-bo.org…' : 'Buscar o escribir nombre de fotógrafo/a externo…';
+    input.placeholder = tipoActivo === 'interno' ? 'Buscar por nombre o correo institucional…' : 'Buscar o escribir nombre de fotógrafo/a externo…';
     input.value = '';
     lista.classList.add('oculto');
     feedback.innerHTML = '';
@@ -1362,7 +1391,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
         matches.slice(0, 40).forEach(u => {
           const div = document.createElement('div');
           div.className = 'ac-item';
-          div.innerHTML = `<b>${esc(u.nombre)}</b><span>${esc(u.correo || u.upn)}${u.id ? ' · SharePoint ID #' + esc(u.id) : ''}</span>`;
+          div.innerHTML = `<b>${esc(u.nombre)}</b><span>${esc(u.correo || u.upn)}</span>`;
           div.onmousedown = e => { e.preventDefault(); seleccionarInterno(u); };
           lista.appendChild(div);
         });
@@ -1738,7 +1767,9 @@ function pintarMesaCatalogacion(){
         }
       } else {
         const eb = document.createElement('div'); eb.className = 'ext-badge';
-        eb.textContent = (a.tipo === 'audio' ? '🎵 ' : '') + (ext(a.nombre) || 'ARCH').toUpperCase();
+        const iconoTipo = a.tipo === 'video' ? '🎬 ' : (a.tipo === 'audio' ? '🎵 ' : '📷 ');
+        eb.innerHTML = `${iconoTipo}${esc((ext(a.nombre) || 'ARCH').toUpperCase())}<div style="font-size:10px;font-weight:400;opacity:.82;margin-top:3px">Vista previa en OneDrive</div>`;
+        eb.style.textAlign = 'center';
         thumbBox.prepend(eb);
       }
 
