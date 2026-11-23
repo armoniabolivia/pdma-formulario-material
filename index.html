@@ -560,6 +560,11 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
           <div class="op g2" id="opPrograma" role="group" aria-label="Programa"></div>
         </div>
 
+        <div id="bGes" class="oculto">
+          <h3>Gestión <span class="req">obligatorio · año de captura</span></h3>
+          <div class="op chips" id="opGestion" role="group" aria-label="Gestión"></div>
+        </div>
+
         <div id="bAct" class="oculto">
           <h3>Actividad <span class="req">obligatorio</span></h3>
           <div class="op g3" id="opActividad" role="group" aria-label="Actividad"></div>
@@ -571,11 +576,6 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
         </div>
 
         <div id="bLinea" class="oculto"></div>
-
-        <div id="bGes" class="oculto">
-          <h3>Gestión <span class="req">obligatorio · año de captura</span></h3>
-          <div class="op chips" id="opGestion" role="group" aria-label="Gestión"></div>
-        </div>
 
       </div>
 
@@ -1174,8 +1174,18 @@ function pintarEtapa1(){
   }
 
   const G = P && P.progs.find(x => x[0] === g.programa);
-  $('#bAct').classList.toggle('oculto', !G);
+
+  // Nivel 3: Gestión (se muestra al elegir Programa)
+  $('#bGes').classList.toggle('oculto', !G);
   if (G){
+    const c = $('#opGestion'); c.innerHTML = '';
+    [...CONFIG.gestiones, CONFIG.sinFecha].forEach(yr => boton(c, yr, yr, '', g.gestion === yr, v => { g.gestion = v; pintarEtapa1(); revisarTodosArchivos(); }));
+  }
+
+  // Nivel 4: Actividad (se muestra al elegir Gestión)
+  const mostrarAct = !!(G && g.gestion);
+  $('#bAct').classList.toggle('oculto', !mostrarAct);
+  if (mostrarAct){
     const c = $('#opActividad'); c.innerHTML = '';
     Object.entries(G[1]).forEach(([actName, subs]) => {
       const det = subs.length ? subs.length + ' subactividad(es)' : '';
@@ -1195,17 +1205,19 @@ function pintarEtapa1(){
 
   // Nivel 5: Subactividad (opcional, solo aparece si la actividad tiene subactividades)
   const subs = subactividadesDe(g.paisaje, g.programa, g.actividad);
-  $('#bSub').classList.toggle('oculto', !(g.actividad && subs.length > 0));
-  if (g.actividad && subs.length > 0){
+  const mostrarSub = !!(mostrarAct && g.actividad && subs.length > 0);
+  $('#bSub').classList.toggle('oculto', !mostrarSub);
+  if (mostrarSub){
     const c = $('#opSubactividad'); c.innerHTML = '';
     boton(c, '', 'Ninguna (carpeta principal)', 'Guardar directo en ' + g.actividad, g.subactividad === '', v => { g.subactividad = ''; pintarEtapa1(); }, { clase: 'pd' });
     subs.forEach(s => boton(c, s, s, '', g.subactividad === s, v => { g.subactividad = v; pintarEtapa1(); }));
   }
 
   // Línea Estratégica
+  const mostrarLinea = !!(mostrarAct && g.actividad);
   const bLinea = $('#bLinea');
-  bLinea.classList.toggle('oculto', !g.actividad);
-  if (g.actividad){
+  bLinea.classList.toggle('oculto', !mostrarLinea);
+  if (mostrarLinea){
     if (g.lineaAuto && g.lineaEstrategica){
       bLinea.innerHTML = `
         <div class="linea-box">
@@ -1235,15 +1247,8 @@ function pintarEtapa1(){
     }
   }
 
-  // Gestión
-  $('#bGes').classList.toggle('oculto', !g.actividad);
-  if (g.actividad){
-    const c = $('#opGestion'); c.innerHTML = '';
-    [...CONFIG.gestiones, CONFIG.sinFecha].forEach(yr => boton(c, yr, yr, '', g.gestion === yr, v => { g.gestion = v; pintarEtapa1(); revisarTodosArchivos(); }));
-  }
-
   // Fotógrafo/a predeterminado del grupo
-  const mostrarFotoDef = !!(g.actividad && g.gestion);
+  const mostrarFotoDef = !!(mostrarAct && g.actividad);
   $('#bFotoDefault').classList.toggle('oculto', !mostrarFotoDef);
   if (mostrarFotoDef){
     renderSelectorFotografo($('#fotoDefaultContainer'), g.fotografoDefault, nuevoFoto => {
@@ -1873,9 +1878,9 @@ function renderEditorContextoGrupo(cont, g){
     <div class="campos">
       <div class="campo"><label>Paisaje / Sección <small>· obligatorio</small></label><select class="ge-pais"><option value="">Seleccionar…</option>${paisOpts}</select></div>
       <div class="campo"><label>Programa <small>· obligatorio</small></label><select class="ge-prog"><option value="">Seleccionar…</option>${progOpts}</select></div>
+      <div class="campo"><label>Gestión <small>· obligatorio</small></label><select class="ge-ges"><option value="">Seleccionar…</option>${gesOpts}</select></div>
       <div class="campo"><label>Actividad <small>· obligatorio</small></label><select class="ge-act"><option value="">Seleccionar…</option>${actOpts}</select></div>
       <div class="campo ${subs.length ? '' : 'oculto'}"><label>Subactividad <small>· opcional</small></label><select class="ge-sub">${subOpts}</select></div>
-      <div class="campo"><label>Gestión <small>· obligatorio</small></label><select class="ge-ges"><option value="">Seleccionar…</option>${gesOpts}</select></div>
       <div class="campo"><label>Línea Estratégica <small>· opcional</small></label><select class="ge-lin">${linOpts}</select></div>
       <div class="campo ancho"><label>Fotógrafo/a predeterminado del grupo</label><div class="ge-foto"></div></div>
     </div>
