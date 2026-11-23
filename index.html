@@ -155,6 +155,10 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .op.chips button{border-radius:999px;padding:6px 14px}
 .op.chips button b{font-size:13.5px}
 .op button.pd{border-style:dashed;background:var(--fondo)}
+.op button.pd:hover:not(:disabled){border-color:var(--azul);background:var(--celeste-cl)}
+.op button.pd[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);border-style:solid;box-shadow:0 3px 10px rgba(0,102,204,.22)}
+.op button.pd[aria-pressed="true"]:hover:not(:disabled){background:var(--azul-osc);border-color:var(--azul-osc)}
+.op button.pd[aria-pressed="true"] b,.op button.pd[aria-pressed="true"] span{color:var(--blanco)}
 .op button:focus-visible,.btn:focus-visible,.btn-xs:focus-visible,.zona:focus-visible,.media-focus:focus-visible{
   outline:3px solid var(--azul);
   outline-offset:2px;
@@ -186,7 +190,16 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 
 /* Etiquetas estilo iNaturalist + Sugerencias Excel */
 .tag-add-row{display:flex;gap:6px;align-items:center}
-.tag-add-row input{flex:1;min-width:0}
+.tag-add-row input{
+  flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;
+  padding:7px 10px;background:var(--blanco);font-size:13.5px;
+}
+.tag-add-row input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px var(--celeste-cl)}
+.tag-add-row .btn-add-tag{
+  width:34px;height:34px;flex:none;border-radius:8px;padding:0;
+  font-size:19px;font-weight:700;line-height:1;
+  display:inline-grid;place-items:center;
+}
 .tags-pills-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .tag-pill-ed{
   display:inline-flex;align-items:center;gap:6px;
@@ -744,7 +757,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
    CONFIGURACIÓN MAESTRA Y CATÁLOGO OFICIAL PDMA
    ============================================================================ */
 const CONFIG = {
-  version: '1.2 · 23-11-2026',
+  version: '1.3 · 23-11-2026',
   modo: 'simulado',
   chunkBytes: 32 * 320 * 1024,             // 10 MiB por bloque (múltiplo de 320 KiB)
   carpetaTecnica: 'PDMA-PRUEBA-FORMULARIO',
@@ -2081,8 +2094,8 @@ function pintarInspectorLateral(){
       <div class="inspector-sec">
         <h4>Etiquetas <span class="st st-neu num">${tagsActuales.length}</span></h4>
         <div class="tag-add-row">
-          <input id="inspTagInput" placeholder="Añade etiquetas (Enter o botón)">
-          <button type="button" class="btn-xs prim" id="bAddTagInsp">Añade</button>
+          <input id="inspTagInput" placeholder="Añade una etiqueta…">
+          <button type="button" class="btn-xs prim btn-add-tag" id="bAddTagInsp" title="Añadir etiqueta" aria-label="Añadir etiqueta">+</button>
         </div>
         ${pillsHtml ? `<div class="tags-pills-wrap">${pillsHtml}</div>` : ''}
         ${sugsHtml}
@@ -2229,8 +2242,8 @@ function pintarInspectorLateral(){
     <div class="inspector-sec">
       <h4>Añadir etiquetas en bloque</h4>
       <div class="tag-add-row">
-        <input id="masTagInput" placeholder="Añade etiquetas para los ${selArchs.length} archivos">
-        <button type="button" class="btn-xs" id="bAddTagMasivo">Añade</button>
+        <input id="masTagInput" placeholder="Añade etiqueta en bloque…">
+        <button type="button" class="btn-xs prim btn-add-tag" id="bAddTagMasivo" title="Añadir etiqueta en bloque" aria-label="Añadir etiqueta en bloque">+</button>
       </div>
       <div class="tags-pills-wrap" id="masTagsPills"></div>
       ${sugsMasivo.length ? `
