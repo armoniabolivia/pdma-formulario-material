@@ -49,19 +49,29 @@ button,input,textarea,select{font:inherit;color:inherit}
 
 /* Cabecera institucional */
 header.app{background:var(--blanco);border-bottom:3px solid var(--azul);box-shadow:var(--shadow-sm)}
-header.app .in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 20px}
+header.app .in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 20px;flex-wrap:wrap}
 header.app img{height:48px;display:block}
-header.app .marca-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--azul);background:var(--celeste-cl);border:1px solid var(--celeste);border-radius:999px;padding:1px 9px;margin-bottom:2px}
+header.app .marca-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}
+header.app .marca-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--azul);background:var(--celeste-cl);border:1px solid var(--celeste);border-radius:999px;padding:1px 9px}
+header.app .entorno-tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;background:var(--amberbg);color:var(--amber);border:1px solid #E5C27A}
+header.app .entorno-tag.prod{background:var(--ok-cl);color:var(--ok);border-color:var(--ok-borde)}
 header.app h1{margin:0;font-size:20px;font-weight:700;color:var(--azul-prof);line-height:1.15}
 header.app h1 small{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:2px}
 .usuario{margin-left:auto;text-align:right;font-size:12.5px;color:var(--muted);line-height:1.35}
 .usuario b{display:block;color:var(--azul-prof);font-size:14px}
 .usuario a{color:var(--azul);font-weight:700;text-decoration:none}
 .usuario a:hover{text-decoration:underline}
-.pill-modo{display:inline-block;margin-top:3px;font-size:11px;font-weight:700;color:var(--azul-osc);background:var(--celeste-cl);border:1px solid var(--celeste);border-radius:999px;padding:1px 9px}
 
-.cont{max-width:1240px;margin:0 auto;padding:18px 20px 110px}
+.cont{max-width:1240px;margin:0 auto;padding:18px 20px 115px}
 .cont.estrecho{max-width:960px}
+
+/* Spinner de comprobación inicial */
+.spinner{
+  width:36px;height:36px;border-radius:999px;
+  border:3px solid var(--celeste-med);border-top-color:var(--azul);
+  animation:spin .8s linear infinite;margin:0 auto 12px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 /* Navegación de 4 etapas */
 .pasos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 18px;padding:0;list-style:none;counter-reset:p}
@@ -89,6 +99,11 @@ header.app h1 small{display:block;font-size:13px;color:var(--muted);font-weight:
 .pasos li.on::before{background:var(--blanco);color:var(--azul)}
 .pasos li.hecho{color:var(--ok);border-color:var(--ok-borde);background:var(--ok-cl);cursor:pointer}
 .pasos li.hecho::before{content:"✓";background:var(--ok);color:var(--blanco)}
+.paso-movil-bar{
+  display:none;
+  background:var(--blanco);border:1px solid var(--celeste);border-radius:10px;
+  padding:8px 12px;margin:-8px 0 14px;font-size:13px;color:var(--azul-prof);
+}
 
 .panel{background:var(--blanco);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow-sm)}
 h2{font-size:18px;font-weight:700;color:var(--azul-prof);margin:0 0 4px}
@@ -97,7 +112,7 @@ h3{font-size:14.5px;font-weight:700;color:var(--azul-prof);margin:18px 0 8px;dis
 h3 .req{font-size:11.5px;color:var(--muted);font-weight:400;background:var(--gris-cl);padding:1px 8px;border-radius:999px}
 h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-borde);font-weight:700}
 
-/* Tarjetas de selección (Paisajes con acento de color Comunicación, Programas, etc.) */
+/* Tarjetas de selección */
 .op{display:grid;gap:9px}
 .op.g2{grid-template-columns:repeat(auto-fill,minmax(265px,1fr))}
 .op.g3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
@@ -109,7 +124,7 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
   background:var(--blanco);
   padding:10px 13px;
   cursor:pointer;
-  transition:border-color .14s,background .14s,box-shadow .14s,transform .1s;
+  transition:border-color .14s,background .14s,box-shadow .14s;
   position:relative;
 }
 .op button.eco-card{border-left:5px solid var(--eco-color, var(--azul));padding-left:12px}
@@ -119,12 +134,25 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .op button[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);box-shadow:0 3px 10px rgba(0,102,204,.22)}
 .op button.eco-card[aria-pressed="true"]{border-left-color:var(--eco-color, var(--celeste))}
 .op button[aria-pressed="true"] b,.op button[aria-pressed="true"] span{color:var(--blanco)}
+/* Hover explícito sobre opciones seleccionadas (mantener alto contraste) */
+.op button[aria-pressed="true"]:hover:not(:disabled){
+  background:var(--azul-osc);
+  border-color:var(--azul-osc);
+}
+.op button[aria-pressed="true"]:hover:not(:disabled) b,
+.op button[aria-pressed="true"]:hover:not(:disabled) span{
+  color:var(--blanco);
+}
+.op button:active:not(:disabled){transform:translateY(1px)}
 .op button:disabled{background:var(--gris-cl);cursor:not-allowed;opacity:.68}
 .op button:disabled b{color:var(--gris)}
 .op.chips button{border-radius:999px;padding:6px 14px}
 .op.chips button b{font-size:13.5px}
 .op button.pd{border-style:dashed;background:var(--fondo)}
-.op button:focus-visible,.btn:focus-visible,.zona:focus-visible{outline:3px solid var(--celeste);outline-offset:1px}
+.op button:focus-visible,.btn:focus-visible,.btn-xs:focus-visible,.zona:focus-visible,.media-focus:focus-visible{
+  outline:3px solid var(--azul);
+  outline-offset:2px;
+}
 
 /* Caja de Línea Estratégica */
 .linea-box{
@@ -141,7 +169,7 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .linea-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--azul);color:var(--blanco)}
 .linea-select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--blanco);font-size:13.5px;min-width:240px}
 
-/* Campos y selector exclusivo de fotógrafo */
+/* Campos y selector exclusivo de fotógrafo/a */
 .campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .campo label{display:block;font-weight:700;color:var(--azul-prof);font-size:13.5px;margin-bottom:4px}
 .campo label small{font-weight:400;color:var(--muted)}
@@ -163,14 +191,21 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 }
 .foto-toggle button[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:var(--blanco)}
 .ac-wrap{position:relative}
+/* z-index 60 > barra inferior (.pie z-index: 30) */
 .ac-lista{
-  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;
+  position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:60;
   background:var(--blanco);border:1px solid var(--azul);border-radius:10px;
-  box-shadow:var(--shadow-md);max-height:220px;overflow-y:auto;
+  box-shadow:var(--shadow-md);max-height:240px;overflow-y:auto;
+}
+.ac-lista.arriba{top:auto;bottom:calc(100% + 4px)}
+.ac-head{
+  padding:6px 12px;background:var(--fondo);border-bottom:1px solid var(--line);
+  font-size:11.5px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px;
+  position:sticky;top:0;
 }
 .ac-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--gris-cl);font-size:13.5px}
 .ac-item:last-child{border-bottom:0}
-.ac-item:hover{background:var(--celeste-cl)}
+.ac-item:hover,.ac-item.activo{background:var(--celeste-cl)}
 .ac-item b{display:block;color:var(--azul-prof)}
 .ac-item span{font-size:12px;color:var(--muted)}
 .ac-item.nuevo{background:var(--celeste-cl);color:var(--azul-osc);font-weight:700}
@@ -190,7 +225,11 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
   box-shadow:var(--shadow-sm);
 }
 .mesa-toolbar .grp-acciones{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-.mesa-layout{display:grid;grid-template-columns:1fr 370px;gap:16px;align-items:start}
+.mesa-leyenda{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  font-size:12px;color:var(--muted);margin:-6px 0 12px;padding:0 4px;
+}
+.mesa-layout{display:grid;grid-template-columns:1fr 375px;gap:16px;align-items:start}
 .mesa-galeria{min-width:0}
 
 /* Tarjeta de Grupo */
@@ -200,9 +239,16 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
   border-top:4px solid var(--eco-color, var(--azul));
 }
 .grupo-card.activo{box-shadow:0 0 0 2px var(--celeste), var(--shadow-md)}
+.grupo-card.vacio-alerta{border-color:#E5C27A}
 .grupo-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .grupo-tit b{font-size:16px;color:var(--azul-prof);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.grupo-ruta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.eco-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;
+  background:var(--fondo);border:1px solid var(--line);color:var(--azul-prof);
+}
+.eco-dot{width:9px;height:9px;border-radius:999px;background:var(--eco-color, var(--azul));flex:none}
+.grupo-ruta{font-size:12.5px;color:var(--muted);margin-top:4px}
 .grupo-btns{display:flex;gap:6px;flex-wrap:wrap}
 .btn-xs{
   border:1px solid var(--line);background:var(--blanco);color:var(--azul-prof);
@@ -228,14 +274,14 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .zona b{display:block;font-size:14.5px;color:var(--azul-osc)}
 .zona span{font-size:12.5px;color:var(--muted)}
 
-/* Cuadrícula visual de tarjetas de archivo */
+/* Cuadrícula visual de tarjetas de archivo (semántica y operable por teclado) */
 .cards-grid{
   display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px;margin-top:12px;
 }
 .media-card{
   border:2px solid var(--line);border-radius:11px;background:var(--blanco);
-  overflow:hidden;display:flex;flex-direction:column;cursor:pointer;
-  transition:border-color .14s,box-shadow .14s,transform .1s;
+  overflow:hidden;display:flex;flex-direction:column;
+  transition:border-color .14s,box-shadow .14s;
   position:relative;
 }
 .media-card:hover{border-color:var(--azul);box-shadow:var(--shadow-sm)}
@@ -255,21 +301,23 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
   background:rgba(0,0,0,.32);color:#fff;font-size:22px;pointer-events:none;
 }
 .media-chk{
-  position:absolute;top:7px;left:7px;width:20px;height:20px;accent-color:var(--azul);cursor:pointer;z-index:2;
+  position:absolute;top:7px;left:7px;width:20px;height:20px;accent-color:var(--azul);cursor:pointer;z-index:3;
 }
 .media-zoom{
   position:absolute;top:7px;right:7px;border:0;border-radius:7px;
-  background:rgba(15,23,34,.72);color:#fff;font-size:11.5px;font-weight:700;
-  padding:3px 7px;cursor:pointer;z-index:2;
+  background:rgba(15,23,34,.75);color:#fff;font-size:11.5px;font-weight:700;
+  padding:3px 7px;cursor:pointer;z-index:3;
 }
 .media-zoom:hover{background:var(--azul)}
 .media-del{
   position:absolute;bottom:7px;right:7px;border:0;border-radius:6px;
-  background:rgba(192,57,43,.85);color:#fff;width:22px;height:22px;font-size:14px;
-  line-height:1;cursor:pointer;z-index:2;
+  background:rgba(192,57,43,.88);color:#fff;width:22px;height:22px;font-size:14px;
+  line-height:1;cursor:pointer;z-index:3;
 }
 
-.media-body{padding:8px 10px;flex:1;display:flex;flex-direction:column;gap:4px}
+.media-focus{
+  padding:8px 10px;flex:1;display:flex;flex-direction:column;gap:4px;cursor:pointer;
+}
 .media-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .media-meta{font-size:11.5px;color:var(--muted)}
 .media-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
@@ -327,7 +375,7 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .msg.info{background:var(--celeste-cl);border:1px solid var(--celeste)}
 .msg.ok{background:var(--ok-cl);border:1px solid var(--ok-borde)}
 .msg b{display:block}
-.msg .acc{margin-top:6px}
+.msg .acc{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
 
 .prog{border:1px solid var(--celeste);border-radius:10px;padding:12px;margin-top:12px;background:var(--celeste-cl)}
 .prog .cab{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 14px;font-size:13.5px;color:var(--muted)}
@@ -337,6 +385,7 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .barra-sub{height:5px;border-radius:999px;background:var(--gris-cl);overflow:hidden;margin-top:4px}
 .barra-sub i{display:block;height:100%;width:0;background:var(--azul);transition:width .2s}
 .barra-sub i.fin{background:var(--ok)}
+.barra-sub i.err{background:var(--red)}
 
 .check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px;border:1px solid var(--celeste);border-radius:10px;background:var(--celeste-cl);cursor:pointer}
 .check input{width:18px;height:18px;margin-top:2px;accent-color:var(--azul)}
@@ -358,8 +407,8 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
 .visor-pie{padding:10px 16px;background:var(--celeste-cl);border-top:1px solid var(--celeste);font-size:13px;color:var(--text)}
 .visor-pie b{color:var(--azul-prof)}
 
-/* Barra inferior fija */
-.pie{position:fixed;left:0;right:0;bottom:0;background:var(--blanco);border-top:1px solid var(--line);box-shadow:0 -2px 12px rgba(0,51,102,.08);z-index:50}
+/* Barra inferior fija (z-index: 30, debajo del desplegable de fotógrafos z-index: 60) */
+.pie{position:fixed;left:0;right:0;bottom:0;background:var(--blanco);border-top:1px solid var(--line);box-shadow:0 -2px 12px rgba(0,51,102,.08);z-index:30}
 .pie .in{max-width:1240px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:12px}
 .destino{flex:1;min-width:0;font-size:12.5px;color:var(--muted)}
 .destino b{display:block;color:var(--azul-prof);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -378,10 +427,11 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
 @media (max-width:860px){
   header.app img{height:38px}
   header.app h1{font-size:17px}
-  .usuario{display:none}
-  .pasos{grid-template-columns:repeat(4,1fr);gap:6px}
-  .pasos li{padding:7px 8px}
-  .pasos li .p-txt span{display:none}
+  .usuario{margin-left:0;text-align:left;width:100%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;padding-top:6px;border-top:1px solid var(--gris-cl)}
+  .pasos{gap:6px}
+  .pasos li{justify-content:center;padding:7px 4px}
+  .pasos li .p-txt{display:none}
+  .paso-movil-bar{display:block}
   .campos{grid-template-columns:1fr}
   .kpis{grid-template-columns:repeat(2,1fr)}
   .mesa-layout{grid-template-columns:1fr}
@@ -399,34 +449,52 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
 <header class="app"><div class="in">
   <img src="data:image/png;base64,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" alt="Asociación Civil Armonía">
   <div>
-    <span class="marca-tag">Portafolio Digital Multimedia · PDMA</span>
+    <div class="marca-row">
+      <span class="marca-tag">Portafolio Digital Multimedia · PDMA</span>
+      <span class="entorno-tag" id="entornoBadge">Entorno de pruebas</span>
+    </div>
     <h1>Ingreso de material inédito<small>Recepción, catalogación por grupos y análisis asistido por IA</small></h1>
   </div>
   <div class="usuario">
-    <b id="uNombre">Cuenta sistema</b>
-    <span id="uCorreo">sesión simulada</span> · <a href="#" id="bSalir" class="oculto">Cerrar sesión</a><br>
-    <span class="pill-modo" id="modoTxt">POC · sin conexión</span>
+    <div>
+      <b id="uNombre"></b>
+      <span id="uCorreo"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:3px">
+      <span class="st st-neu" id="estadoSesionBadge">Comprobando sesión…</span>
+      <a href="#" id="bSalir" class="oculto">Cerrar sesión</a>
+    </div>
   </div>
 </div></header>
 
 <div class="cont" id="mainCont">
-  <!-- PANTALLA DE LOGIN -->
+  <!-- PANTALLA INICIAL DE COMPROBACIÓN DE SESIÓN (EVITA PARPADEO DEL FORMULARIO) -->
+  <section class="panel" id="pantallaCarga" style="max-width:560px;margin:32px auto;text-align:center;padding:32px 22px">
+    <div class="spinner" aria-hidden="true"></div>
+    <h2 id="cargaTitulo">Comprobando sesión…</h2>
+    <p class="sub" id="cargaSub" style="margin-bottom:0">Verificando credenciales de Microsoft 365 antes de habilitar el ingreso de material.</p>
+  </section>
+
+  <!-- PANTALLA DE ACCESO (SOLO VISIBLE SI NO HAY SESIÓN O HUBO ERROR) -->
   <section class="panel oculto" id="login" style="max-width:620px;margin:24px auto">
     <div class="recibo">
-      <h2>Inicia sesión para compartir material</h2>
+      <div style="margin-bottom:8px"><span class="st st-av" id="loginEstadoPill">Sesión no iniciada</span></div>
+      <h2 id="loginTitulo">Inicia sesión para compartir material</h2>
       <p class="sub" style="max-width:500px;margin:6px auto 14px">Usa tu cuenta institucional de Armonía (Microsoft 365). La contraseña la recibe únicamente Microsoft; este portal no la almacena.</p>
-      <button class="btn p" id="bEntrar">Iniciar sesión con Microsoft</button>
+      <button type="button" class="btn p" id="bEntrar">Iniciar sesión con Microsoft</button>
       <div id="loginErr"></div>
     </div>
   </section>
 
-  <div id="app">
+  <!-- APLICACIÓN PRINCIPAL (OCULTA HASTA VALIDAR AUTENTICACIÓN) -->
+  <div id="app" class="oculto">
     <ol class="pasos" id="pasos">
       <li class="on"><div class="p-txt"><b>Remitente y organización</b><span>Identificación y contexto</span></div></li>
       <li><div class="p-txt"><b>Material y archivos</b><span>Galería y catalogación</span></div></li>
       <li><div class="p-txt"><b>Información y revisión</b><span>Control de calidad</span></div></li>
       <li><div class="p-txt"><b>Confirmación</b><span>Recepción en bandeja</span></div></li>
     </ol>
+    <div class="paso-movil-bar" id="pasoMovilResumen">Paso 1 de 4 · <b>Remitente y organización</b></div>
 
     <!-- ====================================================================
          ETAPA 1 · REMITENTE Y ORGANIZACIÓN
@@ -434,32 +502,36 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
     <section data-paso="0">
       <div class="panel">
         <h2>1. ¿Quién comparte este material?</h2>
-        <p class="sub">El envío quedará asociado a tu cuenta institucional de Armonía.</p>
+        <p class="sub">El envío quedará asociado a tu cuenta institucional de Armonía como remitente.</p>
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:12px 14px;background:var(--celeste-cl);border:1px solid var(--celeste);border-radius:10px">
           <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--azul)">Cuenta identificada</div>
-            <b id="cardUNombre" style="font-size:16px;color:var(--azul-prof)">Cuenta sistema</b>
-            <div id="cardUCorreo" style="font-size:13px;color:var(--muted)">sesión simulada</div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--azul)">Remitente autenticado</div>
+            <b id="cardUNombre" style="font-size:16px;color:var(--azul-prof)"></b>
+            <div id="cardUCorreo" style="font-size:13px;color:var(--muted)"></div>
           </div>
-          <span class="st st-ia" id="cardUModo">Listo para catalogar</span>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <span class="st st-ok" id="cardUStatus">Sesión activa</span>
+            <span class="entorno-tag" id="cardUEntorno">Entorno de pruebas</span>
+          </div>
         </div>
 
-        <h3 style="margin-top:18px">¿Cómo está organizado el material que vas a subir?</h3>
+        <h3 style="margin-top:18px">¿Cómo está organizado el material que vas a subir? <span class="req">obligatorio</span></h3>
         <div class="op g2" id="opModoOrg" role="group" aria-label="Organización del envío">
           <button type="button" data-org="unico" aria-pressed="true">
             <b>Una sola actividad</b>
-            <span>Todos los archivos pertenecen al mismo paisaje, programa y actividad.</span>
+            <span>Todos los archivos pertenecen al mismo paisaje, programa y actividad (1 grupo).</span>
           </button>
           <button type="button" data-org="multiple" aria-pressed="false">
             <b>Varias actividades en un mismo envío</b>
             <span>Organizaré los archivos en grupos independientes sin repetir todo el formulario.</span>
           </button>
         </div>
+        <div id="avisoCambioModo"></div>
       </div>
 
       <div class="panel" id="panelCtxInicial">
         <h2 id="titCtxInicial">Contexto del material (Grupo 1)</h2>
-        <p class="sub">Selecciona paso a paso la ubicación institucional. Si subes varias actividades, podrás crear más grupos en la siguiente pantalla.</p>
+        <p class="sub">Selecciona paso a paso la ubicación institucional. Si elegiste varias actividades, podrás crear más grupos en la siguiente pantalla.</p>
 
         <h3>Paisaje o sección <span class="req">obligatorio</span></h3>
         <div class="op g2" id="opPaisaje" role="group" aria-label="Paisaje"></div>
@@ -482,13 +554,13 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
         <div id="bLinea" class="oculto"></div>
 
         <div id="bGes" class="oculto">
-          <h3>Gestión <span class="req">año de captura o grabación</span></h3>
+          <h3>Gestión <span class="req">obligatorio · año de captura</span></h3>
           <div class="op chips" id="opGestion" role="group" aria-label="Gestión"></div>
         </div>
 
         <div id="bFotoDefault" class="oculto" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
-          <h3 style="margin-top:0">Responsable predeterminado de la fotografía <span class="req">asignable por grupo o por archivo</span></h3>
-          <p class="sub" style="margin-bottom:8px">Se aplicará automáticamente a los archivos que agregues a este grupo (podrás cambiarlo individualmente después).</p>
+          <h3 style="margin-top:0">Fotógrafo/a predeterminado del grupo <span class="req">persona que capturó el material</span></h3>
+          <p class="sub" style="margin-bottom:8px">Se aplicará automáticamente a los archivos que agregues a este grupo (podrás cambiarlo individualmente o en bloque después).</p>
           <div id="fotoDefaultContainer"></div>
         </div>
       </div>
@@ -513,6 +585,13 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
         </div>
       </div>
 
+      <div class="mesa-leyenda">
+        <span><b>Referencia visual:</b> El borde superior y la insignia de color en cada grupo identifican el <b>ecosistema (Paisaje)</b> seleccionado.</span>
+        <span id="colaIaEstado" class="st st-neu oculto"></span>
+      </div>
+
+      <div id="alertaGruposEtapa2"></div>
+
       <div class="mesa-layout">
         <div class="mesa-galeria" id="contenedorGrupos"></div>
 
@@ -529,7 +608,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
          ==================================================================== -->
     <section class="panel oculto" data-paso="2">
       <h2>Revisa tu material antes de enviar</h2>
-      <p class="sub">Verifica la clasificación de cada grupo y los metadatos de cada archivo. Si falta algún dato, haz clic en <b>Revisar</b> para ir directamente al archivo.</p>
+      <p class="sub">Verifica la clasificación de cada grupo y el fotógrafo/a de cada archivo. Los campos opcionales vacíos o avisos de IA no bloquean el envío.</p>
 
       <div class="kpis num" id="revKpis"></div>
       <div id="revAvisos"></div>
@@ -537,7 +616,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
 
       <label class="check">
         <input type="checkbox" id="fConfirma">
-        <span>Confirmo que los archivos enviados corresponden al <b>material original</b>, sin editar ni comprimir, y que no fueron enviados mediante WhatsApp.</span>
+        <span><b>Obligatorio ·</b> Confirmo que los archivos enviados corresponden al <b>material original</b>, sin editar ni comprimir, y que no fueron enviados mediante WhatsApp.</span>
       </label>
     </section>
 
@@ -547,7 +626,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
     <section class="panel oculto" data-paso="3" id="secEnvio">
       <div id="zonaSubidaActiva" class="oculto">
         <h2>Enviando material a la bandeja de recepción…</h2>
-        <p class="sub">No cierres esta pestaña ni apagues el equipo hasta que finalice la transferencia.</p>
+        <p class="sub">La transferencia en bloques de 10 MiB se recupera ante cortes breves de red <b>mientras esta pestaña permanezca abierta</b>. No cierres ni recargues la página.</p>
         <div id="progContenedor"></div>
         <div id="listaProgresoSubida"></div>
       </div>
@@ -560,6 +639,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
           <div class="codigo" id="rCodigo"></div>
           <p id="rTexto" style="margin:0 auto;max-width:680px"></p>
         </div>
+        <div id="rAccionesRecuperacion"></div>
         <div class="msg info" id="rDonde"></div>
         <details>
           <summary>Ver manifiesto JSON del envío (PDMA-ENVIO-2)</summary>
@@ -575,8 +655,8 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
 </div>
 
 <!-- BARRA INFERIOR DE NAVEGACIÓN -->
-<div class="pie" id="pie"><div class="in">
-  <div class="destino"><span id="pieKicker">Resumen del envío</span><b id="destino">Elige el paisaje o sección</b></div>
+<div class="pie oculto" id="pie"><div class="in">
+  <div class="destino"><span id="pieKicker">Destino Grupo 1</span><b id="destino">Elige el paisaje o sección</b></div>
   <button type="button" class="btn" id="bAtras">Atrás</button>
   <button type="button" class="btn p" id="bSig" disabled>Continuar</button>
 </div></div>
@@ -600,10 +680,14 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
    CONFIGURACIÓN MAESTRA Y CATÁLOGO OFICIAL PDMA
    ============================================================================ */
 const CONFIG = {
-  version: '1.0 · 22-11-2026',
+  version: '1.1 · 22-11-2026',
   modo: 'simulado',
   chunkBytes: 32 * 320 * 1024,             // 10 MiB por bloque (múltiplo de 320 KiB)
-  carpetaPrueba: 'PDMA-PRUEBA-FORMULARIO',
+  carpetaTecnica: 'PDMA-PRUEBA-FORMULARIO',
+  entorno: {
+    esPruebas: true,
+    nombreVisible: 'Entorno de pruebas'
+  },
   umbralBytes: 1024 ** 3,                  // 1 GB límite web
   maxArchivos: 50,
   mbpsEstimado: 20,
@@ -645,7 +729,6 @@ const CONFIG = {
     'Días festivos': null,
     'Por definir': null
   },
-  // Jerarquía oficial (mantiene numeración temporal en Programas hasta retiro final en OneDrive)
   jerarquia: [
     {
       p: 'I PASTIZALES DEL BENI',
@@ -834,23 +917,28 @@ const CONFIG = {
       ]
     }
   ],
-  usuario: { nombre: 'Cuenta sistema', correo: 'sesión simulada', upn: '' }
+  usuario: { nombre: '', correo: '', upn: '' }
 };
 
 /* ============================================================================
    DIRECTORIOS DE FOTÓGRAFOS (INTERNO M365/SP + EXTERNO CATÁLOGO SHAREPOINT)
    ============================================================================ */
 const DIRECTORIO = {
-  internos: [],          // { id, nombre, correo, upn, loginName }
-  externos: [            // Catálogo base enriquecido en vivo desde columna FotografoExterno de SharePoint
+  internos: [],                 // { entraId, id (SP LookupId), nombre, correo, upn, loginName }
+  internosCargando: false,
+  internosError: '',
+  internosFuente: '',
+  externos: [
     'John Mittermeier',
     'Miguel Martinez',
     'Rodrigo Soria',
     'Teodoro Camacho'
   ],
+  externosCargando: false,
+  externosUltimaCarga: 0,
+  externosInvalidado: true,
   spExternoColumnaId: null,
-  spExternoAllowFillIn: true,
-  cargadoSP: false
+  spExternoAllowFillIn: true
 };
 
 /* ============================================================================
@@ -882,11 +970,53 @@ const E = {
   grupos: [crearGrupoObj()],
   grupoActivoId: 'G1',
   archivos: [],                // Cada archivo tiene grupoId
-  seleccionados: new Set(),    // IDs de archivos seleccionados en galería
-  editandoGrupoId: null,       // Si se edita el contexto de un grupo en el inspector
+  seleccionados: new Set(),
+  feedbackMasivo: null,        // Persiste tras re-render del inspector
   enviando: false,
-  ultimo: null
+  ultimo: null,
+  sesionSubida: null           // Estado para reintentos idempotentes en la misma pestaña
 };
+
+const INFO_PASOS = [
+  { tit: 'Remitente y organización', sub: 'Identificación y contexto' },
+  { tit: 'Material y archivos', sub: 'Galería y catalogación' },
+  { tit: 'Información y revisión', sub: 'Control de calidad' },
+  { tit: 'Confirmación', sub: 'Recepción en bandeja' }
+];
+
+/* ============================================================================
+   ESTADOS DE SESIÓN Y ENTORNO (ÚNICO ESTADO COHERENTE)
+   ============================================================================ */
+function actualizarEstadoSesion(tipo, textoPersonalizado){
+  const badge = $('#estadoSesionBadge');
+  const loginPill = $('#loginEstadoPill');
+  const mapa = {
+    comprobando: { txt: 'Comprobando sesión…', cls: 'st st-neu' },
+    sin_sesion:  { txt: 'Sesión no iniciada', cls: 'st st-av' },
+    iniciando:   { txt: 'Iniciando sesión…', cls: 'st st-ia' },
+    activa:      { txt: 'Sesión activa', cls: 'st st-ok' },
+    error:       { txt: 'No se pudo validar la sesión', cls: 'st st-mal' },
+    simulado:    { txt: 'Modo local sin conexión', cls: 'st st-neu' }
+  };
+  const info = mapa[tipo] || mapa.comprobando;
+  const textoFinal = textoPersonalizado || info.txt;
+  if (badge){ badge.className = info.cls; badge.textContent = textoFinal; }
+  if (loginPill){ loginPill.className = info.cls; loginPill.textContent = textoFinal; }
+}
+
+function aplicarIdentidadEntorno(){
+  const cfgEnt = (window.PDMA_CONFIG && window.PDMA_CONFIG.entorno) || CONFIG.entorno;
+  CONFIG.entorno = {
+    esPruebas: cfgEnt.esPruebas !== false,
+    nombreVisible: cfgEnt.nombreVisible || 'Entorno de pruebas'
+  };
+  ['#entornoBadge', '#cardUEntorno'].forEach(sel => {
+    const el = $(sel);
+    if (!el) return;
+    el.textContent = CONFIG.entorno.nombreVisible;
+    el.classList.toggle('prod', !CONFIG.entorno.esPruebas);
+  });
+}
 
 /* ============================================================================
    UTILIDADES GENERALES
@@ -896,7 +1026,8 @@ function fmtDur(s){ if (s < 60) return 'menos de 1 min'; const m = Math.round(s/
 function esc(t){ return String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function ext(n){ const i = n.lastIndexOf('.'); return i < 0 ? '' : n.slice(i+1).toLowerCase(); }
 function tipoDe(n){ const e = ext(n); for (const [t, l] of Object.entries(CONFIG.extensiones)) if (l.includes(e)) return t; return null; }
-function normTxt(s){ return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim().replace(/\s+/g, ' '); }
+function normTxt(s){ return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, ' '); }
+function limpiarEspacios(s){ return String(s || '').trim().replace(/\s+/g, ' '); }
 
 function levenshtein(a, b){
   const m = a.length, n = b.length;
@@ -962,13 +1093,17 @@ function grupoValido(g){
   return !!(g.paisaje && g.programa && g.gestion && g.actividad);
 }
 
+function archivosValidosDeGrupo(grupoId){
+  return E.archivos.filter(a => a.grupoId === grupoId && !a.bloqueo);
+}
+
 function fotografoTexto(f){
   if (!f) return '';
   return f.tipo === 'interno' ? `${f.nombre} (Interno)` : `${f.nombre} (Externo)`;
 }
 
 /* ============================================================================
-   ETAPA 1 · RENDER DE CONTEXTO INICIAL (GRUPO 1) Y SELECTOR DE FOTÓGROFO
+   ETAPA 1 · RENDER DE CONTEXTO INICIAL (GRUPO 1) Y MODO DE ORGANIZACIÓN
    ============================================================================ */
 function boton(cont, valor, titulo, detalle, sel, alElegir, opts = {}){
   const b = document.createElement('button');
@@ -988,6 +1123,7 @@ function boton(cont, valor, titulo, detalle, sel, alElegir, opts = {}){
 function pintarEtapa1(){
   const g = E.grupos[0];
   $('#titCtxInicial').textContent = E.modoOrg === 'multiple' ? 'Contexto inicial · Grupo 1' : '¿A qué proyecto pertenece el material?';
+  document.querySelectorAll('#opModoOrg button').forEach(x => x.setAttribute('aria-pressed', x.dataset.org === E.modoOrg ? 'true' : 'false'));
 
   const cp = $('#opPaisaje'); cp.innerHTML = '';
   CONFIG.jerarquia.forEach(x => {
@@ -1031,7 +1167,7 @@ function pintarEtapa1(){
     }, { clase: 'pd' });
   }
 
-  // Nivel 5: Subactividad (solo aparece si la actividad tiene subactividades)
+  // Nivel 5: Subactividad (opcional, solo aparece si la actividad tiene subactividades)
   const subs = subactividadesDe(g.paisaje, g.programa, g.actividad);
   $('#bSub').classList.toggle('oculto', !(g.actividad && subs.length > 0));
   if (g.actividad && subs.length > 0){
@@ -1064,7 +1200,7 @@ function pintarEtapa1(){
       bLinea.innerHTML = `
         <div class="linea-box manual">
           <div class="linea-info">
-            <b>Línea Estratégica · Selección manual opcional</b>
+            <b>Línea Estratégica · Selección manual (opcional)</b>
             <span>Esta actividad no tiene una línea fija; elige una o déjala en blanco si es transversal/institucional.</span>
           </div>
           <select class="linea-select" id="selLineaGrupo1">${opts}</select>
@@ -1080,14 +1216,15 @@ function pintarEtapa1(){
     [...CONFIG.gestiones, CONFIG.sinFecha].forEach(yr => boton(c, yr, yr, '', g.gestion === yr, v => { g.gestion = v; pintarEtapa1(); revisarTodosArchivos(); }));
   }
 
-  // Fotógrafo predeterminado del grupo
+  // Fotógrafo/a predeterminado del grupo
   const mostrarFotoDef = !!(g.actividad && g.gestion);
   $('#bFotoDefault').classList.toggle('oculto', !mostrarFotoDef);
   if (mostrarFotoDef){
     renderSelectorFotografo($('#fotoDefaultContainer'), g.fotografoDefault, nuevoFoto => {
       g.fotografoDefault = nuevoFoto;
-      // Propagar a archivos del grupo 1 que aún no tengan fotógrafo propio
-      E.archivos.filter(a => a.grupoId === g.id && !a.fotografoManual).forEach(a => { a.fotografo = nuevoFoto ? JSON.parse(JSON.stringify(nuevoFoto)) : null; });
+      E.archivos.filter(a => a.grupoId === g.id && !a.fotografoManual).forEach(a => {
+        a.fotografo = nuevoFoto ? JSON.parse(JSON.stringify(nuevoFoto)) : null;
+      });
       actualizarPie();
     });
   }
@@ -1096,17 +1233,20 @@ function pintarEtapa1(){
 }
 
 /* ============================================================================
-   COMPONENTE REUTILIZABLE: SELECTOR EXCLUSIVO FOTÓGRAFO INTERNO / EXTERNO
+   COMPONENTE REUTILIZABLE: SELECTOR EXCLUSIVO FOTÓGRAFO/A INTERNO / EXTERNO
+   - Desplegable con z-index 60 y apertura inteligente hacia arriba si falta espacio
+   - Todos los usuarios internos @armonia-bo.org vía Graph /users paginado
+   - Catálogo externo refrescable durante la sesión sin recargar
    ============================================================================ */
 function renderSelectorFotografo(cont, valorActual, alCambiar){
   const modo = valorActual ? valorActual.tipo : 'interno';
   cont.innerHTML = `
-    <div class="foto-toggle" role="group" aria-label="Tipo de fotógrafo">
-      <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Fotógrafo interno (${CONFIG.dominioInterno})</button>
-      <button type="button" data-tf="externo" aria-pressed="${modo === 'externo'}">Fotógrafo externo (Catálogo)</button>
+    <div class="foto-toggle" role="group" aria-label="Tipo de fotógrafo/a">
+      <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Fotógrafo/a interno (${CONFIG.dominioInterno})</button>
+      <button type="button" data-tf="externo" aria-pressed="${modo === 'externo'}">Fotógrafo/a externo (Catálogo)</button>
     </div>
-    <div class="ac-wrap" id="acWrap_${Math.random().toString(36).slice(2,7)}">
-      <input type="text" class="in-foto-busq" placeholder="${modo === 'interno' ? 'Buscar nombre o correo @armonia-bo.org…' : 'Buscar o escribir nombre de fotógrafo externo…'}" value="${valorActual ? esc(valorActual.nombre) : ''}" autocomplete="off">
+    <div class="ac-wrap">
+      <input type="text" class="in-foto-busq" placeholder="${modo === 'interno' ? 'Buscar nombre o correo @armonia-bo.org…' : 'Buscar o escribir nombre de fotógrafo/a externo…'}" value="${valorActual ? esc(valorActual.nombre) : ''}" autocomplete="off">
       <div class="ac-lista oculto"></div>
     </div>
     <div class="foto-feedback"></div>
@@ -1118,12 +1258,27 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
   const lista = cont.querySelector('.ac-lista');
   const feedback = cont.querySelector('.foto-feedback');
 
+  function posicionarDesplegable(){
+    lista.classList.remove('arriba');
+    const rect = input.getBoundingClientRect();
+    const pieEl = $('#pie');
+    const pieH = (pieEl && !pieEl.classList.contains('oculto')) ? pieEl.offsetHeight : 0;
+    const espacioAbajo = window.innerHeight - rect.bottom - pieH - 12;
+    const espacioArriba = rect.top - 12;
+    if (espacioAbajo < 220 && espacioArriba > espacioAbajo){
+      lista.classList.add('arriba');
+    }
+  }
+
   function pintarChip(val){
     if (!val){ feedback.innerHTML = ''; return; }
     if (val.tipo === 'interno'){
-      feedback.innerHTML = `<div class="chip-persona"><span>✓ <b>${esc(val.nombre)}</b> · ${esc(val.correo || val.upn)} ${val.id ? '(ID SP: '+esc(val.id)+')' : ''}</span><button type="button" title="Quitar">×</button></div>`;
+      feedback.innerHTML = `<div class="chip-persona"><span>✓ <b>${esc(val.nombre)}</b> · ${esc(val.correo || val.upn)}${val.id ? ' · SP ID #' + esc(val.id) : ''}</span><button type="button" title="Quitar fotógrafo/a">×</button></div>`;
     } else {
-      feedback.innerHTML = `<div class="chip-persona"><span>✓ <b>${esc(val.nombre)}</b> · Externo ${val.nuevo ? '(Nuevo en catálogo)' : ''}</span><button type="button" title="Quitar">×</button></div>`;
+      const notaSP = val.nuevo
+        ? (val.guardadoEnSharePoint ? ' · Añadido a SharePoint' : ' · Nuevo (registrado en envío)')
+        : '';
+      feedback.innerHTML = `<div class="chip-persona"><span>✓ <b>${esc(val.nombre)}</b> · Externo${notaSP}</span><button type="button" title="Quitar fotógrafo/a">×</button></div>`;
     }
     feedback.querySelector('button').onclick = () => {
       input.value = '';
@@ -1137,7 +1292,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
   btns.forEach(b => b.onclick = () => {
     tipoActivo = b.dataset.tf;
     btns.forEach(x => x.setAttribute('aria-pressed', x.dataset.tf === tipoActivo ? 'true' : 'false'));
-    input.placeholder = tipoActivo === 'interno' ? 'Buscar nombre o correo @armonia-bo.org…' : 'Buscar o escribir nombre de fotógrafo externo…';
+    input.placeholder = tipoActivo === 'interno' ? 'Buscar nombre o correo @armonia-bo.org…' : 'Buscar o escribir nombre de fotógrafo/a externo…';
     input.value = '';
     lista.classList.add('oculto');
     feedback.innerHTML = '';
@@ -1145,41 +1300,94 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
     input.focus();
   });
 
+  async function seleccionarInterno(u){
+    let spId = u.id || null;
+    let loginName = u.loginName || '';
+    // Si aún no tiene LookupId de SharePoint y hay sesión activa, resolverlo vía ensureuser
+    if (!spId && CONFIG.modo === 'graph' && (u.upn || u.correo)){
+      const asegurado = await asegurarUsuarioSharePoint(u.upn || u.correo);
+      if (asegurado){
+        spId = asegurado.id;
+        loginName = asegurado.loginName || loginName;
+        u.id = spId;
+        u.loginName = loginName;
+      }
+    }
+    const obj = {
+      tipo: 'interno',
+      entraId: u.entraId || null,
+      id: spId,
+      nombre: u.nombre,
+      correo: u.correo,
+      upn: u.upn,
+      loginName
+    };
+    input.value = u.nombre;
+    lista.classList.add('oculto');
+    pintarChip(obj);
+    alCambiar(obj);
+  }
+
   function mostrarSugerencias(){
     const q = input.value.trim();
     const nq = normTxt(q);
     lista.innerHTML = '';
 
     if (tipoActivo === 'interno'){
-      const matches = DIRECTORIO.internos.filter(u => !nq || normTxt(u.nombre).includes(nq) || normTxt(u.correo).includes(nq)).slice(0, 12);
+      if (DIRECTORIO.internosCargando){
+        lista.innerHTML = `<div class="ac-item"><span>Cargando directorio completo de Armonía (${esc(CONFIG.dominioInterno)})…</span></div>`;
+        posicionarDesplegable();
+        lista.classList.remove('oculto');
+        return;
+      }
+      const matches = DIRECTORIO.internos.filter(u => !nq || normTxt(u.nombre).includes(nq) || normTxt(u.correo).includes(nq));
+      const head = document.createElement('div');
+      head.className = 'ac-head';
+      head.innerHTML = `<span>${matches.length} usuario(s) elegibles encontrados</span><span>${esc(DIRECTORIO.internosFuente || 'Directorio M365')}</span>`;
+      lista.appendChild(head);
+
+      if (DIRECTORIO.internosError){
+        const errDiv = document.createElement('div');
+        errDiv.className = 'ac-item';
+        errDiv.innerHTML = `<span style="color:var(--amber)">⚠ ${esc(DIRECTORIO.internosError)}</span>`;
+        lista.appendChild(errDiv);
+      }
+
       if (!matches.length){
-        lista.innerHTML = `<div class="ac-item"><span>No se encontraron cuentas ${esc(CONFIG.dominioInterno)} con «${esc(q)}».</span></div>`;
+        const empty = document.createElement('div');
+        empty.className = 'ac-item';
+        empty.innerHTML = `<span>No se encontraron cuentas ${esc(CONFIG.dominioInterno)} que coincidan con «${esc(q)}».</span>`;
+        lista.appendChild(empty);
       } else {
-        matches.forEach(u => {
+        matches.slice(0, 40).forEach(u => {
           const div = document.createElement('div');
           div.className = 'ac-item';
-          div.innerHTML = `<b>${esc(u.nombre)}</b><span>${esc(u.correo || u.upn)} ${u.id ? '· SharePoint ID #' + esc(u.id) : ''}</span>`;
-          div.onmousedown = e => {
-            e.preventDefault();
-            const obj = { tipo: 'interno', id: u.id || null, nombre: u.nombre, correo: u.correo, upn: u.upn, loginName: u.loginName || '' };
-            input.value = u.nombre;
-            lista.classList.add('oculto');
-            pintarChip(obj);
-            alCambiar(obj);
-          };
+          div.innerHTML = `<b>${esc(u.nombre)}</b><span>${esc(u.correo || u.upn)}${u.id ? ' · SharePoint ID #' + esc(u.id) : ''}</span>`;
+          div.onmousedown = e => { e.preventDefault(); seleccionarInterno(u); };
           lista.appendChild(div);
         });
       }
+      posicionarDesplegable();
       lista.classList.remove('oculto');
     } else {
-      const matches = DIRECTORIO.externos.filter(n => !nq || normTxt(n).includes(nq)).slice(0, 12);
-      matches.forEach(n => {
+      const head = document.createElement('div');
+      head.className = 'ac-head';
+      head.innerHTML = `<span>${DIRECTORIO.externosCargando ? 'Actualizando catálogo…' : 'Catálogo oficial SharePoint (' + DIRECTORIO.externos.length + ')'}</span><button type="button" class="btn-xs" style="padding:1px 7px;font-size:11px" id="bRefExt">↻ Actualizar</button>`;
+      lista.appendChild(head);
+      head.querySelector('#bRefExt').onmousedown = async e => {
+        e.preventDefault();
+        await refrescarFotografosExternos(true);
+        mostrarSugerencias();
+      };
+
+      const matches = DIRECTORIO.externos.filter(n => !nq || normTxt(n).includes(nq));
+      matches.slice(0, 40).forEach(n => {
         const div = document.createElement('div');
         div.className = 'ac-item';
-        div.innerHTML = `<b>${esc(n)}</b><span>Catálogo oficial SharePoint</span>`;
+        div.innerHTML = `<b>${esc(n)}</b><span>Opción vigente en SharePoint</span>`;
         div.onmousedown = e => {
           e.preventDefault();
-          const obj = { tipo: 'externo', nombre: n, nuevo: false };
+          const obj = { tipo: 'externo', nombre: n, nuevo: false, guardadoEnSharePoint: true };
           input.value = n;
           lista.classList.add('oculto');
           pintarChip(obj);
@@ -1188,64 +1396,84 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
         lista.appendChild(div);
       });
 
-      if (q.length >= 2 && !DIRECTORIO.externos.some(x => normTxt(x) === nq)){
+      const limpio = limpiarEspacios(q);
+      if (limpio.length >= 2 && !DIRECTORIO.externos.some(x => normTxt(x) === normTxt(limpio))){
         const divAdd = document.createElement('div');
         divAdd.className = 'ac-item nuevo';
-        divAdd.textContent = `+ Registrar nuevo fotógrafo externo: «${q}»`;
+        divAdd.textContent = `+ Registrar nuevo fotógrafo/a externo: «${limpio}»`;
         divAdd.onmousedown = e => {
           e.preventDefault();
           lista.classList.add('oculto');
-          const sim = buscarSimilaresExterno(q);
+          const sim = buscarSimilaresExterno(limpio);
           if (sim.length){
             const nombresSim = sim.map(s => `«${s.nombre}»`).join(', ');
             feedback.innerHTML = `
               <div class="msg warn" style="margin-top:6px">
                 <b>Posible coincidencia en el catálogo</b>
-                Existe un nombre parecido: ${esc(nombresSim)}. No se modificará automáticamente.
-                <div class="acc" style="display:flex;gap:6px;flex-wrap:wrap">
+                Existe un nombre parecido: ${esc(nombresSim)}. No se modificará automáticamente la escritura.
+                <div class="acc">
                   <button type="button" class="btn-xs" id="bUsarSim">Usar ${esc(sim[0].nombre)}</button>
-                  <button type="button" class="btn-xs prim" id="bConfirmarNuevo">Registrar «${esc(q)}» como nuevo</button>
+                  <button type="button" class="btn-xs prim" id="bConfirmarNuevo">Registrar «${esc(limpio)}» como nuevo</button>
                 </div>
               </div>`;
             feedback.querySelector('#bUsarSim').onclick = () => {
-              const obj = { tipo: 'externo', nombre: sim[0].nombre, nuevo: false };
+              const obj = { tipo: 'externo', nombre: sim[0].nombre, nuevo: false, guardadoEnSharePoint: true };
               input.value = sim[0].nombre;
               pintarChip(obj);
               alCambiar(obj);
             };
-            feedback.querySelector('#bConfirmarNuevo').onclick = () => registrarNuevoExterno(q, pintarChip, alCambiar);
+            feedback.querySelector('#bConfirmarNuevo').onclick = () => registrarNuevoExterno(limpio, input, pintarChip, alCambiar);
           } else {
-            registrarNuevoExterno(q, pintarChip, alCambiar);
+            registrarNuevoExterno(limpio, input, pintarChip, alCambiar);
           }
         };
         lista.appendChild(divAdd);
       }
+      posicionarDesplegable();
       lista.classList.toggle('oculto', lista.children.length === 0);
     }
   }
 
-  input.addEventListener('focus', mostrarSugerencias);
+  input.addEventListener('focus', async () => {
+    if (tipoActivo === 'externo'){
+      mostrarSugerencias();
+      await refrescarFotografosExternos(false);
+      if (document.activeElement === input) mostrarSugerencias();
+    } else {
+      mostrarSugerencias();
+    }
+  });
   input.addEventListener('input', mostrarSugerencias);
-  input.addEventListener('blur', () => setTimeout(() => lista.classList.add('oculto'), 180));
+  input.addEventListener('blur', () => setTimeout(() => lista.classList.add('oculto'), 200));
 }
 
-async function registrarNuevoExterno(nombreLimpio, pintarChip, alCambiar){
-  const limpio = nombreLimpio.trim();
+async function registrarNuevoExterno(nombreCrudo, inputEl, pintarChip, alCambiar){
+  const limpio = limpiarEspacios(nombreCrudo);
+  let guardadoEnSP = false;
+
   if (!DIRECTORIO.externos.some(x => normTxt(x) === normTxt(limpio))){
     DIRECTORIO.externos.push(limpio);
     DIRECTORIO.externos.sort((a, b) => a.localeCompare(b, 'es'));
-    // Intentar persistir la nueva opción en la columna Choice de SharePoint si hay sesión y permisos
+    DIRECTORIO.externosInvalidado = true;
+
     if (CONFIG.modo === 'graph' && DIRECTORIO.spExternoColumnaId){
       try {
         await g('PATCH', `/sites/${CONFIG.siteId}/lists/${CONFIG.listId}/columns/${DIRECTORIO.spExternoColumnaId}`, {
           choice: { allowTextEntry: true, choices: DIRECTORIO.externos }
         });
+        guardadoEnSP = true;
+        DIRECTORIO.externosUltimaCarga = Date.now();
+        DIRECTORIO.externosInvalidado = false;
       } catch(err){
-        console.warn('No se pudo actualizar choices de FotografoExterno en SharePoint (se enviará en JSON):', err.message);
+        console.warn('SharePoint no permitió actualizar choices directamente (permisos de columna):', err.message);
       }
     }
+  } else {
+    guardadoEnSP = true;
   }
-  const obj = { tipo: 'externo', nombre: limpio, nuevo: true };
+
+  inputEl.value = limpio;
+  const obj = { tipo: 'externo', nombre: limpio, nuevo: !guardadoEnSP, guardadoEnSharePoint: guardadoEnSP };
   pintarChip(obj);
   alCambiar(obj);
 }
@@ -1262,6 +1490,7 @@ $('#fArchivos').onchange = e => {
 };
 
 $('#bNuevoGrupo').onclick = () => {
+  if (E.modoOrg !== 'multiple') return;
   const base = E.grupos[E.grupos.length - 1] || {};
   const ng = crearGrupoObj({
     paisaje: base.paisaje,
@@ -1272,21 +1501,23 @@ $('#bNuevoGrupo').onclick = () => {
   });
   E.grupos.push(ng);
   E.grupoActivoId = ng.id;
-  E.modoOrg = 'multiple';
   pintarMesaCatalogacion();
 };
 
 $('#bSelTodos').onclick = () => {
   E.archivos.forEach(a => E.seleccionados.add(a.id));
+  E.feedbackMasivo = null;
   pintarMesaCatalogacion();
 };
 
 $('#bDeselTodos').onclick = () => {
   E.seleccionados.clear();
+  E.feedbackMasivo = null;
   pintarMesaCatalogacion();
 };
 
 $('#selMoverGrupo').onchange = e => {
+  if (E.modoOrg !== 'multiple') return;
   const destId = e.target.value;
   if (!destId || !E.seleccionados.size) return;
   const gDest = E.grupos.find(g => g.id === destId);
@@ -1304,7 +1535,7 @@ $('#selMoverGrupo').onchange = e => {
 };
 
 $('#bDividirGrupo').onclick = () => {
-  if (!E.seleccionados.size) return;
+  if (E.modoOrg !== 'multiple' || !E.seleccionados.size) return;
   const primerArch = E.archivos.find(a => E.seleccionados.has(a.id));
   const gOrig = E.grupos.find(g => g.id === primerArch.grupoId) || E.grupos[0];
   const ng = crearGrupoObj({
@@ -1317,7 +1548,6 @@ $('#bDividirGrupo').onclick = () => {
   E.grupos.push(ng);
   E.archivos.forEach(a => { if (E.seleccionados.has(a.id)) a.grupoId = ng.id; });
   E.grupoActivoId = ng.id;
-  E.modoOrg = 'multiple';
   revisarTodosArchivos();
 };
 
@@ -1325,6 +1555,7 @@ $('#bQuitarSel').onclick = () => {
   if (!E.seleccionados.size) return;
   E.archivos = E.archivos.filter(a => !E.seleccionados.has(a.id));
   E.seleccionados.clear();
+  E.feedbackMasivo = null;
   revisarTodosArchivos();
 };
 
@@ -1332,25 +1563,62 @@ $('#bCerrarInspectorMovil').onclick = () => {
   $('#inspectorPanel').classList.remove('movil-abierto');
 };
 
+function actualizarIndicadorColaIA(){
+  const el = $('#colaIaEstado');
+  if (!el) return;
+  const activos = E.archivos.filter(a => a.iaEstado === 'analizando' || a.iaEstado === 'pendiente').length;
+  const listos = E.archivos.filter(a => a.iaEstado === 'ok').length;
+  if (!activos && !listos){
+    el.classList.add('oculto');
+    return;
+  }
+  el.classList.remove('oculto');
+  if (activos > 0){
+    el.className = 'st st-ia';
+    el.textContent = `✨ IA en segundo plano: ${listos} completado(s), ${activos} en cola/proceso`;
+  } else {
+    el.className = 'st st-ok';
+    el.textContent = `✨ IA completada en ${listos} archivo(s)`;
+  }
+}
+
 function pintarMesaCatalogacion(){
   const cont = $('#contenedorGrupos');
   cont.innerHTML = '';
+  const esMultiple = E.modoOrg === 'multiple';
 
-  // Actualizar barra superior de selección
+  // Controles de modo individual vs mixto
   const nSel = E.seleccionados.size;
+  $('#bNuevoGrupo').classList.toggle('oculto', !esMultiple);
+  $('#selMoverGrupo').classList.toggle('oculto', !esMultiple);
+  $('#bDividirGrupo').classList.toggle('oculto', !esMultiple);
+
   $('#bDeselTodos').disabled = nSel === 0;
-  $('#bDividirGrupo').disabled = nSel === 0;
+  $('#bDividirGrupo').disabled = !esMultiple || nSel === 0;
   $('#bQuitarSel').disabled = nSel === 0;
   const selMover = $('#selMoverGrupo');
-  selMover.disabled = nSel === 0 || E.grupos.length < 2;
+  selMover.disabled = !esMultiple || nSel === 0 || E.grupos.length < 2;
   selMover.innerHTML = '<option value="">Mover seleccionados a…</option>' +
     E.grupos.map((g, idx) => `<option value="${g.id}">Grupo ${idx + 1} · ${esc(g.actividad || 'Sin actividad')}</option>`).join('');
 
+  // Aviso superior si hay grupos vacíos
+  const vacios = E.grupos.map((g, idx) => ({ g, idx })).filter(x => archivosValidosDeGrupo(x.g.id).length === 0);
+  const alertaEl = $('#alertaGruposEtapa2');
+  if (E.archivos.length > 0 && vacios.length > 0){
+    alertaEl.innerHTML = `<div class="msg warn" style="margin-bottom:12px"><b>Hay ${vacios.length} grupo(s) sin archivos asignados</b>Cada grupo debe contener al menos 1 archivo válido antes de continuar (revisa: ${vacios.map(v => `Grupo ${v.idx + 1}`).join(', ')}).</div>`;
+  } else {
+    alertaEl.innerHTML = '';
+  }
+
+  actualizarIndicadorColaIA();
+
   E.grupos.forEach((g, idx) => {
     const archsGrupo = E.archivos.filter(a => a.grupoId === g.id);
+    const validosGrupo = archivosValidosDeGrupo(g.id);
     const colorEco = CONFIG.coloresPaisaje[g.paisaje] || '#0066CC';
     const card = document.createElement('div');
-    card.className = 'grupo-card' + (E.grupoActivoId === g.id ? ' activo' : '');
+    const esVacioConOtros = E.archivos.length > 0 && validosGrupo.length === 0;
+    card.className = 'grupo-card' + (E.grupoActivoId === g.id ? ' activo' : '') + (esVacioConOtros ? ' vacio-alerta' : '');
     card.style.setProperty('--eco-color', colorEco);
 
     const rutaTxt = rutaGrupo(g).length ? rutaGrupo(g).join(' › ') : 'Contexto pendiente de completar';
@@ -1361,28 +1629,31 @@ function pintarMesaCatalogacion(){
         <div class="grupo-tit">
           <b>
             Grupo ${idx + 1} · ${esc(g.actividad || 'Actividad por definir')}
-            <span class="st ${okCtx ? 'st-ok' : 'st-av'}">${archsGrupo.length} archivo(s)</span>
+            ${g.paisaje ? `<span class="eco-pill"><i class="eco-dot"></i>${esc(g.paisaje)}</span>` : ''}
+            <span class="st ${okCtx && validosGrupo.length ? 'st-ok' : 'st-av'}">${archsGrupo.length} archivo(s)</span>
             ${g.lineaEstrategica ? `<span class="st st-ia">${esc(g.lineaEstrategica)}</span>` : ''}
           </b>
-          <div class="grupo-ruta">${esc(rutaTxt)} ${g.fotografoDefault ? ' · 📷 ' + esc(fotografoTexto(g.fotografoDefault)) : ''}</div>
+          <div class="grupo-ruta">${esc(rutaTxt)}${g.fotografoDefault ? ' · 📷 ' + esc(fotografoTexto(g.fotografoDefault)) : ''}</div>
         </div>
         <div class="grupo-btns">
           <button type="button" class="btn-xs" data-act="ctx">${g.editandoCtx ? 'Ocultar contexto' : 'Editar contexto'}</button>
-          <button type="button" class="btn-xs" data-act="dup">Duplicar grupo</button>
-          ${E.grupos.length > 1 ? '<button type="button" class="btn-xs peligro" data-act="del">Eliminar</button>' : ''}
+          ${esMultiple ? '<button type="button" class="btn-xs" data-act="dup">Duplicar grupo</button>' : ''}
+          ${(esMultiple && E.grupos.length > 1) ? '<button type="button" class="btn-xs peligro" data-act="del">Eliminar grupo</button>' : ''}
         </div>
       </div>
       <div class="grupo-editor ${g.editandoCtx ? '' : 'oculto'}"></div>
+      ${esVacioConOtros ? `<div class="msg warn" style="margin:0 0 10px"><b>Grupo ${idx + 1} está vacío</b>Añade al menos 1 archivo a este grupo o elimínalo para poder continuar.</div>` : ''}
       <div class="zona" tabindex="0" role="button" aria-label="Añadir archivos al Grupo ${idx + 1}">
         <b>+ Arrastra fotos, videos o audios aquí o haz clic para añadir al Grupo ${idx + 1}</b>
         <span>Soporta JPG, PNG, RAW (CR2, NEF, ARW, DNG), MP4, MOV y WAV/MP3 · hasta ${fmtBytes(CONFIG.umbralBytes)} por archivo</span>
       </div>
-      <div class="cards-grid"></div>
+      <div class="cards-grid" role="list" aria-label="Archivos del Grupo ${idx + 1}"></div>
     `;
 
-    // Eventos cabecera grupo
     card.querySelector('[data-act="ctx"]').onclick = () => { g.editandoCtx = !g.editandoCtx; E.grupoActivoId = g.id; pintarMesaCatalogacion(); };
-    card.querySelector('[data-act="dup"]').onclick = () => {
+    const bDup = card.querySelector('[data-act="dup"]');
+    if (bDup) bDup.onclick = () => {
+      if (E.modoOrg !== 'multiple') return;
       const copia = crearGrupoObj({
         paisaje: g.paisaje, programa: g.programa, gestion: g.gestion,
         actividad: g.actividad, subactividad: g.subactividad,
@@ -1391,7 +1662,6 @@ function pintarMesaCatalogacion(){
       });
       E.grupos.push(copia);
       E.grupoActivoId = copia.id;
-      E.modoOrg = 'multiple';
       pintarMesaCatalogacion();
     };
     const bDel = card.querySelector('[data-act="del"]');
@@ -1403,12 +1673,10 @@ function pintarMesaCatalogacion(){
       revisarTodosArchivos();
     };
 
-    // Editor inline del contexto del grupo
     if (g.editandoCtx){
       renderEditorContextoGrupo(card.querySelector('.grupo-editor'), g);
     }
 
-    // Dropzone del grupo
     const zona = card.querySelector('.zona');
     zona.onclick = () => { E.grupoActivoId = g.id; grupoParaInputFile = g.id; $('#fArchivos').click(); };
     zona.onkeydown = e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); zona.click(); } };
@@ -1419,11 +1687,12 @@ function pintarMesaCatalogacion(){
       agregarArchivosAGrupo([...e.dataTransfer.files], g.id);
     });
 
-    // Cuadrícula de archivos del grupo
+    // Cuadrícula accesible de tarjetas
     const grid = card.querySelector('.cards-grid');
     grid.classList.toggle('oculto', archsGrupo.length === 0);
     archsGrupo.forEach(a => {
-      const mc = document.createElement('div');
+      const mc = document.createElement('article');
+      mc.setAttribute('role', 'listitem');
       const isSel = E.seleccionados.has(a.id);
       mc.className = 'media-card' + (isSel ? ' sel' : '') + (a.bloqueo ? ' bloq' : '');
       const fc = fechaDe(a);
@@ -1431,12 +1700,13 @@ function pintarMesaCatalogacion(){
 
       let stBadge = '';
       if (a.bloqueo) stBadge = `<span class="st st-mal">${esc(a.bloqueo)}</span>`;
-      else if (!a.fotografo) stBadge = `<span class="st st-av">Falta fotógrafo</span>`;
+      else if (!a.fotografo) stBadge = `<span class="st st-av">Falta fotógrafo/a</span>`;
       else if (a.avisos.length) stBadge = `<span class="st st-av">${esc(a.avisos[0])}</span>`;
       else stBadge = `<span class="st st-ok">Listo</span>`;
 
       let iaBadge = '';
       if (a.iaEstado === 'analizando') iaBadge = `<span class="st st-ia">✨ IA…</span>`;
+      else if (a.iaEstado === 'pendiente') iaBadge = `<span class="st st-neu">En cola IA</span>`;
       else if (a.iaEstado === 'ok') iaBadge = `<span class="st st-ia">IA lista</span>`;
       else if (a.iaEstado === 'error') iaBadge = `<span class="st st-av">IA error</span>`;
 
@@ -1445,10 +1715,10 @@ function pintarMesaCatalogacion(){
       mc.innerHTML = `
         <div class="media-thumb">
           <input type="checkbox" class="media-chk" ${isSel ? 'checked' : ''} aria-label="Seleccionar ${esc(a.nombre)}">
-          <button type="button" class="media-zoom" title="Vista previa">Ver</button>
-          <button type="button" class="media-del" title="Quitar archivo">×</button>
+          <button type="button" class="media-zoom" aria-label="Vista previa de ${esc(a.nombre)}">Ver</button>
+          <button type="button" class="media-del" aria-label="Quitar ${esc(a.nombre)}">×</button>
         </div>
-        <div class="media-body">
+        <div class="media-focus" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="Editar metadatos de ${esc(a.nombre)}">
           <div class="media-name" title="${esc(a.nombre)}">${esc(a.nombre)}</div>
           <div class="media-meta num">${esc(det)}</div>
           ${a.fotografo ? `<div class="media-meta">📷 ${esc(a.fotografo.nombre)}</div>` : ''}
@@ -1472,18 +1742,10 @@ function pintarMesaCatalogacion(){
         thumbBox.prepend(eb);
       }
 
-      // Selección individual vs múltiple
-      const chk = mc.querySelector('.media-chk');
-      chk.onclick = e => {
-        e.stopPropagation();
-        if (chk.checked) E.seleccionados.add(a.id); else E.seleccionados.delete(a.id);
+      function activarTarjeta(multi){
         E.grupoActivoId = g.id;
-        pintarMesaCatalogacion();
-      };
-      mc.onclick = e => {
-        if (e.target.closest('button') || e.target === chk) return;
-        E.grupoActivoId = g.id;
-        if (e.ctrlKey || e.metaKey){
+        E.feedbackMasivo = null;
+        if (multi){
           if (E.seleccionados.has(a.id)) E.seleccionados.delete(a.id); else E.seleccionados.add(a.id);
         } else {
           E.seleccionados.clear();
@@ -1491,6 +1753,21 @@ function pintarMesaCatalogacion(){
         }
         pintarMesaCatalogacion();
         if (window.innerWidth <= 860) $('#inspectorPanel').classList.add('movil-abierto');
+      }
+
+      const chk = mc.querySelector('.media-chk');
+      chk.onclick = e => {
+        e.stopPropagation();
+        activarTarjeta(true);
+      };
+
+      const bodyFocus = mc.querySelector('.media-focus');
+      bodyFocus.onclick = e => activarTarjeta(e.ctrlKey || e.metaKey);
+      bodyFocus.onkeydown = e => {
+        if (e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          activarTarjeta(e.ctrlKey || e.metaKey);
+        }
       };
 
       mc.querySelector('.media-zoom').onclick = e => { e.stopPropagation(); abrirVisor(a); };
@@ -1524,13 +1801,13 @@ function renderEditorContextoGrupo(cont, g){
 
   cont.innerHTML = `
     <div class="campos">
-      <div class="campo"><label>Paisaje / Sección</label><select class="ge-pais"><option value="">Seleccionar…</option>${paisOpts}</select></div>
-      <div class="campo"><label>Programa</label><select class="ge-prog"><option value="">Seleccionar…</option>${progOpts}</select></div>
-      <div class="campo"><label>Actividad</label><select class="ge-act"><option value="">Seleccionar…</option>${actOpts}</select></div>
-      <div class="campo ${subs.length ? '' : 'oculto'}"><label>Subactividad (Nivel 5)</label><select class="ge-sub">${subOpts}</select></div>
-      <div class="campo"><label>Gestión</label><select class="ge-ges"><option value="">Seleccionar…</option>${gesOpts}</select></div>
-      <div class="campo"><label>Línea Estratégica</label><select class="ge-lin">${linOpts}</select></div>
-      <div class="campo ancho"><label>Fotógrafo predeterminado del grupo</label><div class="ge-foto"></div></div>
+      <div class="campo"><label>Paisaje / Sección <small>· obligatorio</small></label><select class="ge-pais"><option value="">Seleccionar…</option>${paisOpts}</select></div>
+      <div class="campo"><label>Programa <small>· obligatorio</small></label><select class="ge-prog"><option value="">Seleccionar…</option>${progOpts}</select></div>
+      <div class="campo"><label>Actividad <small>· obligatorio</small></label><select class="ge-act"><option value="">Seleccionar…</option>${actOpts}</select></div>
+      <div class="campo ${subs.length ? '' : 'oculto'}"><label>Subactividad <small>· opcional</small></label><select class="ge-sub">${subOpts}</select></div>
+      <div class="campo"><label>Gestión <small>· obligatorio</small></label><select class="ge-ges"><option value="">Seleccionar…</option>${gesOpts}</select></div>
+      <div class="campo"><label>Línea Estratégica <small>· opcional</small></label><select class="ge-lin">${linOpts}</select></div>
+      <div class="campo ancho"><label>Fotógrafo/a predeterminado del grupo</label><div class="ge-foto"></div></div>
     </div>
   `;
 
@@ -1567,10 +1844,10 @@ function pintarInspectorLateral(){
         <div class="kicker">Inspector de catalogación</div>
         <h3>Ningún archivo seleccionado</h3>
       </div>
-      <p class="sub">Haz clic sobre una fotografía, video o audio en la galería para editar sus datos individuales, revisar las etiquetas generadas por IA o seleccionar varios elementos para edición masiva.</p>
+      <p class="sub">Haz clic (o presiona Enter) sobre una fotografía, video o audio en la galería para editar sus datos individuales, revisar las etiquetas generadas por IA o seleccionar varios elementos para edición masiva.</p>
       <div class="msg info">
         <b>Atajo de edición múltiple</b>
-        Marca la casilla superior izquierda de varias tarjetas (o usa <i>Seleccionar todos</i>) para asignar lugar, fotógrafo o tema en bloque.
+        Marca la casilla superior izquierda de varias tarjetas (o usa <i>Seleccionar todos</i>) para asignar fotógrafo/a, lugar o tema en bloque.
       </div>
     `;
     return;
@@ -1595,22 +1872,22 @@ function pintarInspectorLateral(){
       </div>
 
       <div class="inspector-sec">
-        <h4>Responsable de la fotografía <span class="req">obligatorio</span></h4>
+        <h4>Fotógrafo/a <span class="req">obligatorio</span></h4>
         <div id="inspFotoWrap"></div>
       </div>
 
       <div class="inspector-sec">
-        <h4>Información descriptiva</h4>
+        <h4>Información descriptiva <span class="req">opcional</span></h4>
         <div class="campo" style="margin-bottom:9px">
-          <label for="inspLugar">Lugar</label>
+          <label for="inspLugar">Lugar <small>· opcional</small></label>
           <input id="inspLugar" value="${esc(a.lugar || '')}" placeholder="Comunidad, sector o punto de monitoreo">
         </div>
         <div class="campo" style="margin-bottom:9px">
-          <label for="inspTema">Especies o tema <small>· catálogo de aves próximamente</small></label>
+          <label for="inspTema">Especies o tema <small>· opcional</small></label>
           <input id="inspTema" value="${esc(a.especiesTema || '')}" placeholder="Ej.: Paraba Frente Roja, vivero, taller">
         </div>
         <div class="campo">
-          <label for="inspDesc">Descripción breve</label>
+          <label for="inspDesc">Descripción breve <small>· opcional</small></label>
           <textarea id="inspDesc" rows="2" maxlength="500" placeholder="Contexto o detalle adicional">${esc(a.descripcion || '')}</textarea>
         </div>
       </div>
@@ -1618,11 +1895,12 @@ function pintarInspectorLateral(){
       ${puedeIA ? `
       <div class="ia-card-ed">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px">
-          <span class="ia-pill-auto">✨ Generado por IA</span>
-          <button type="button" class="btn-xs" id="bReanalizarInsp" ${a.iaEstado === 'analizando' ? 'disabled' : ''}>${a.iaEstado === 'analizando' ? 'Analizando…' : '↻ Reanalizar'}</button>
+          <span class="ia-pill-auto">✨ Generado por IA (opcional)</span>
+          <button type="button" class="btn-xs" id="bReanalizarInsp" ${(a.iaEstado === 'analizando' || a.iaEstado === 'pendiente') ? 'disabled' : ''}>${a.iaEstado === 'analizando' ? 'Analizando…' : '↻ Reanalizar'}</button>
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px" id="inspIaEstadoTxt">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
           ${a.iaEstado === 'analizando' ? 'Analizando miniatura con Claude…' :
+            a.iaEstado === 'pendiente' ? 'En cola de análisis IA…' :
             a.iaEstado === 'ok' ? 'Revisa o corrige las sugerencias antes de enviar.' :
             a.iaEstado === 'error' ? '⚠ ' + esc(a.iaError) + ' (no bloquea el envío)' :
             a.iaEstado === 'sin_preview' ? 'Formato RAW sin vista previa directa (completa manualmente si deseas).' :
@@ -1658,7 +1936,10 @@ function pintarInspectorLateral(){
     panel.querySelector('#inspDesc').oninput = e => { a.descripcion = e.target.value; };
 
     if (puedeIA){
-      panel.querySelector('#bReanalizarInsp').onclick = () => analizarArchivoIA(a);
+      panel.querySelector('#bReanalizarInsp').onclick = () => {
+        a.iaEstado = 'pendiente';
+        encolarAnalisisIA([a], true);
+      };
       panel.querySelector('#inspIaDesc').oninput = e => { a.descripcion_ia = e.target.value; };
       panel.querySelector('#inspIaEtiq').oninput = e => {
         a.etiquetas_ia = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
@@ -1669,6 +1950,10 @@ function pintarInspectorLateral(){
 
   // MODO EDICIÓN MASIVA EXPLÍCITA (X > 1 ARCHIVOS SELECCIONADOS)
   let fotoMasivo = null;
+  const fbHtml = E.feedbackMasivo
+    ? `<div class="msg ${esc(E.feedbackMasivo.tipo)}"><b>${esc(E.feedbackMasivo.titulo)}</b>${esc(E.feedbackMasivo.detalle)}</div>`
+    : '';
+
   panel.innerHTML = `
     <div class="inspector-head">
       <div class="kicker">Edición masiva explícita</div>
@@ -1677,12 +1962,12 @@ function pintarInspectorLateral(){
     <p class="sub">Completa únicamente los campos que quieras aplicar en bloque a los <b>${selArchs.length} archivos</b> marcados.</p>
 
     <div class="inspector-sec">
-      <h4>Asignar responsable en bloque</h4>
+      <h4>Asignar fotógrafo/a en bloque</h4>
       <div id="masivoFotoWrap"></div>
     </div>
 
     <div class="inspector-sec">
-      <h4>Metadatos compartidos</h4>
+      <h4>Metadatos compartidos <span class="req">opcional</span></h4>
       <div class="campo" style="margin-bottom:9px">
         <label for="masLugar">Lugar (dejar vacío para no modificar)</label>
         <input id="masLugar" placeholder="Aplicar lugar a los ${selArchs.length} archivos">
@@ -1702,7 +1987,7 @@ function pintarInspectorLateral(){
     </div>
 
     <button type="button" class="btn p" id="bAplicarMasivo" style="width:100%;margin-top:14px">Aplicar a los ${selArchs.length} seleccionados</button>
-    <div id="masivoFeedback"></div>
+    <div id="masivoFeedback">${fbHtml}</div>
   `;
 
   renderSelectorFotografo(panel.querySelector('#masivoFotoWrap'), null, nf => { fotoMasivo = nf; });
@@ -1712,6 +1997,23 @@ function pintarInspectorLateral(){
     const tem = panel.querySelector('#masTema').value.trim();
     const des = panel.querySelector('#masDesc').value.trim();
     const extraTags = panel.querySelector('#masTags').value.split(',').map(s => s.trim()).filter(Boolean);
+
+    const camposAplicados = [];
+    if (fotoMasivo) camposAplicados.push('Fotógrafo/a');
+    if (lug) camposAplicados.push('Lugar');
+    if (tem) camposAplicados.push('Especies o tema');
+    if (des) camposAplicados.push('Descripción');
+    if (extraTags.length) camposAplicados.push('Etiquetas');
+
+    if (!camposAplicados.length){
+      E.feedbackMasivo = {
+        tipo: 'warn',
+        titulo: 'Sin cambios para aplicar',
+        detalle: 'Completa al menos un campo (fotógrafo/a, lugar, tema, descripción o etiquetas) antes de aplicar.'
+      };
+      pintarInspectorLateral();
+      return;
+    }
 
     selArchs.forEach(a => {
       if (fotoMasivo){ a.fotografo = JSON.parse(JSON.stringify(fotoMasivo)); a.fotografoManual = true; }
@@ -1723,14 +2025,18 @@ function pintarInspectorLateral(){
         a.etiquetas_ia = [...set];
       }
     });
+
+    E.feedbackMasivo = {
+      tipo: 'ok',
+      titulo: `Cambios aplicados a ${selArchs.length} archivo(s)`,
+      detalle: `Campos actualizados: ${camposAplicados.join(', ')}.`
+    };
     pintarMesaCatalogacion();
-    const fb = $('#masivoFeedback');
-    if (fb) fb.innerHTML = `<div class="msg ok"><b>Cambios aplicados</b>Se actualizaron ${selArchs.length} archivo(s).</div>`;
   };
 }
 
 /* ============================================================================
-   LECTURA EXIF / VIDEO, MINIATURAS CANVAS Y ANÁLISIS IA (/api/analizar-media)
+   LECTURA EXIF / VIDEO, MINIATURAS CANVAS Y COLA DE ANÁLISIS IA (CONCURRENCIA = 2)
    ============================================================================ */
 async function leerExif(file){
   try{
@@ -1835,11 +2141,41 @@ function generarMiniaturaBase64(file, tipo){
   });
 }
 
-async function analizarArchivoIA(a){
-  if (a.bloqueo || (a.tipo !== 'imagen' && a.tipo !== 'video')){
-    a.iaEstado = 'no_aplicable';
-    return;
+const COLA_IA = [];
+let IA_EN_CURSO = 0;
+const CONCURRENCIA_IA = 2;
+
+function encolarAnalisisIA(listaArchivos, forzar = false){
+  for (const a of listaArchivos){
+    if (a.bloqueo || (a.tipo !== 'imagen' && a.tipo !== 'video')){
+      a.iaEstado = 'no_aplicable';
+      continue;
+    }
+    if (a.iaEnCola || a.iaEstado === 'analizando') continue;
+    if (!forzar && a.iaEstado === 'ok') continue;
+    a.iaEnCola = true;
+    a.iaEstado = 'pendiente';
+    COLA_IA.push(a);
   }
+  actualizarIndicadorColaIA();
+  procesarColaIA();
+}
+
+async function procesarColaIA(){
+  while (IA_EN_CURSO < CONCURRENCIA_IA && COLA_IA.length > 0){
+    const a = COLA_IA.shift();
+    a.iaEnCola = false;
+    if (!E.archivos.some(x => x.id === a.id) || a.bloqueo) continue;
+    IA_EN_CURSO++;
+    analizarArchivoIndividual(a).finally(() => {
+      IA_EN_CURSO--;
+      actualizarIndicadorColaIA();
+      procesarColaIA();
+    });
+  }
+}
+
+async function analizarArchivoIndividual(a){
   if (!a.thumbB64){
     const b64 = await generarMiniaturaBase64(a.file, a.tipo);
     if (b64){
@@ -1848,11 +2184,21 @@ async function analizarArchivoIA(a){
       if (E.paso === 1) pintarMesaCatalogacion();
     }
   }
-  if (CONFIG.modo !== 'graph'){ a.iaEstado = 'simulado'; if (E.paso === 1) pintarMesaCatalogacion(); return; }
-  if (!a.thumbB64){ a.iaEstado = 'sin_preview'; if (E.paso === 1) pintarMesaCatalogacion(); return; }
+  if (CONFIG.modo !== 'graph'){
+    a.iaEstado = 'simulado';
+    if (E.paso === 1) pintarMesaCatalogacion();
+    return;
+  }
+  if (!a.thumbB64){
+    a.iaEstado = 'sin_preview';
+    if (E.paso === 1) pintarMesaCatalogacion();
+    return;
+  }
 
-  a.iaEstado = 'analizando'; a.iaError = '';
+  a.iaEstado = 'analizando';
+  a.iaError = '';
   if (E.paso === 1) pintarMesaCatalogacion();
+
   try {
     const t = await token();
     const res = await fetch('/api/analizar-media', {
@@ -1870,6 +2216,7 @@ async function analizarArchivoIA(a){
     a.iaError = (e.message || String(e)).slice(0, 140);
   }
   if (E.paso === 1) pintarMesaCatalogacion();
+  if (E.paso === 2) pintarRevision();
 }
 
 async function agregarArchivosAGrupo(files, grupoId){
@@ -1903,6 +2250,7 @@ async function agregarArchivosAGrupo(files, grupoId){
       etiquetas_ia: [],
       descripcion_ia: '',
       iaEstado: 'pendiente',
+      iaEnCola: false,
       iaError: ''
     };
     if (['jpg','jpeg'].includes(ext(f.name))) a.exif = await leerExif(f);
@@ -1914,7 +2262,7 @@ async function agregarArchivosAGrupo(files, grupoId){
     E.seleccionados.add(nuevos[0].id);
   }
   revisarTodosArchivos();
-  nuevos.forEach(a => { if (!a.bloqueo) analizarArchivoIA(a); });
+  encolarAnalisisIA(nuevos, false);
 }
 
 function revisarTodosArchivos(){
@@ -1937,9 +2285,26 @@ function revisarTodosArchivos(){
       a.avisos.push((a.tipo === 'video' ? 'Grabado en ' : 'Tomada en ') + fc.slice(0,4));
     }
   }
+  guardarBorradorSesion();
   if (E.paso === 1) pintarMesaCatalogacion();
   if (E.paso === 2) pintarRevision();
   actualizarPie();
+}
+
+/* Persistencia ligera de borrador de metadatos en sessionStorage (sin tokens ni archivos binarios) */
+function guardarBorradorSesion(){
+  try {
+    const borrador = {
+      modoOrg: E.modoOrg,
+      grupos: E.grupos.map(g => ({
+        paisaje: g.paisaje, programa: g.programa, gestion: g.gestion,
+        actividad: g.actividad, subactividad: g.subactividad,
+        lineaEstrategica: g.lineaEstrategica, lineaAuto: g.lineaAuto,
+        fotografoDefault: g.fotografoDefault
+      }))
+    };
+    sessionStorage.setItem('pdma_borrador_ctx', JSON.stringify(borrador));
+  } catch(_){}
 }
 
 /* ============================================================================
@@ -2007,21 +2372,25 @@ function pintarRevision(){
   const conIA = okArchs.filter(a => a.iaEstado === 'ok').length;
   const sinFoto = okArchs.filter(a => !a.fotografo).length;
   const gruposIncomp = E.grupos.filter(g => !grupoValido(g)).length;
-  const pendientesTotal = sinFoto + gruposIncomp;
+  const gruposVacios = E.grupos.filter(g => archivosValidosDeGrupo(g.id).length === 0).length;
+  const pendientesTotal = sinFoto + gruposIncomp + gruposVacios;
 
   $('#revKpis').innerHTML = `
     <div class="kpi"><b>${okArchs.length}</b><span>Archivos listos</span></div>
     <div class="kpi"><b>${E.grupos.length}</b><span>Grupo(s) de material</span></div>
     <div class="kpi"><b>${conIA}</b><span>Analizados por IA</span></div>
-    <div class="kpi ${pendientesTotal ? 'warn' : ''}"><b>${pendientesTotal}</b><span>Dato(s) pendiente(s)</span></div>
+    <div class="kpi ${pendientesTotal ? 'warn' : ''}"><b>${pendientesTotal}</b><span>Pendiente(s) obligatorio(s)</span></div>
   `;
 
   const avisos = [];
   if (gruposIncomp){
     avisos.push(`<div class="msg err"><b>Hay ${gruposIncomp} grupo(s) con contexto incompleto</b>Vuelve a la etapa anterior y completa Paisaje, Programa, Gestión y Actividad.</div>`);
   }
+  if (gruposVacios){
+    avisos.push(`<div class="msg err"><b>Hay ${gruposVacios} grupo(s) vacío(s) sin archivos</b>No se permiten grupos vacíos. Añade archivos o elimina el grupo vacío antes de enviar.</div>`);
+  }
   if (sinFoto){
-    avisos.push(`<div class="msg warn"><b>${sinFoto} archivo(s) aún no tienen fotógrafo asignado</b>Usa el botón <i>Revisar</i> junto al archivo para asignar fotógrafo interno o externo.</div>`);
+    avisos.push(`<div class="msg warn"><b>${sinFoto} archivo(s) aún no tienen fotógrafo/a asignado</b>Usa el botón <i>Revisar</i> junto al archivo para asignar fotógrafo/a interno o externo.</div>`);
   }
   if (okArchs.some(a => a.avisos.some(x => x.includes('WhatsApp') || x.includes('cámara')))){
     avisos.push(`<div class="msg warn"><b>Advertencia de originalidad</b>Algunos archivos parecen comprimidos de WhatsApp o no tienen metadatos de cámara. Si tienes el original, reemplázalo antes de enviar.</div>`);
@@ -2034,7 +2403,7 @@ function pintarRevision(){
     const items = okArchs.filter(a => a.grupoId === g.id);
     const box = document.createElement('div');
     box.className = 'rev-grupo';
-    const okG = grupoValido(g);
+    const okG = grupoValido(g) && items.length > 0;
     box.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <div>
@@ -2042,7 +2411,9 @@ function pintarRevision(){
           ${g.lineaEstrategica ? `<span class="st st-ia" style="margin-left:6px">${esc(g.lineaEstrategica)}</span>` : ''}
           <div style="font-size:12.5px;color:var(--muted)">${esc(rutaGrupo(g).join(' › ') || 'Contexto incompleto')}</div>
         </div>
-        ${!okG ? `<button type="button" class="btn-xs prim" data-fix-grp="${g.id}">Completar grupo</button>` : `<span class="st st-ok">${items.length} archivo(s)</span>`}
+        ${!okG
+          ? `<button type="button" class="btn-xs prim" data-fix-grp="${g.id}">${items.length === 0 ? 'Resolver grupo vacío' : 'Completar grupo'}</button>`
+          : `<span class="st st-ok">${items.length} archivo(s)</span>`}
       </div>
       <div class="rev-items"></div>
     `;
@@ -2052,7 +2423,7 @@ function pintarRevision(){
 
     const listEl = box.querySelector('.rev-items');
     if (!items.length){
-      listEl.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:6px 0">Este grupo no tiene archivos válidos asignados.</div>';
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--red);padding:6px 0">Este grupo no tiene archivos válidos asignados.</div>';
     } else {
       items.forEach(a => {
         const row = document.createElement('div');
@@ -2063,7 +2434,7 @@ function pintarRevision(){
           <div style="min-width:0">
             <b style="font-size:13.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.nombre)}</b>
             <div style="font-size:12px;color:var(--muted)">
-              ${a.fotografo ? '📷 ' + esc(fotografoTexto(a.fotografo)) : '<span style="color:var(--amber);font-weight:700">Falta asignar fotógrafo</span>'}
+              ${a.fotografo ? '📷 ' + esc(fotografoTexto(a.fotografo)) : '<span style="color:var(--amber);font-weight:700">Falta asignar fotógrafo/a</span>'}
               ${a.lugar ? ' · 📍 ' + esc(a.lugar) : ''}
               ${a.especiesTema ? ' · 🦜 ' + esc(a.especiesTema) : ''}
             </div>
@@ -2089,17 +2460,28 @@ function pintarRevision(){
 }
 
 /* ============================================================================
-   NAVEGACIÓN ENTRE ETAPAS Y VALIDACIÓN
+   NAVEGACIÓN ENTRE ETAPAS Y VALIDACIÓN ESTRICTA
    ============================================================================ */
 function pasoValido(i){
-  if (i === 0) return grupoValido(E.grupos[0]);
+  if (i === 0){
+    if (E.modoOrg === 'unico' && E.grupos.length > 1) return false;
+    return grupoValido(E.grupos[0]);
+  }
   if (i === 1){
+    if (E.modoOrg === 'unico' && E.grupos.length !== 1) return false;
     const okArchs = E.archivos.filter(a => !a.bloqueo);
-    return okArchs.length > 0 && E.archivos.every(a => !a.bloqueo) && E.grupos.every(g => grupoValido(g));
+    return okArchs.length > 0 &&
+           E.archivos.every(a => !a.bloqueo) &&
+           E.grupos.every(g => grupoValido(g) && archivosValidosDeGrupo(g.id).length > 0);
   }
   if (i === 2){
+    if (E.modoOrg === 'unico' && E.grupos.length !== 1) return false;
     const okArchs = E.archivos.filter(a => !a.bloqueo);
-    return $('#fConfirma').checked && !E.enviando && okArchs.length > 0 && okArchs.every(a => !!a.fotografo) && E.grupos.every(g => grupoValido(g));
+    return $('#fConfirma').checked &&
+           !E.enviando &&
+           okArchs.length > 0 &&
+           okArchs.every(a => !!a.fotografo) &&
+           E.grupos.every(g => grupoValido(g) && archivosValidosDeGrupo(g.id).length > 0);
   }
   return false;
 }
@@ -2112,6 +2494,9 @@ function irA(i){
     li.className = k === i ? 'on' : (k < i ? 'hecho' : '');
     li.onclick = (k < i && !E.enviando) ? () => irA(k) : null;
   });
+  const infoActual = INFO_PASOS[i] || INFO_PASOS[0];
+  $('#pasoMovilResumen').innerHTML = `Paso ${i + 1} de 4 · <b>${esc(infoActual.tit)}</b> — ${esc(infoActual.sub)}`;
+
   if (i === 0) pintarEtapa1();
   if (i === 1) pintarMesaCatalogacion();
   if (i === 2) pintarRevision();
@@ -2136,21 +2521,50 @@ function actualizarPie(){
   $('#bSig').disabled = !pasoValido(E.paso);
 }
 
+/* Control efectivo de modo individual vs mixto (sin pérdida silenciosa) */
 document.querySelectorAll('#opModoOrg button').forEach(b => b.onclick = () => {
-  E.modoOrg = b.dataset.org;
-  document.querySelectorAll('#opModoOrg button').forEach(x => x.setAttribute('aria-pressed', x.dataset.org === E.modoOrg ? 'true' : 'false'));
+  const nuevoModo = b.dataset.org;
+  if (nuevoModo === E.modoOrg) return;
+
+  if (nuevoModo === 'unico' && E.grupos.length > 1){
+    const archsExtra = E.archivos.filter(a => a.grupoId !== E.grupos[0].id).length;
+    $('#avisoCambioModo').innerHTML = `
+      <div class="msg warn">
+        <b>Tienes ${E.grupos.length} grupos creados en este envío</b>
+        Para volver a «Una sola actividad» debes resolver los ${E.grupos.length - 1} grupo(s) adicional(es)${archsExtra ? ` (${archsExtra} archivo(s))` : ''}.
+        <div class="acc">
+          <button type="button" class="btn-xs" id="bMantenerMixto">Mantener varias actividades</button>
+          <button type="button" class="btn-xs prim" id="bUnificarEnG1">Mover todo al Grupo 1 y unificar</button>
+        </div>
+      </div>`;
+    $('#bMantenerMixto').onclick = () => { $('#avisoCambioModo').innerHTML = ''; };
+    $('#bUnificarEnG1').onclick = () => {
+      const g1 = E.grupos[0];
+      E.archivos.forEach(a => { a.grupoId = g1.id; });
+      E.grupos = [g1];
+      E.grupoActivoId = g1.id;
+      E.modoOrg = 'unico';
+      $('#avisoCambioModo').innerHTML = '';
+      revisarTodosArchivos();
+      pintarEtapa1();
+    };
+    return;
+  }
+
+  $('#avisoCambioModo').innerHTML = '';
+  E.modoOrg = nuevoModo;
   pintarEtapa1();
 });
 
 $('#bSig').onclick = () => {
   if (E.paso < 2) irA(E.paso + 1);
-  else if (E.paso === 2) enviar();
+  else if (E.paso === 2) ejecutarEnvio(false);
 };
 $('#bAtras').onclick = () => { if (E.paso > 0 && !E.enviando) irA(E.paso - 1); };
 $('#fConfirma').addEventListener('change', actualizarPie);
 
 /* ============================================================================
-   ETAPA 4 · ENVÍO REANUDABLE POR BLOQUES Y MANIFIESTO PDMA-ENVIO-2
+   ETAPA 4 · ENVÍO IDEMPOTENTE POR BLOQUES, REINTENTOS PARCIALES Y MANIFIESTO
    ============================================================================ */
 function codigoEnvio(){
   const d = new Date(), p = n => String(n).padStart(2,'0');
@@ -2165,12 +2579,13 @@ function construirManifiesto(codigo){
     version_formulario: CONFIG.version,
     envio: codigo,
     fecha_utc: new Date().toISOString(),
+    entorno: CONFIG.entorno.nombreVisible,
     remitente: {
       nombre: CONFIG.usuario.nombre,
       correo: CONFIG.usuario.correo,
       upn: CONFIG.usuario.upn || CONFIG.usuario.correo
     },
-    bandeja: CONFIG.carpetaPrueba + '/BANDEJA/' + codigo + '/',
+    bandeja: CONFIG.carpetaTecnica + '/BANDEJA/' + codigo + '/',
     grupos: E.grupos.map((g, idx) => {
       const subcarpeta = multi ? `G${idx + 1}/` : '';
       return {
@@ -2204,11 +2619,13 @@ function construirManifiesto(codigo){
         fecha_captura_fuente: (a.exif && a.exif.fecha) ? 'exif' : (a.fechaVideo ? 'video' : null),
         fotografo: a.fotografo ? {
           tipo: a.fotografo.tipo,
+          entra_id: a.fotografo.entraId || null,
           id_sharepoint: a.fotografo.id || null,
           nombre: a.fotografo.nombre,
           correo: a.fotografo.correo || null,
           upn: a.fotografo.upn || null,
-          fotografo_externo_nuevo: !!a.fotografo.nuevo
+          fotografo_externo_nuevo: !!a.fotografo.nuevo,
+          guardado_en_catalogo_sp: !!a.fotografo.guardadoEnSharePoint
         } : null,
         detalles: {
           lugar: (a.lugar || '').trim(),
@@ -2244,10 +2661,22 @@ function actualizarBarraGeneral(archivosEnvio){
   }
 }
 
-async function enviar(){
-  if (!pasoValido(2)) return;
+async function ejecutarEnvio(esReintento){
+  if (!esReintento && !pasoValido(2)) return;
   E.enviando = true;
   const okArchs = E.archivos.filter(a => !a.bloqueo);
+  const multi = E.grupos.length > 1;
+
+  if (!esReintento || !E.sesionSubida){
+    E.sesionSubida = {
+      codigo: codigoEnvio(),
+      carpetaEnvio: null,
+      subcarpetasMap: {},
+      errorCarpeta: null
+    };
+  }
+  const ses = E.sesionSubida;
+
   irA(3);
   $('#zonaReciboFinal').classList.add('oculto');
   $('#zonaSubidaActiva').classList.remove('oculto');
@@ -2261,42 +2690,65 @@ async function enviar(){
     </div>`;
 
   const listaSub = $('#listaProgresoSubida');
-  listaSub.innerHTML = okArchs.map(a => `
-    <div class="panel" style="padding:10px 14px;margin-top:8px" id="sub_${a.id}">
-      <div style="display:flex;justify-content:space-between;gap:8px;font-size:13.5px">
-        <b>${esc(a.nombre)}</b>
-        <span class="st st-neu" id="subSt_${a.id}">En cola</span>
-      </div>
-      <div class="barra-sub"><i id="subBar_${a.id}"></i></div>
-    </div>`).join('');
+  listaSub.innerHTML = okArchs.map(a => {
+    const yaSubido = a.resultado && a.resultado.estado === 'SUBIDO';
+    return `
+      <div class="panel" style="padding:10px 14px;margin-top:8px" id="sub_${a.id}">
+        <div style="display:flex;justify-content:space-between;gap:8px;font-size:13.5px">
+          <b>${esc(a.nombre)}</b>
+          <span class="st ${yaSubido ? 'st-ok' : 'st-neu'}" id="subSt_${a.id}">${yaSubido ? 'Recibido (omitido en reintento)' : 'En cola'}</span>
+        </div>
+        <div class="barra-sub"><i id="subBar_${a.id}" class="${yaSubido ? 'fin' : ''}" style="width:${yaSubido ? 100 : 0}%"></i></div>
+      </div>`;
+  }).join('');
+  actualizarBarraGeneral(okArchs);
 
-  const codigo = codigoEnvio();
-  const multi = E.grupos.length > 1;
   let reg;
 
   if (CONFIG.modo === 'graph'){
-    let carpetaEnvio = null;
-    const subcarpetasMap = {};
+    // Paso A: Creación idempotente de carpetas en BANDEJA/{codigo}
     try {
-      const bandeja = await carpetaHija(DESTINO.driveId, DESTINO.id, 'BANDEJA');
-      carpetaEnvio = await carpetaHija(DESTINO.driveId, bandeja.id, codigo);
+      if (!ses.carpetaEnvio){
+        const bandeja = await carpetaHija(DESTINO.driveId, DESTINO.id, 'BANDEJA');
+        ses.carpetaEnvio = await carpetaHija(DESTINO.driveId, bandeja.id, ses.codigo);
+      }
       if (multi){
         for (let i = 0; i < E.grupos.length; i++){
           const g = E.grupos[i];
-          subcarpetasMap[g.id] = await carpetaHija(DESTINO.driveId, carpetaEnvio.id, `G${i + 1}`);
+          if (!ses.subcarpetasMap[g.id]){
+            ses.subcarpetasMap[g.id] = await carpetaHija(DESTINO.driveId, ses.carpetaEnvio.id, `G${i + 1}`);
+          }
         }
       }
+      ses.errorCarpeta = null;
     } catch(e){
       E.enviando = false;
-      $('#progContenedor').innerHTML += `<div class="msg err"><b>Error creando carpeta de recepción en OneDrive</b>${esc(e.message || e)}</div>`;
+      ses.errorCarpeta = String(e.message || e).slice(0, 300);
+      $('#progContenedor').innerHTML += `
+        <div class="msg err">
+          <b>No se pudo crear la carpeta de recepción en OneDrive</b>
+          ${esc(ses.errorCarpeta)}
+          <div class="acc">
+            <button type="button" class="btn-xs prim" id="bRetryCarpeta">↻ Reintentar creación de carpeta</button>
+            <button type="button" class="btn-xs" id="bVolverRevCarpeta">← Volver a revisión</button>
+          </div>
+        </div>`;
+      $('#bRetryCarpeta').onclick = () => ejecutarEnvio(true);
+      $('#bVolverRevCarpeta').onclick = () => irA(2);
       return;
     }
 
+    // Paso B: Subir únicamente archivos que aún no estén en estado 'SUBIDO'
     for (const a of okArchs){
+      if (a.resultado && a.resultado.estado === 'SUBIDO'){
+        a.progreso = 100;
+        continue;
+      }
       const stEl = $(`#subSt_${a.id}`);
       const barEl = $(`#subBar_${a.id}`);
       stEl.className = 'st st-av'; stEl.textContent = 'Subiendo…';
-      const targetFolderId = multi ? subcarpetasMap[a.grupoId].id : carpetaEnvio.id;
+      barEl.classList.remove('err');
+      const targetFolderId = multi ? ses.subcarpetasMap[a.grupoId].id : ses.carpetaEnvio.id;
       try {
         const it = await subirArchivo(a, DESTINO.driveId, targetFolderId, f => {
           a.progreso = f * 100;
@@ -2314,37 +2766,42 @@ async function enviar(){
         stEl.className = a.resultado.estado === 'SUBIDO' ? 'st st-ok' : 'st st-mal';
         stEl.textContent = a.resultado.estado === 'SUBIDO' ? 'Recibido' : 'Tamaño distinto';
       } catch(e){
+        a.progreso = 0;
         a.resultado = { estado: 'ERROR', detalle: String(e.message || e).slice(0, 300) };
+        barEl.classList.add('err');
         stEl.className = 'st st-mal'; stEl.textContent = 'Error';
       }
     }
 
-    reg = construirManifiesto(codigo);
-    reg.bandeja = DESTINO.nombre + '/BANDEJA/' + codigo + '/';
+    // Paso C: Generar y guardar manifiesto JSON (sobrescribe limpiamente sin duplicar)
+    reg = construirManifiesto(ses.codigo);
+    reg.bandeja = DESTINO.nombre + '/BANDEJA/' + ses.codigo + '/';
     reg.archivos.forEach((x, idx) => Object.assign(x, okArchs[idx].resultado));
     reg.subidos = reg.archivos.filter(x => x.estado === 'SUBIDO').length;
     try {
-      await subirJson(DESTINO.driveId, carpetaEnvio.id, codigo + '.json', reg);
+      await subirJson(DESTINO.driveId, ses.carpetaEnvio.id, ses.codigo + '.json', reg);
       reg._json_guardado = true;
     } catch(e){
       reg._json_guardado = false;
       reg._json_error = String(e.message || e).slice(0, 300);
     }
-    reg._carpeta_web = carpetaEnvio.webUrl;
+    reg._carpeta_web = ses.carpetaEnvio.webUrl;
   } else {
-    // Modo simulado
+    // Modo local sin conexión
     for (const a of okArchs){
       const stEl = $(`#subSt_${a.id}`);
       const barEl = $(`#subBar_${a.id}`);
       stEl.className = 'st st-av'; stEl.textContent = 'Simulando…';
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 200));
       a.progreso = 100;
+      a.resultado = { estado: 'SUBIDO' };
       barEl.style.width = '100%'; barEl.classList.add('fin');
       actualizarBarraGeneral(okArchs);
       stEl.className = 'st st-ok'; stEl.textContent = 'Simulado';
     }
-    reg = construirManifiesto(codigo);
+    reg = construirManifiesto(ses.codigo);
     reg.subidos = okArchs.length;
+    reg._json_guardado = true;
   }
 
   E.ultimo = reg;
@@ -2352,27 +2809,93 @@ async function enviar(){
   mostrarRecibo(reg);
 }
 
+async function reintentarSoloManifiesto(){
+  if (!E.ultimo || !E.sesionSubida || !E.sesionSubida.carpetaEnvio) return;
+  const ses = E.sesionSubida;
+  const reg = construirManifiesto(ses.codigo);
+  const okArchs = E.archivos.filter(a => !a.bloqueo);
+  reg.bandeja = DESTINO.nombre + '/BANDEJA/' + ses.codigo + '/';
+  reg.archivos.forEach((x, idx) => Object.assign(x, okArchs[idx].resultado));
+  reg.subidos = reg.archivos.filter(x => x.estado === 'SUBIDO').length;
+  reg._carpeta_web = ses.carpetaEnvio.webUrl;
+  try {
+    await subirJson(DESTINO.driveId, ses.carpetaEnvio.id, ses.codigo + '.json', reg);
+    reg._json_guardado = true;
+  } catch(e){
+    reg._json_guardado = false;
+    reg._json_error = String(e.message || e).slice(0, 300);
+  }
+  E.ultimo = reg;
+  mostrarRecibo(reg);
+}
+
 function mostrarRecibo(reg){
   $('#zonaSubidaActiva').classList.add('oculto');
   $('#zonaReciboFinal').classList.remove('oculto');
   $('#rCodigo').textContent = reg.envio;
-  const tot = reg.archivos.length, ok = reg.subidos;
-  const completo = CONFIG.modo === 'graph' ? (ok === tot && reg._json_guardado) : true;
 
-  $('#rSello').textContent = completo ? '✓' : '!';
-  $('#rSello').style.background = completo ? 'var(--ok)' : 'var(--amber)';
-  $('#rTitulo').textContent = completo ? 'Material recibido en bandeja' : 'Envío recibido con observaciones';
-  $('#rTexto').innerHTML = `Se recibieron <b>${ok} de ${tot} archivo(s)</b> organizados en <b>${reg.grupos.length} grupo(s)</b>. El material quedó resguardado en la bandeja de recepción para su posterior catalogación definitiva en el catálogo PDMA.`;
+  const tot = reg.archivos.length;
+  const ok = reg.subidos;
+  const fallidos = reg.archivos.filter(x => x.estado !== 'SUBIDO');
+  const jsonOk = CONFIG.modo === 'graph' ? !!reg._json_guardado : true;
+  const completo = ok === tot && jsonOk;
+  const fallidoTotal = ok === 0;
+
+  if (completo){
+    $('#rSello').textContent = '✓';
+    $('#rSello').style.background = 'var(--ok)';
+    $('#rTitulo').textContent = 'Material recibido en bandeja';
+    $('#rTexto').innerHTML = `Se recibieron correctamente <b>${ok} de ${tot} archivo(s)</b> en <b>${reg.grupos.length} grupo(s)</b> y se guardó el manifiesto JSON. Quedan resguardados en bandeja para su catalogación en SharePoint.`;
+  } else if (fallidoTotal){
+    $('#rSello').textContent = '✕';
+    $('#rSello').style.background = 'var(--red)';
+    $('#rTitulo').textContent = 'No se pudo completar el envío';
+    $('#rTexto').innerHTML = `Ninguno de los <b>${tot} archivo(s)</b> pudo transferirse. Puedes reintentar los archivos fallidos sin volver a llenar el formulario.`;
+  } else {
+    $('#rSello').textContent = '!';
+    $('#rSello').style.background = 'var(--amber)';
+    $('#rTitulo').textContent = 'Envío recibido parcialmente';
+    $('#rTexto').innerHTML = `Se recibieron <b>${ok} de ${tot} archivo(s)</b>, pero <b>${fallidos.length} archivo(s)</b>${!jsonOk ? ' y el manifiesto JSON' : ''} requieren atención.`;
+  }
+
+  // Botones de recuperación idempotente
+  const recBox = $('#rAccionesRecuperacion');
+  recBox.innerHTML = '';
+  if (fallidos.length > 0){
+    const listaErr = fallidos.map(f => `<li><b>${esc(f.nombre)}</b>: ${esc(f.detalle || f.estado)}</li>`).join('');
+    recBox.innerHTML += `
+      <div class="msg err" style="margin-bottom:10px">
+        <b>Archivos con error (${fallidos.length})</b>
+        <ul style="margin:4px 0 6px 18px;padding:0">${listaErr}</ul>
+        <div class="acc">
+          <button type="button" class="btn-xs prim" id="bRetryFallidos">↻ Reintentar solo archivos fallidos (${fallidos.length})</button>
+        </div>
+      </div>`;
+    recBox.querySelector('#bRetryFallidos').onclick = () => ejecutarEnvio(true);
+  } else if (!jsonOk){
+    recBox.innerHTML += `
+      <div class="msg warn" style="margin-bottom:10px">
+        <b>Todos los archivos se subieron, pero falló el guardado del manifiesto JSON</b>
+        ${esc(reg._json_error || '')}
+        <div class="acc">
+          <button type="button" class="btn-xs prim" id="bRetryJson">↻ Reintentar guardar manifiesto JSON</button>
+        </div>
+      </div>`;
+    recBox.querySelector('#bRetryJson').onclick = () => reintentarSoloManifiesto();
+  }
 
   const bandeja = `<span class="ruta">OneDrive · ${esc(reg.bandeja.replace(/\/$/,'').replace(/\//g,' › '))}</span>`;
-  $('#rDonde').className = 'msg ' + (completo ? 'ok' : 'warn');
-  $('#rDonde').innerHTML = (completo ? '<b>Recepción confirmada</b>' : '<b>Revisa los archivos marcados con error</b>') +
-    `Ubicación de bandeja: ${bandeja}` +
-    (reg._carpeta_web ? ` · <a href="${esc(reg._carpeta_web)}" target="_blank" rel="noopener">Abrir carpeta en OneDrive</a>` : '') +
-    (CONFIG.modo === 'graph' && !reg._json_guardado ? '<br>No se pudo guardar el archivo JSON en OneDrive: descárgalo manualmente con el botón inferior.' : '');
+  $('#rDonde').className = 'msg ' + (completo ? 'ok' : (fallidoTotal ? 'err' : 'warn'));
+  $('#rDonde').innerHTML = (completo ? '<b>Recepción confirmada</b>' : '<b>Detalle de ubicación en bandeja</b>') +
+    `Carpeta de recepción (${esc(CONFIG.entorno.nombreVisible)}): ${bandeja}` +
+    (reg._carpeta_web ? ` · <a href="${esc(reg._carpeta_web)}" target="_blank" rel="noopener">Abrir carpeta en OneDrive</a>` : '');
 
   const limpio = Object.fromEntries(Object.entries(reg).filter(([k]) => !k.startsWith('_')));
   $('#rJson').textContent = JSON.stringify(limpio, null, 2);
+
+  if (completo){
+    try { sessionStorage.removeItem('pdma_borrador_ctx'); } catch(_){}
+  }
 }
 
 $('#bDescargar').onclick = () => {
@@ -2391,31 +2914,49 @@ $('#bNuevo').onclick = () => {
   E.grupoActivoId = 'G1';
   E.archivos = [];
   E.seleccionados.clear();
+  E.feedbackMasivo = null;
   E.enviando = false;
+  E.ultimo = null;
+  E.sesionSubida = null;
   $('#fConfirma').checked = false;
+  try { sessionStorage.removeItem('pdma_borrador_ctx'); } catch(_){}
   irA(0);
 };
 
-window.addEventListener('beforeunload', e => { if (E.enviando){ e.preventDefault(); e.returnValue = ''; } });
+/* Advertir antes de abandonar o recargar si hay envío activo o trabajo sin enviar */
+window.addEventListener('beforeunload', e => {
+  const envioTerminado = E.paso === 3 && E.ultimo && E.ultimo.subidos === E.ultimo.archivos.length && E.ultimo._json_guardado;
+  const hayTrabajoPendiente = E.enviando || (!envioTerminado && (E.archivos.length > 0 || grupoValido(E.grupos[0])));
+  if (hayTrabajoPendiente){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
 
 /* ============================================================================
-   CONEXIÓN MICROSOFT 365 · GRAPH API Y CATÁLOGOS SHAREPOINT
+   CONEXIÓN MICROSOFT 365 · GRAPH API Y DIRECTORIOS EN VIVO
    ============================================================================ */
 const GRAPH = 'https://graph.microsoft.com/v1.0';
-const SCOPES = ['User.Read', 'Files.ReadWrite.All'];
+const SCOPES_BASE = ['User.Read', 'Files.ReadWrite.All'];
+const SCOPES_DIRECTORIO = ['User.Read', 'User.ReadBasic.All', 'Files.ReadWrite.All'];
 let PCA = null, CUENTA = null, DESTINO = null;
 const esperar = ms => new Promise(r => setTimeout(r, ms));
 
-async function token(){
-  try { return (await PCA.acquireTokenSilent({ scopes: SCOPES, account: CUENTA })).accessToken; }
-  catch(e){ return (await PCA.acquireTokenPopup({ scopes: SCOPES, account: CUENTA })).accessToken; }
+async function token(scopes = SCOPES_BASE){
+  try { return (await PCA.acquireTokenSilent({ scopes, account: CUENTA })).accessToken; }
+  catch(e){ return (await PCA.acquireTokenPopup({ scopes, account: CUENTA })).accessToken; }
 }
 
-async function g(metodo, ruta, cuerpo){
-  const h = { Authorization: 'Bearer ' + await token() };
+async function g(metodo, ruta, cuerpo, scopes = SCOPES_BASE){
+  const h = { Authorization: 'Bearer ' + await token(scopes) };
   if (cuerpo !== undefined) h['Content-Type'] = 'application/json';
   const r = await fetch(GRAPH + ruta, { method: metodo, headers: h, body: cuerpo !== undefined ? JSON.stringify(cuerpo) : undefined });
-  if (!r.ok){ const t = await r.text(); const err = new Error(metodo + ' ' + ruta.split('?')[0] + ' → HTTP ' + r.status + ' ' + t.slice(0, 250)); err.status = r.status; throw err; }
+  if (!r.ok){
+    const t = await r.text();
+    const err = new Error(metodo + ' ' + ruta.split('?')[0] + ' → HTTP ' + r.status + ' ' + t.slice(0, 250));
+    err.status = r.status;
+    throw err;
+  }
   return r.status === 204 ? null : r.json();
 }
 
@@ -2476,29 +3017,22 @@ async function subirJson(driveId, carpetaId, nombre, obj){
   if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 200));
 }
 
-/* Consulta no bloqueante de catálogos reales de SharePoint (FotografoExterno y usuarios internos @armonia-bo.org) */
-async function cargarCatalogosSharePoint(){
-  // Siempre incluir al usuario autenticado si pertenece al dominio institucional
-  if (CONFIG.usuario.correo && CONFIG.usuario.correo.toLowerCase().endsWith(CONFIG.dominioInterno)){
-    DIRECTORIO.internos.push({
-      id: null,
-      nombre: CONFIG.usuario.nombre,
-      correo: CONFIG.usuario.correo,
-      upn: CONFIG.usuario.upn || CONFIG.usuario.correo,
-      loginName: ''
-    });
-  }
+/* Refresco dinámico de FotografoExterno en SharePoint durante la misma sesión */
+async function refrescarFotografosExternos(forzar = false){
   if (CONFIG.modo !== 'graph') return;
-
+  const ahora = Date.now();
+  if (!forzar && !DIRECTORIO.externosInvalidado && (ahora - DIRECTORIO.externosUltimaCarga < 30000)){
+    return;
+  }
+  DIRECTORIO.externosCargando = true;
   try {
-    // 1. Leer columnas de CatalogoPDMA para enriquecer FotografoExterno y Gestiones
     const colsResp = await g('GET', `/sites/${CONFIG.siteId}/lists/${CONFIG.listId}/columns`);
     const cols = colsResp.value || [];
     const colExt = cols.find(c => c.name === 'FotografoExterno');
     if (colExt && colExt.choice && Array.isArray(colExt.choice.choices)){
       DIRECTORIO.spExternoColumnaId = colExt.id;
       DIRECTORIO.spExternoAllowFillIn = !!colExt.choice.allowTextEntry;
-      const merged = new Set([...DIRECTORIO.externos, ...colExt.choice.choices.map(s => s.trim()).filter(Boolean)]);
+      const merged = new Set([...DIRECTORIO.externos, ...colExt.choice.choices.map(s => limpiarEspacios(s)).filter(Boolean)]);
       DIRECTORIO.externos = [...merged].sort((a, b) => a.localeCompare(b, 'es'));
     }
     const colGes = cols.find(c => c.name === 'Gestion');
@@ -2506,12 +3040,114 @@ async function cargarCatalogosSharePoint(){
       const yrs = colGes.choice.choices.filter(v => /^\d{4}$/.test(v)).sort((a, b) => b.localeCompare(a));
       if (yrs.length) CONFIG.gestiones = yrs;
     }
+    DIRECTORIO.externosUltimaCarga = Date.now();
+    DIRECTORIO.externosInvalidado = false;
   } catch(e){
-    console.info('Catálogo de columnas SharePoint en modo local de respaldo:', e.message);
+    console.info('No se pudo refrescar FotografoExterno desde SharePoint:', e.message);
+  } finally {
+    DIRECTORIO.externosCargando = false;
+  }
+}
+
+/* Asegura identidad real en el sitio SharePoint cuando se selecciona una persona del tenant */
+async function asegurarUsuarioSharePoint(upn){
+  try {
+    const tkSp = await PCA.acquireTokenSilent({
+      scopes: ['https://armoniabolivia.sharepoint.com/.default'],
+      account: CUENTA
+    }).then(r => r.accessToken).catch(() => null);
+    if (!tkSp) return null;
+
+    const r = await fetch(`${CONFIG.siteUrl}/_api/web/ensureuser`, {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + tkSp,
+        Accept: 'application/json;odata=nometadata',
+        'Content-Type': 'application/json;odata=nometadata'
+      },
+      body: JSON.stringify({ logonName: `i:0#.f|membership|${upn}` })
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d && d.Id ? { id: d.Id, loginName: d.LoginName || '' } : null;
+  } catch(_){
+    return null;
+  }
+}
+
+/* Carga completa con paginación (@odata.nextLink) de todos los usuarios elegibles @armonia-bo.org */
+async function cargarDirectorioInternosCompleto(){
+  DIRECTORIO.internosCargando = true;
+  DIRECTORIO.internosError = '';
+  const mapa = new Map();
+
+  // Garantizar que el remitente autenticado siempre esté disponible
+  if (CONFIG.usuario.correo && CONFIG.usuario.correo.toLowerCase().endsWith(CONFIG.dominioInterno)){
+    mapa.set(CONFIG.usuario.correo.toLowerCase(), {
+      entraId: CUENTA && CUENTA.localAccountId || null,
+      id: null,
+      nombre: CONFIG.usuario.nombre,
+      correo: CONFIG.usuario.correo,
+      upn: CONFIG.usuario.upn || CONFIG.usuario.correo,
+      loginName: ''
+    });
   }
 
+  if (CONFIG.modo !== 'graph'){
+    DIRECTORIO.internos = [...mapa.values()];
+    DIRECTORIO.internosCargando = false;
+    DIRECTORIO.internosFuente = 'Sesión local';
+    return;
+  }
+
+  // 1. Obtener usuarios del tenant vía Microsoft Graph /users con paginación completa
+  let cargoGraph = false;
   try {
-    // 2. Consultar usuarios internos @armonia-bo.org registrados en el sitio SharePoint (con LookupId real)
+    let tkDir = await PCA.acquireTokenSilent({ scopes: SCOPES_DIRECTORIO, account: CUENTA })
+      .then(r => r.accessToken)
+      .catch(() => null);
+    if (!tkDir){
+      tkDir = await token(SCOPES_BASE);
+    }
+
+    let nextUrl = `${GRAPH}/users?$select=id,displayName,mail,userPrincipalName,accountEnabled&$top=999`;
+    while (nextUrl){
+      const res = await fetch(nextUrl, { headers: { Authorization: 'Bearer ' + tkDir } });
+      if (!res.ok){
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      for (const u of (data.value || [])){
+        if (u.accountEnabled === false) continue;
+        const upn = String(u.userPrincipalName || '').trim();
+        const mail = String(u.mail || '').trim();
+        if (upn.includes('#EXT#')) continue;
+        const correoValido = mail.toLowerCase().endsWith(CONFIG.dominioInterno)
+          ? mail
+          : (upn.toLowerCase().endsWith(CONFIG.dominioInterno) ? upn : '');
+        if (!correoValido) continue;
+
+        const key = correoValido.toLowerCase();
+        const prev = mapa.get(key) || {};
+        mapa.set(key, {
+          entraId: u.id || prev.entraId || null,
+          id: prev.id || null,
+          nombre: u.displayName || prev.nombre || correoValido,
+          correo: correoValido,
+          upn: upn || correoValido,
+          loginName: prev.loginName || ''
+        });
+      }
+      nextUrl = data['@odata.nextLink'] || null;
+    }
+    cargoGraph = true;
+    DIRECTORIO.internosFuente = 'Microsoft 365 (Graph)';
+  } catch(e){
+    DIRECTORIO.internosError = `Permiso User.ReadBasic.All pendiente en Entra ID (${e.message}); mostrando usuarios del sitio SharePoint.`;
+  }
+
+  // 2. Cruzar con _api/web/siteusers de SharePoint para asociar LookupIds existentes (y servir de respaldo)
+  try {
     const tkSp = await PCA.acquireTokenSilent({
       scopes: ['https://armoniabolivia.sharepoint.com/.default'],
       account: CUENTA
@@ -2523,40 +3159,49 @@ async function cargarCatalogosSharePoint(){
       });
       if (spRes.ok){
         const spData = await spRes.json();
-        const usuarios = (spData.value || []).filter(u =>
-          u.PrincipalType === 1 &&
-          ((u.Email || '').toLowerCase().endsWith(CONFIG.dominioInterno) ||
-           (u.UserPrincipalName || '').toLowerCase().endsWith(CONFIG.dominioInterno))
-        );
-        const mapa = new Map();
-        usuarios.forEach(u => {
-          const correo = (u.Email || u.UserPrincipalName || '').toLowerCase();
-          mapa.set(correo, {
+        for (const u of (spData.value || [])){
+          if (u.PrincipalType !== 1) continue;
+          const upn = String(u.UserPrincipalName || '').trim();
+          const mail = String(u.Email || '').trim();
+          const correo = mail.toLowerCase().endsWith(CONFIG.dominioInterno)
+            ? mail
+            : (upn.toLowerCase().endsWith(CONFIG.dominioInterno) ? upn : '');
+          if (!correo) continue;
+          const key = correo.toLowerCase();
+          const prev = mapa.get(key) || {};
+          mapa.set(key, {
+            entraId: prev.entraId || null,
             id: u.Id,
-            nombre: u.Title,
-            correo: u.Email || u.UserPrincipalName,
-            upn: u.UserPrincipalName || u.Email,
-            loginName: u.LoginName || ''
+            nombre: prev.nombre || u.Title || correo,
+            correo,
+            upn: upn || prev.upn || correo,
+            loginName: u.LoginName || prev.loginName || ''
           });
-        });
-        if (mapa.size){
-          DIRECTORIO.internos = [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
         }
+        if (!cargoGraph) DIRECTORIO.internosFuente = 'Sitio SharePoint';
       }
     }
-  } catch(e){
-    console.info('Directorio de personas SharePoint usando sesión actual:', e.message);
-  }
-  DIRECTORIO.cargadoSP = true;
+  } catch(_){}
+
+  DIRECTORIO.internos = [...mapa.values()].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+  DIRECTORIO.internosCargando = false;
 }
 
-function mostrarApp(){ $('#login').classList.add('oculto'); $('#app').classList.remove('oculto'); $('#pie').classList.remove('oculto'); }
-function mostrarLogin(error){
-  $('#app').classList.add('oculto'); $('#pie').classList.add('oculto'); $('#login').classList.remove('oculto');
-  $('#loginErr').innerHTML = error ? '<div class="msg err" style="text-align:left"><b>' + esc(error[0]) + '</b>' + esc(error[1] || '') + '</div>' : '';
+/* ============================================================================
+   TRANSICIONES DE PANTALLA SIN PARPADEO
+   ============================================================================ */
+function mostrarSoloPantalla(nombre){
+  $('#pantallaCarga').classList.toggle('oculto', nombre !== 'carga');
+  $('#login').classList.toggle('oculto', nombre !== 'login');
+  $('#app').classList.toggle('oculto', nombre !== 'app');
+  $('#pie').classList.toggle('oculto', nombre !== 'app' || E.paso === 3);
 }
 
 async function entrar(){
+  actualizarEstadoSesion('iniciando');
+  $('#bEntrar').disabled = true;
+  $('#bEntrar').textContent = 'Validando acceso y carpeta…';
+
   CONFIG.usuario = {
     nombre: CUENTA.name || CUENTA.username,
     correo: CUENTA.username,
@@ -2566,66 +3211,117 @@ async function entrar(){
   $('#uCorreo').textContent = CONFIG.usuario.correo;
   $('#cardUNombre').textContent = CONFIG.usuario.nombre;
   $('#cardUCorreo').textContent = CONFIG.usuario.correo;
-  $('#bSalir').classList.remove('oculto');
 
-  $('#bEntrar').disabled = true;
-  $('#bEntrar').textContent = 'Conectando con OneDrive y SharePoint…';
   try {
     DESTINO = await resolverCarpeta();
   } catch(e){
+    CONFIG.usuario = { nombre: '', correo: '', upn: '' };
+    $('#uNombre').textContent = '';
+    $('#uCorreo').textContent = '';
+    $('#bSalir').classList.add('oculto');
     $('#bEntrar').disabled = false;
-    $('#bEntrar').textContent = 'Intentar de nuevo';
-    return mostrarLogin([
-      'No se pudo abrir la carpeta de recepción',
-      'Verifica que la carpeta esté compartida con ' + CONFIG.usuario.correo + ' (permiso de edición) y que la app tenga Files.ReadWrite.All. Detalle: ' + (e.message || e)
-    ]);
+    $('#bEntrar').textContent = 'Reintentar inicio de sesión';
+    actualizarEstadoSesion('error');
+    $('#loginTitulo').textContent = 'No se pudo validar el acceso al repositorio';
+    $('#loginErr').innerHTML = `<div class="msg err" style="text-align:left"><b>Error de permisos o conexión con OneDrive</b>Verifica que la carpeta de recepción esté compartida con ${esc(CUENTA.username)} y que la aplicación tenga consentimiento para <i>Files.ReadWrite.All</i>. Detalle: ${esc(e.message || e)}</div>`;
+    mostrarSoloPantalla('login');
+    return;
   }
-  CONFIG.carpetaPrueba = DESTINO.nombre;
-  $('#modoTxt').textContent = 'Activo · ' + DESTINO.nombre;
-  $('#cardUModo').textContent = 'Conectado · ' + DESTINO.nombre;
 
-  await cargarCatalogosSharePoint();
-  pintarEtapa1();
-  mostrarApp();
+  CONFIG.carpetaTecnica = DESTINO.nombre;
+  $('#bSalir').classList.remove('oculto');
+  actualizarEstadoSesion('activa');
+
+  // Cargar catálogos en paralelo antes de renderizar la aplicación
+  await Promise.all([
+    refrescarFotografosExternos(true),
+    cargarDirectorioInternosCompleto()
+  ]);
+
+  irA(0);
+  mostrarSoloPantalla('app');
 }
 
 async function iniciar(){
-  $('#uNombre').textContent = CONFIG.usuario.nombre;
-  $('#uCorreo').textContent = CONFIG.usuario.correo;
-  $('#cardUNombre').textContent = CONFIG.usuario.nombre;
-  $('#cardUCorreo').textContent = CONFIG.usuario.correo;
-  irA(0);
+  aplicarIdentidadEntorno();
+  actualizarEstadoSesion('comprobando');
+  mostrarSoloPantalla('carga');
 
   const C = window.PDMA_CONFIG;
-  if (!(C && C.clientId && window.msal && location.protocol.startsWith('http'))) return;
-  if (window.opener && window.opener !== window && /(code|error)=/.test(location.hash)){ document.body.innerHTML = ''; return; }
+  if (!(C && C.clientId && window.msal && location.protocol.startsWith('http'))){
+    CONFIG.modo = 'simulado';
+    CONFIG.usuario = { nombre: 'Usuario local (sin M365)', correo: 'modo.local@armonia-bo.org', upn: '' };
+    $('#uNombre').textContent = CONFIG.usuario.nombre;
+    $('#uCorreo').textContent = CONFIG.usuario.correo;
+    $('#cardUNombre').textContent = CONFIG.usuario.nombre;
+    $('#cardUCorreo').textContent = CONFIG.usuario.correo;
+    $('#cardUStatus').className = 'st st-neu';
+    $('#cardUStatus').textContent = 'Modo local sin conexión';
+    actualizarEstadoSesion('simulado');
+    await cargarDirectorioInternosCompleto();
+    irA(0);
+    mostrarSoloPantalla('app');
+    return;
+  }
+
+  if (window.opener && window.opener !== window && /(code|error)=/.test(location.hash)){
+    document.body.innerHTML = '';
+    return;
+  }
 
   CONFIG.modo = 'graph';
-  $('#modoTxt').textContent = 'Conectando…';
-  $('#uNombre').textContent = 'Sin sesión'; $('#uCorreo').textContent = '';
+  try {
+    PCA = new msal.PublicClientApplication({
+      auth: {
+        clientId: C.clientId,
+        authority: 'https://login.microsoftonline.com/' + C.tenantId,
+        redirectUri: window.location.origin + window.location.pathname
+      },
+      cache: { cacheLocation: 'sessionStorage' }
+    });
+    await PCA.initialize();
+    const rr = await PCA.handleRedirectPromise().catch(() => null);
+    CUENTA = (rr && rr.account) || PCA.getAllAccounts()[0] || null;
 
-  PCA = new msal.PublicClientApplication({
-    auth: {
-      clientId: C.clientId,
-      authority: 'https://login.microsoftonline.com/' + C.tenantId,
-      redirectUri: window.location.origin + window.location.pathname
-    },
-    cache: { cacheLocation: 'sessionStorage' }
-  });
-  await PCA.initialize();
-  const rr = await PCA.handleRedirectPromise().catch(() => null);
-  CUENTA = (rr && rr.account) || PCA.getAllAccounts()[0] || null;
-  if (CUENTA) await entrar(); else mostrarLogin();
+    if (CUENTA){
+      await entrar();
+    } else {
+      actualizarEstadoSesion('sin_sesion');
+      mostrarSoloPantalla('login');
+    }
+  } catch(e){
+    actualizarEstadoSesion('error');
+    $('#loginTitulo').textContent = 'No se pudo comprobar la sesión';
+    $('#loginErr').innerHTML = `<div class="msg err" style="text-align:left"><b>Error al inicializar autenticación Microsoft 365</b>${esc(e.message || e)}</div>`;
+    mostrarSoloPantalla('login');
+  }
 }
 
 $('#bEntrar').onclick = async () => {
+  if (!PCA) return iniciar();
   if (CUENTA && !DESTINO) return entrar();
+  actualizarEstadoSesion('iniciando');
+  $('#bEntrar').disabled = true;
+  $('#bEntrar').textContent = 'Iniciando sesión…';
+  $('#loginErr').innerHTML = '';
   try {
-    const r = await PCA.loginPopup({ scopes: SCOPES, prompt: 'select_account' });
+    const r = await PCA.loginPopup({ scopes: SCOPES_DIRECTORIO, prompt: 'select_account' });
     CUENTA = r.account;
     await entrar();
   } catch(e){
-    mostrarLogin(['No se pudo iniciar sesión', (e.errorMessage || e.message || String(e)).slice(0, 300)]);
+    // Reintentar con scopes base si el tenant bloquea consentimiento dinámico de User.ReadBasic.All
+    if (String(e.errorCode || e.message || '').includes('consent') || String(e.errorCode || '').includes('65001')){
+      try {
+        const r2 = await PCA.loginPopup({ scopes: SCOPES_BASE, prompt: 'select_account' });
+        CUENTA = r2.account;
+        await entrar();
+        return;
+      } catch(e2){ e = e2; }
+    }
+    actualizarEstadoSesion('error');
+    $('#bEntrar').disabled = false;
+    $('#bEntrar').textContent = 'Iniciar sesión con Microsoft';
+    $('#loginErr').innerHTML = `<div class="msg err" style="text-align:left"><b>No se pudo iniciar sesión</b>${esc((e.errorMessage || e.message || String(e)).slice(0, 300))}</div>`;
   }
 };
 
@@ -2633,6 +3329,7 @@ $('#bSalir').onclick = async e => {
   e.preventDefault();
   if (E.enviando) return;
   try { await PCA.logoutPopup({ account: CUENTA }); } catch(_){}
+  sessionStorage.clear();
   location.reload();
 };
 

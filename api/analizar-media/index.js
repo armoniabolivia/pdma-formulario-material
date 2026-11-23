@@ -1,5 +1,13 @@
 const MODELO_IA = process.env.ClaudeModel || 'claude-sonnet-5';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const TENANT_PERMITIDO = 'a81c5bcd-4124-475d-a58d-0ac4b49bb1bf';
+const DOMINIO_PERMITIDO = '@armonia-bo.org';
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // 2 MB máximo para miniaturas
+
+// Control básico de tasa en memoria por instancia (60 solicitudes cada 10 minutos por usuario)
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX_REQ = 60;
+const rateStore = new Map();
 
 const PROMPT_ANALISIS = `
 # Rol
@@ -56,53 +64,112 @@ Responde exclusivamente con un JSON válido, sin Markdown, comentarios ni texto 
 }
 `.trim();
 
+function jsonRes(context, status, body, extraHeaders = {}) {
+  context.res = {
+    status,
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
+    body
+  };
+}
+
+function decodificarClaimsJwt(token) {
+  try {
+    const partes = String(token).split('.');
+    if (partes.length !== 3) return null;
+    const b64 = partes[1].replace(/-/g, '+').replace(/_/g, '/');
+    const pad = b64.length % 4 ? '='.repeat(4 - (b64.length % 4)) : '';
+    return JSON.parse(Buffer.from(b64 + pad, 'base64').toString('utf8'));
+  } catch (_) {
+    return null;
+  }
+}
+
+function validarCabeceraImagen(buf, mediaType) {
+  if (!buf || buf.length < 12) return false;
+  if (mediaType === 'image/jpeg') return buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF;
+  if (mediaType === 'image/png') return buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47;
+  if (mediaType === 'image/gif') return buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x38;
+  if (mediaType === 'image/webp') {
+    return buf.subarray(0, 4).toString('ascii') === 'RIFF' && buf.subarray(8, 12).toString('ascii') === 'WEBP';
+  }
+  return false;
+}
+
+function verificarRateLimit(userId) {
+  const ahora = Date.now();
+  const prev = rateStore.get(userId) || [];
+  const recientes = prev.filter(ts => ahora - ts < RATE_WINDOW_MS);
+  if (recientes.length >= RATE_MAX_REQ) {
+    const retryAfter = Math.max(1, Math.ceil((RATE_WINDOW_MS - (ahora - recientes[0])) / 1000));
+    return { permitido: false, retryAfter };
+  }
+  recientes.push(ahora);
+  rateStore.set(userId, recientes);
+  return { permitido: true, retryAfter: 0 };
+}
+
 module.exports = async function (context, req) {
   const apiKey = process.env.ClaudeApiKey_PDMA;
   if (!apiKey) {
-    context.res = {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: { error: 'La variable ClaudeApiKey_PDMA no está configurada en Azure.' }
-    };
-    return;
+    return jsonRes(context, 500, { error: 'El servicio de análisis IA no está configurado en el servidor.' });
   }
 
-  // 1. Validar que la petición venga de un usuario autenticado en Microsoft 365
-  const graphToken = req.headers['x-graph-token'] || '';
+  // 1. Verificar presencia y claims estructurales del token Bearer sin registrar el secreto
+  const graphToken = (req.headers['x-graph-token'] || '').trim();
   if (!graphToken) {
-    context.res = {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-      body: { error: 'Sesión no autorizada.' }
-    };
-    return;
+    return jsonRes(context, 401, { error: 'Sesión no autorizada.' });
+  }
+
+  const claims = decodificarClaimsJwt(graphToken);
+  const ahoraSeg = Math.floor(Date.now() / 1000);
+  if (!claims || (claims.exp && claims.exp <= ahoraSeg)) {
+    return jsonRes(context, 401, { error: 'Token de sesión inválido o expirado.' });
+  }
+  if (claims.tid && claims.tid !== TENANT_PERMITIDO) {
+    return jsonRes(context, 403, { error: 'Inquilino no autorizado.' });
   }
 
   try {
-    const graphCheck = await fetch('https://graph.microsoft.com/v1.0/me?$select=id', {
+    // 2. Confirmar identidad activa con Microsoft Graph
+    const graphCheck = await fetch('https://graph.microsoft.com/v1.0/me?$select=id,userPrincipalName,mail,accountEnabled', {
       headers: { Authorization: 'Bearer ' + graphToken }
     });
     if (!graphCheck.ok) {
-      context.res = {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Token de Microsoft inválido o expirado (HTTP ' + graphCheck.status + ').' }
-      };
-      return;
+      return jsonRes(context, 401, { error: 'No se pudo validar la sesión con Microsoft 365 (HTTP ' + graphCheck.status + ').' });
     }
 
-    // 2. Leer la miniatura enviada desde el navegador
+    const perfil = await graphCheck.json();
+    const upn = String(perfil.userPrincipalName || perfil.mail || '').toLowerCase();
+    if (perfil.accountEnabled === false || !upn.endsWith(DOMINIO_PERMITIDO)) {
+      return jsonRes(context, 403, { error: 'Cuenta sin autorización institucional para este servicio.' });
+    }
+
+    // 3. Control de tasa por usuario autenticado
+    const rl = verificarRateLimit(perfil.id || upn);
+    if (!rl.permitido) {
+      return jsonRes(context, 429, { error: 'Demasiadas solicitudes de análisis. Espera unos segundos e intenta de nuevo.' }, { 'Retry-After': String(rl.retryAfter) });
+    }
+
+    // 4. Validar tipo MIME, contenido Base64, tamaño y firma binaria de imagen
     const { imageBase64, mediaType } = req.body || {};
-    if (!imageBase64) {
-      context.res = {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: { error: 'No se recibió ninguna miniatura para analizar.' }
-      };
-      return;
+    const mimesPermitidos = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    const mimeFinal = String(mediaType || 'image/jpeg').toLowerCase().trim();
+    if (!mimesPermitidos.has(mimeFinal)) {
+      return jsonRes(context, 400, { error: 'Formato de miniatura no admitido.' });
+    }
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return jsonRes(context, 400, { error: 'No se recibió ninguna miniatura para analizar.' });
     }
 
-    // 3. Consultar a la API de Claude con el mismo formato del Runbook
+    const imgBuf = Buffer.from(imageBase64, 'base64');
+    if (imgBuf.length === 0 || imgBuf.length > MAX_IMAGE_BYTES) {
+      return jsonRes(context, 413, { error: 'La miniatura supera el tamaño máximo permitido (2 MB).' });
+    }
+    if (!validarCabeceraImagen(imgBuf, mimeFinal)) {
+      return jsonRes(context, 400, { error: 'El contenido enviado no corresponde a una imagen válida.' });
+    }
+
+    // 5. Consultar a la API de Claude
     const claudeRes = await fetch(ANTHROPIC_URL, {
       method: 'POST',
       headers: {
@@ -121,7 +188,7 @@ module.exports = async function (context, req) {
                 type: 'image',
                 source: {
                   type: 'base64',
-                  media_type: mediaType || 'image/jpeg',
+                  media_type: mimeFinal,
                   data: imageBase64
                 }
               },
@@ -137,12 +204,7 @@ module.exports = async function (context, req) {
 
     if (!claudeRes.ok) {
       const errTxt = await claudeRes.text();
-      context.res = {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-        body: { error: 'Error al consultar Claude', detalle: errTxt.slice(0, 300) }
-      };
-      return;
+      return jsonRes(context, 502, { error: 'Error al consultar el servicio de IA', detalle: errTxt.slice(0, 200) });
     }
 
     const data = await claudeRes.json();
@@ -150,22 +212,14 @@ module.exports = async function (context, req) {
     const cleanJson = rawText.replace(/```json|```/gi, '').trim();
     const parsed = JSON.parse(cleanJson);
 
-    const etiquetas = Array.isArray(parsed.etiquetas) ? parsed.etiquetas : (parsed.etiquetas_ia || []);
-    const descripcion = typeof parsed.descripcion === 'string' ? parsed.descripcion : (parsed.descripcion_ia || '');
+    const etiquetas = Array.isArray(parsed.etiquetas) ? parsed.etiquetas.map(x => String(x).trim()).filter(Boolean) : [];
+    const descripcion = typeof parsed.descripcion === 'string' ? parsed.descripcion.trim() : '';
 
-    context.res = {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: {
-        etiquetas_ia: etiquetas,
-        descripcion_ia: descripcion
-      }
-    };
+    return jsonRes(context, 200, {
+      etiquetas_ia: etiquetas,
+      descripcion_ia: descripcion
+    });
   } catch (err) {
-    context.res = {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: { error: err.message || 'Error interno analizando el archivo.' }
-    };
+    return jsonRes(context, 500, { error: 'Error interno procesando la imagen.' });
   }
 };
