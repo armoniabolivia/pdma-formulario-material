@@ -1016,16 +1016,11 @@ const CONFIG = {
    DIRECTORIOS DE FOTÓGRAFOS (INTERNO M365/SP + EXTERNO CATÁLOGO SHAREPOINT)
    ============================================================================ */
 const DIRECTORIO = {
-  internos: [],                 // { entraId, id (SP LookupId), nombre, correo, upn, loginName }
+  internos: [],
   internosCargando: false,
   internosError: '',
   internosFuente: '',
-  externos: [
-    'John Mittermeier',
-    'Miguel Martinez',
-    'Rodrigo Soria',
-    'Teodoro Camacho'
-  ],
+  externos: [],
   externosCargando: false,
   externosUltimaCarga: 0,
   externosInvalidado: true,
@@ -1382,14 +1377,21 @@ function pintarEtapa1(){
    - Catálogo externo refrescable durante la sesión sin recargar
    ============================================================================ */
 function renderSelectorFotografo(cont, valorActual, alCambiar, opts = {}){
+  const textoGuia = tipo => tipo === 'interno'
+    ? 'Seleccione a un integrante de nuestro equipo.'
+    : 'Busque un fotógrafo registrado o escriba su nombre para agregarlo.';
+  const textoPlaceholder = tipo => tipo === 'interno'
+    ? 'Buscar por nombre o correo (@armonia-bo.org)…'
+    : 'Buscar fotógrafo registrado o escribir nombre nuevo…'; 
   const modo = valorActual ? valorActual.tipo : (opts.tabInicial || 'interno');
   cont.innerHTML = `
     <div class="foto-tabs" role="group" aria-label="Tipo de fotógrafo/a">
-      <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Interno (${CONFIG.dominioInterno})</button>
-      <button type="button" data-tf="externo" aria-pressed="${modo === 'externo'}">Externo (Catálogo)</button>
+      <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Personal de Armonía</button>
+      <button type="button" data-tf="externo" aria-pressed="${modo === 'externo'}">Fotógrafo externo</button>
     </div>
+    <p class="foto-guia" style="font-size:12px;color:var(--muted);margin:0 0 8px">${textoGuia(modo)}</p>
     <div class="ac-wrap">
-      <input type="text" class="in-foto-busq" placeholder="${modo === 'interno' ? 'Buscar por nombre o correo institucional…' : 'Buscar o escribir nombre de fotógrafo/a externo…'}" value="${valorActual ? esc(valorActual.nombre) : ''}" autocomplete="off">
+      <input type="text" class="in-foto-busq" placeholder="${textoPlaceholder(modo)}" value="${valorActual ? esc(valorActual.nombre) : ''}" autocomplete="off">
       <div class="ac-lista oculto"></div>
     </div>
     <div class="foto-feedback"></div>
@@ -1439,7 +1441,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar, opts = {}){
 
   pintarChip(valorActual);
 
-  btns.forEach(b => b.onclick = () => {
+  btns.forEach(b => b.onclick = async () => {
     const nuevoTipo = b.dataset.tf;
     if (nuevoTipo === tipoActivo && !seleccionadoActual){
       input.focus();
@@ -1448,15 +1450,22 @@ function renderSelectorFotografo(cont, valorActual, alCambiar, opts = {}){
     tipoActivo = nuevoTipo;
     if (opts.onTabChange) opts.onTabChange(tipoActivo);
     btns.forEach(x => x.setAttribute('aria-pressed', x.dataset.tf === tipoActivo ? 'true' : 'false'));
-    input.placeholder = tipoActivo === 'interno' ? 'Buscar por nombre o correo institucional…' : 'Buscar o escribir nombre de fotógrafo/a externo…';
+    guiaEl.textContent = textoGuia(tipoActivo);
+    input.placeholder = textoPlaceholder(tipoActivo);
     input.value = '';
     lista.classList.add('oculto');
+
     if (seleccionadoActual){
       pintarChip(null);
       alCambiar(null, { enfocar: true });
     } else {
       pintarChip(null);
       input.focus();
+    }
+
+    if (tipoActivo === 'externo' && CONFIG.modo === 'graph' && DIRECTORIO.externosInvalidado){
+      await refrescarFotografosExternos(false);
+      mostrarSugerencias();
     }
   });
 
@@ -1542,6 +1551,14 @@ function renderSelectorFotografo(cont, valorActual, alCambiar, opts = {}){
       };
 
       const matches = DIRECTORIO.externos.filter(n => !nq || normTxt(n).includes(nq));
+      if (!matches.length && !q){
+        const empty = document.createElement('div');
+        empty.className = 'ac-item';
+        empty.innerHTML = `<span>${CONFIG.modo !== 'graph'
+          ? 'Sin sesión conectada. Escribe el nombre del fotógrafo externo para registrarlo.'
+          : 'Aún no hay fotógrafos externos en SharePoint. Escribe un nombre nuevo para agregarlo.'}</span>`;
+        lista.appendChild(empty);
+      }      
       matches.slice(0, 40).forEach(n => {
         const div = document.createElement('div');
         div.className = 'ac-item';
@@ -3352,7 +3369,10 @@ async function subirJson(driveId, carpetaId, nombre, obj){
 
 /* Refresco dinámico de FotografoExterno en SharePoint durante la misma sesión */
 async function refrescarFotografosExternos(forzar = false){
-  if (CONFIG.modo !== 'graph') return;
+  if (CONFIG.modo !== 'graph'){
+    DIRECTORIO.externos = [];
+    return;
+  }
   const ahora = Date.now();
   if (!forzar && !DIRECTORIO.externosInvalidado && (ahora - DIRECTORIO.externosUltimaCarga < 30000)){
     return;
@@ -3365,8 +3385,8 @@ async function refrescarFotografosExternos(forzar = false){
     if (colExt && colExt.choice && Array.isArray(colExt.choice.choices)){
       DIRECTORIO.spExternoColumnaId = colExt.id;
       DIRECTORIO.spExternoAllowFillIn = !!colExt.choice.allowTextEntry;
-      const merged = new Set([...DIRECTORIO.externos, ...colExt.choice.choices.map(s => limpiarEspacios(s)).filter(Boolean)]);
-      DIRECTORIO.externos = [...merged].sort((a, b) => a.localeCompare(b, 'es'));
+      const opcionesSp = colExt.choice.choices.map(s => limpiarEspacios(s)).filter(Boolean);
+      DIRECTORIO.externos = [...new Set(opcionesSp)].sort((a, b) => a.localeCompare(b, 'es'));
     }
     const colGes = cols.find(c => c.name === 'Gestion');
     if (colGes && colGes.choice && Array.isArray(colGes.choice.choices) && colGes.choice.choices.length){
