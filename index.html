@@ -31,6 +31,12 @@
   --redbg:#FDECEA;
   --amber:#9A5B00;
   --amberbg:#FEF6E7;
+  --linea-a:#2471B3;
+  --linea-a-bg:#EBF4FB;
+  --linea-b:#315B40;
+  --linea-b-bg:#ECF4EF;
+  --linea-c:#E5812D;
+  --linea-c-bg:#FDF2E8;
   --shadow-sm:0 1px 3px rgba(0,51,102,.06);
   --shadow-md:0 4px 14px rgba(0,51,102,.09);
 }
@@ -166,8 +172,42 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .linea-box.manual{background:var(--fondo);border-color:var(--line)}
 .linea-info b{display:block;font-size:13.5px;color:var(--azul-prof)}
 .linea-info span{font-size:12px;color:var(--muted)}
-.linea-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;background:var(--azul);color:var(--blanco)}
+.linea-badge{
+  display:inline-flex;align-items:center;gap:7px;padding:4px 12px;border-radius:999px;
+  font-size:13px;font-weight:700;
+  background:var(--linea-bg, var(--celeste-cl));
+  color:var(--linea-fg, var(--azul-prof));
+  border:1px solid var(--linea-fg, var(--celeste));
+}
+.linea-dot{width:9px;height:9px;border-radius:999px;background:var(--linea-fg, var(--azul));flex:none}
+.linea-hint{font-size:11.5px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.linea-hint span{display:inline-flex;align-items:center;gap:4px}
 .linea-select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--blanco);font-size:13.5px;min-width:240px}
+
+/* Etiquetas estilo iNaturalist + Sugerencias Excel */
+.tag-add-row{display:flex;gap:6px;align-items:center}
+.tag-add-row input{flex:1;min-width:0}
+.tags-pills-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag-pill-ed{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--azul-prof);color:var(--blanco);
+  border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;
+}
+.tag-pill-ed.ia{background:var(--azul)}
+.tag-pill-ed button{
+  border:0;background:rgba(255,255,255,.22);color:var(--blanco);
+  width:17px;height:17px;border-radius:999px;font-size:12px;line-height:1;
+  cursor:pointer;padding:0;display:inline-grid;place-items:center;
+}
+.tag-pill-ed button:hover{background:var(--red)}
+.sug-box{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+.sug-box .sug-tit{font-size:11.5px;color:var(--muted);margin-bottom:5px;display:block}
+.sug-chips{display:flex;flex-wrap:wrap;gap:5px}
+.sug-chip{
+  border:1px dashed var(--azul);background:var(--celeste-cl);color:var(--azul-osc);
+  border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:700;cursor:pointer;
+}
+.sug-chip:hover{background:var(--azul);color:var(--blanco);border-style:solid}
 
 /* Campos y selector exclusivo de fotógrafo/a */
 .campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -704,7 +744,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
    CONFIGURACIÓN MAESTRA Y CATÁLOGO OFICIAL PDMA
    ============================================================================ */
 const CONFIG = {
-  version: '1.1 · 22-11-2026',
+  version: '1.2 · 23-11-2026',
   modo: 'simulado',
   chunkBytes: 32 * 320 * 1024,             // 10 MiB por bloque (múltiplo de 320 KiB)
   carpetaTecnica: 'PDMA-PRUEBA-FORMULARIO',
@@ -738,6 +778,21 @@ const CONFIG = {
     'VIII INSTITUCIONAL': '#5B5F97'
   },
   lineasEstrategicas: ['A - Especies', 'B - Espacios', 'C - Sociedad'],
+  coloresLinea: {
+    'A - Especies': { fg: '#2471B3', bg: '#EBF4FB', emoji: '🔵' },
+    'B - Espacios': { fg: '#315B40', bg: '#ECF4EF', emoji: '🟢' },
+    'C - Sociedad': { fg: '#E5812D', bg: '#FDF2E8', emoji: '🟠' }
+  },
+  sugerenciasEtiquetas: {
+    'I PASTIZALES DEL BENI|16 Aves Playeras|Investigación|*': ['Reserva Natural Barba Azul', 'Llano de Moxos', 'Ríos Amazónicos'],
+    'II YUNGAS|07 Programa Conservacion Pauxi Unicornis|Turismo|*': ['Cabañas CARUPI'],
+    'III ANDES ALTOS|06 Programa Bosques Andinos Prioritarios (Tunari)|Reforestaciones e incentivos|Campañas': ['Aguada', 'Bella Vista', 'Chorojo', 'Cruzani', 'La phia', 'Quillacollo'],
+    'III ANDES ALTOS|06 Programa Bosques Andinos Prioritarios (Tunari)|Reforestaciones e incentivos|Incentivos': ['Atajado', 'Politubos'],
+    'III ANDES ALTOS|06 Programa Bosques Andinos Prioritarios (Tunari)|Reforestaciones e incentivos|Viveros': ['Almácigo', 'Comunitario', 'Tiquipaya', 'Esquejes', 'Producción', 'Repique', 'Rescate Brinzales', 'Semillas'],
+    'III ANDES ALTOS|06 Programa Bosques Andinos Prioritarios (Tunari)|Investigación|*': ['Trabajo de campo', 'Capacitaciones'],
+    'IV BOSQUE SECO INTERANDINO|05 Programa Conservacion Paraba Frente Roja|Comunidad y Desarrollo|*': ['Educación ambiental', 'Tráfico', 'Medios de vida'],
+    "VI PROGRAMA CLAVE DE CONSERVACIÓN DE LA BIODIVERSIDAD EN BOLIVIA|13 KBA Natures Heartbeat|Comunidad y Desarrollo|*": ['KBA Rio Mamore', 'KBA Isiboro Secure']
+  },
   reglaLineaActividad: {
     'Investigación': 'A - Especies',
     'Fuegos': 'B - Espacios',
@@ -1128,6 +1183,34 @@ function fotografoTexto(f){
   return f.tipo === 'interno' ? `${f.nombre} (Interno)` : `${f.nombre} (Externo)`;
 }
 
+function renderBadgeLineaHtml(linea, extraClass = 'linea-badge'){
+  if (!linea) return '';
+  const c = CONFIG.coloresLinea[linea] || { fg: '#0066CC', bg: '#EBF5FF' };
+  return `<span class="${extraClass}" style="--linea-fg:${c.fg};--linea-bg:${c.bg};background:${c.bg};color:${c.fg};border:1px solid ${c.fg}"><i class="linea-dot" style="background:${c.fg}"></i>${esc(linea)}</span>`;
+}
+
+function obtenerSugerenciasEtiquetasGrupo(g){
+  if (!g || !g.paisaje || !g.programa || !g.actividad) return [];
+  const kExacta = `${g.paisaje}|${g.programa}|${g.actividad}|${g.subactividad || '*'}`;
+  const kGeneral = `${g.paisaje}|${g.programa}|${g.actividad}|*`;
+  return CONFIG.sugerenciasEtiquetas[kExacta] || CONFIG.sugerenciasEtiquetas[kGeneral] || [];
+}
+
+function normalizarListaTags(lista){
+  const vistos = new Set();
+  const out = [];
+  for (const raw of (lista || [])){
+    const limpio = limpiarEspacios(raw);
+    if (!limpio) continue;
+    const key = normTxt(limpio);
+    if (!vistos.has(key)){
+      vistos.add(key);
+      out.push(limpio);
+    }
+  }
+  return out;
+}
+
 /* ============================================================================
    ETAPA 1 · RENDER DE CONTEXTO INICIAL (GRUPO 1) Y MODO DE ORGANIZACIÓN
    ============================================================================ */
@@ -1213,33 +1296,44 @@ function pintarEtapa1(){
     subs.forEach(s => boton(c, s, s, '', g.subactividad === s, v => { g.subactividad = v; pintarEtapa1(); }));
   }
 
-  // Línea Estratégica
+  // Línea Estratégica (con colores oficiales del infograma: #2471B3, #315B40, #E5812D)
   const mostrarLinea = !!(mostrarAct && g.actividad);
   const bLinea = $('#bLinea');
   bLinea.classList.toggle('oculto', !mostrarLinea);
   if (mostrarLinea){
+    const hintHtml = `
+      <div class="linea-hint">
+        <span><i class="linea-dot" style="background:#2471B3"></i>A · Especies</span>
+        <span><i class="linea-dot" style="background:#315B40"></i>B · Espacios</span>
+        <span><i class="linea-dot" style="background:#E5812D"></i>C · Sociedad</span>
+      </div>`;
     if (g.lineaAuto && g.lineaEstrategica){
       bLinea.innerHTML = `
         <div class="linea-box">
           <div class="linea-info">
             <b>Línea Estratégica · Asignada automáticamente</b>
             <span>Detectada según la regla institucional para «${esc(g.actividad)}».</span>
+            ${hintHtml}
           </div>
           <div style="display:flex;align-items:center;gap:8px">
-            <span class="linea-badge">${esc(g.lineaEstrategica)}</span>
+            ${renderBadgeLineaHtml(g.lineaEstrategica)}
             <button type="button" class="btn-xs" id="bOverrideLinea">Cambiar</button>
           </div>
         </div>`;
       $('#bOverrideLinea').onclick = () => { g.lineaAuto = false; pintarEtapa1(); };
     } else {
       const opts = ['<option value="">— Sin línea estratégica / No aplica —</option>']
-        .concat(CONFIG.lineasEstrategicas.map(l => `<option value="${esc(l)}" ${g.lineaEstrategica === l ? 'selected' : ''}>${esc(l)}</option>`))
+        .concat(CONFIG.lineasEstrategicas.map(l => {
+          const em = (CONFIG.coloresLinea[l] && CONFIG.coloresLinea[l].emoji) || '•';
+          return `<option value="${esc(l)}" ${g.lineaEstrategica === l ? 'selected' : ''}>${em} ${esc(l)}</option>`;
+        }))
         .join('');
       bLinea.innerHTML = `
         <div class="linea-box manual">
           <div class="linea-info">
             <b>Línea Estratégica · Selección manual (opcional)</b>
             <span>Esta actividad no tiene una línea fija; elige una o déjala en blanco si es transversal/institucional.</span>
+            ${hintHtml}
           </div>
           <select class="linea-select" id="selLineaGrupo1">${opts}</select>
         </div>`;
@@ -1704,7 +1798,7 @@ function pintarMesaCatalogacion(){
             Grupo ${idx + 1} · ${esc(g.actividad || 'Actividad por definir')}
             ${g.paisaje ? `<span class="eco-pill"><i class="eco-dot"></i>${esc(g.paisaje)}</span>` : ''}
             <span class="st ${okCtx && validosGrupo.length ? 'st-ok' : 'st-av'}">${archsGrupo.length} archivo(s)</span>
-            ${g.lineaEstrategica ? `<span class="st st-ia">${esc(g.lineaEstrategica)}</span>` : ''}
+            ${g.lineaEstrategica ? renderBadgeLineaHtml(g.lineaEstrategica, 'st') : ''}
           </b>
           <div class="grupo-ruta">${esc(rutaTxt)}${g.fotografoDefault ? ' · 📷 ' + esc(fotografoTexto(g.fotografoDefault)) : ''}</div>
         </div>
@@ -1944,8 +2038,28 @@ function pintarInspectorLateral(){
   // MODO EDICIÓN INDIVIDUAL (1 ARCHIVO)
   if (selArchs.length === 1){
     const a = selArchs[0];
+    const gObj = E.grupos.find(g => g.id === a.grupoId);
     const fc = fechaDe(a);
+    const fechaInputVal = fc ? fc.slice(0, 10) : '';
+    const fuenteFechaTxt = a.fechaCapturaManual
+      ? 'Editada manualmente'
+      : (a.fechaCapturaOrig ? (a.tipo === 'video' ? 'Metadato video' : 'EXIF cámara') : 'Sin fecha en archivo');
     const puedeIA = !a.bloqueo && (a.tipo === 'imagen' || a.tipo === 'video');
+    const tagsActuales = normalizarListaTags(a.etiquetas_ia);
+    const sugsGrupo = obtenerSugerenciasEtiquetasGrupo(gObj).filter(s => !tagsActuales.some(t => normTxt(t) === normTxt(s)));
+
+    const pillsHtml = tagsActuales.map((tag, idx) => {
+      const esIa = a.etiquetasIaSet && a.etiquetasIaSet.has(normTxt(tag));
+      return `<span class="tag-pill-ed ${esIa ? 'ia' : ''}">${esIa ? '✨ ' : ''}${esc(tag)}<button type="button" data-del-tag="${idx}" aria-label="Quitar etiqueta ${esc(tag)}">×</button></span>`;
+    }).join('');
+
+    const sugsHtml = sugsGrupo.length ? `
+      <div class="sug-box">
+        <span class="sug-tit">Sugerencias para esta carpeta (clic para añadir):</span>
+        <div class="sug-chips">
+          ${sugsGrupo.map(s => `<button type="button" class="sug-chip" data-add-sug="${esc(s)}">+ ${esc(s)}</button>`).join('')}
+        </div>
+      </div>` : '';
 
     panel.innerHTML = `
       <div class="inspector-head">
@@ -1956,7 +2070,7 @@ function pintarInspectorLateral(){
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-size:12px;color:var(--muted)">
         <span class="st st-neu">${esc((a.tipo || 'archivo').toUpperCase())}</span>
         <span class="st st-neu num">${fmtBytes(a.bytes)}</span>
-        ${fc ? `<span class="st st-neu num">📅 ${esc(fc)}</span>` : ''}
+        <span class="st ${a.fechaCapturaManual ? 'st-ia' : 'st-neu'}">${esc(fuenteFechaTxt)}</span>
       </div>
 
       <div class="inspector-sec">
@@ -1965,7 +2079,24 @@ function pintarInspectorLateral(){
       </div>
 
       <div class="inspector-sec">
+        <h4>Etiquetas <span class="st st-neu num">${tagsActuales.length}</span></h4>
+        <div class="tag-add-row">
+          <input id="inspTagInput" placeholder="Añade etiquetas (Enter o botón)">
+          <button type="button" class="btn-xs prim" id="bAddTagInsp">Añade</button>
+        </div>
+        ${pillsHtml ? `<div class="tags-pills-wrap">${pillsHtml}</div>` : ''}
+        ${sugsHtml}
+      </div>
+
+      <div class="inspector-sec">
         <h4>Información descriptiva <span class="req">opcional</span></h4>
+        <div class="campo" style="margin-bottom:9px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px">
+            <label for="inspFecha" style="margin:0">Fecha de captura <small>· corregible si la cámara estaba desconfigurada</small></label>
+            ${a.fechaCapturaManual ? '<button type="button" class="btn-xs" id="bResetFecha" style="padding:1px 7px;font-size:11px">↺ Original</button>' : ''}
+          </div>
+          <input type="date" id="inspFecha" value="${esc(fechaInputVal)}">
+        </div>
         <div class="campo" style="margin-bottom:9px">
           <label for="inspLugar">Lugar <small>· opcional</small></label>
           <input id="inspLugar" value="${esc(a.lugar || '')}" placeholder="Comunidad, sector o punto de monitoreo">
@@ -1975,34 +2106,21 @@ function pintarInspectorLateral(){
           <input id="inspTema" value="${esc(a.especiesTema || '')}" placeholder="Ej.: Paraba Frente Roja, vivero, taller">
         </div>
         <div class="campo">
-          <label for="inspDesc">Descripción breve <small>· opcional</small></label>
-          <textarea id="inspDesc" rows="2" maxlength="500" placeholder="Contexto o detalle adicional">${esc(a.descripcion || '')}</textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px">
+            <label for="inspDescripcion" style="margin:0">Descripción <small>· ${puedeIA ? 'asistida por IA (editable)' : 'opcional'}</small></label>
+            ${puedeIA ? `<button type="button" class="btn-xs" id="bReanalizarInsp" style="padding:1px 7px;font-size:11px" ${(a.iaEstado === 'analizando' || a.iaEstado === 'pendiente') ? 'disabled' : ''}>${a.iaEstado === 'analizando' ? 'Analizando…' : '↻ Reanalizar IA'}</button>` : ''}
+          </div>
+          <textarea id="inspDescripcion" rows="2" maxlength="500" placeholder="Oración objetiva sobre lo que se observa">${esc(a.descripcion_ia || '')}</textarea>
+          ${puedeIA ? `<div class="ayuda"><span>${
+            a.iaEstado === 'analizando' ? '✨ Generando descripción y etiquetas con Claude…' :
+            a.iaEstado === 'pendiente' ? 'En cola de análisis IA…' :
+            a.iaEstado === 'ok' ? '✨ Sugerencia IA lista (puedes editarla).' :
+            a.iaEstado === 'error' ? '⚠ IA no disponible (' + esc(a.iaError) + ')' :
+            a.iaEstado === 'sin_preview' ? 'Formato sin vista previa local (completa manualmente).' :
+            'Completa manualmente o inicia sesión en M365.'
+          }</span></div>` : ''}
         </div>
       </div>
-
-      ${puedeIA ? `
-      <div class="ia-card-ed">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px">
-          <span class="ia-pill-auto">✨ Generado por IA (opcional)</span>
-          <button type="button" class="btn-xs" id="bReanalizarInsp" ${(a.iaEstado === 'analizando' || a.iaEstado === 'pendiente') ? 'disabled' : ''}>${a.iaEstado === 'analizando' ? 'Analizando…' : '↻ Reanalizar'}</button>
-        </div>
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">
-          ${a.iaEstado === 'analizando' ? 'Analizando miniatura con Claude…' :
-            a.iaEstado === 'pendiente' ? 'En cola de análisis IA…' :
-            a.iaEstado === 'ok' ? 'Revisa o corrige las sugerencias antes de enviar.' :
-            a.iaEstado === 'error' ? '⚠ ' + esc(a.iaError) + ' (no bloquea el envío)' :
-            a.iaEstado === 'sin_preview' ? 'Formato RAW sin vista previa directa (completa manualmente si deseas).' :
-            'IA disponible al iniciar sesión con Microsoft 365.'}
-        </div>
-        <div class="campo" style="margin-bottom:8px">
-          <label for="inspIaDesc">Descripción IA (máx. 15 palabras)</label>
-          <textarea id="inspIaDesc" rows="2">${esc(a.descripcion_ia || '')}</textarea>
-        </div>
-        <div class="campo">
-          <label for="inspIaEtiq">Etiquetas IA (separadas por coma)</label>
-          <input id="inspIaEtiq" value="${esc((a.etiquetas_ia || []).join(', '))}" placeholder="Ej.: Ave, Caja nido, Bosque">
-        </div>
-      </div>` : `<div class="msg info" style="margin-top:12px"><b>Análisis visual IA: No aplicable</b>Los archivos de audio o no visuales se catalogan con sus metadatos descriptivos.</div>`}
     `;
 
     const prev = panel.querySelector('#inspPrev');
@@ -2029,18 +2147,59 @@ function pintarInspectorLateral(){
       if (inp) setTimeout(() => inp.focus(), 0);
     }
 
+    // Gestión de etiquetas estilo iNaturalist
+    function agregarTagsDesdeTexto(txt){
+      const nuevas = txt.split(',').map(s => limpiarEspacios(s)).filter(Boolean);
+      if (!nuevas.length) return;
+      a.etiquetas_ia = normalizarListaTags([...(a.etiquetas_ia || []), ...nuevas]);
+      pintarMesaCatalogacion();
+    }
+    const tagInp = panel.querySelector('#inspTagInput');
+    panel.querySelector('#bAddTagInsp').onclick = () => {
+      agregarTagsDesdeTexto(tagInp.value);
+    };
+    tagInp.onkeydown = e => {
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        agregarTagsDesdeTexto(tagInp.value);
+      }
+    };
+    panel.querySelectorAll('[data-del-tag]').forEach(btn => btn.onclick = () => {
+      const idx = +btn.dataset.delTag;
+      const lista = normalizarListaTags(a.etiquetas_ia);
+      lista.splice(idx, 1);
+      a.etiquetas_ia = lista;
+      pintarMesaCatalogacion();
+    });
+    panel.querySelectorAll('[data-add-sug]').forEach(btn => btn.onclick = () => {
+      agregarTagsDesdeTexto(btn.dataset.addSug);
+    });
+
+    // Fecha de captura editable
+    panel.querySelector('#inspFecha').onchange = e => {
+      const val = e.target.value;
+      if (!val){
+        a.fechaCapturaManual = null;
+      } else {
+        const horaOrig = (a.fechaCapturaOrig && a.fechaCapturaOrig.length > 10) ? a.fechaCapturaOrig.slice(10) : ' 00:00:00';
+        a.fechaCapturaManual = val + horaOrig;
+      }
+      revisarTodosArchivos();
+    };
+    const bResetF = panel.querySelector('#bResetFecha');
+    if (bResetF) bResetF.onclick = () => {
+      a.fechaCapturaManual = null;
+      revisarTodosArchivos();
+    };
+
     panel.querySelector('#inspLugar').oninput = e => { a.lugar = e.target.value; };
     panel.querySelector('#inspTema').oninput = e => { a.especiesTema = e.target.value; };
-    panel.querySelector('#inspDesc').oninput = e => { a.descripcion = e.target.value; };
+    panel.querySelector('#inspDescripcion').oninput = e => { a.descripcion_ia = e.target.value; };
 
     if (puedeIA){
       panel.querySelector('#bReanalizarInsp').onclick = () => {
         a.iaEstado = 'pendiente';
         encolarAnalisisIA([a], true);
-      };
-      panel.querySelector('#inspIaDesc').oninput = e => { a.descripcion_ia = e.target.value; };
-      panel.querySelector('#inspIaEtiq').oninput = e => {
-        a.etiquetas_ia = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
       };
     }
     return;
@@ -2048,6 +2207,9 @@ function pintarInspectorLateral(){
 
   // MODO EDICIÓN MASIVA EXPLÍCITA (X > 1 ARCHIVOS SELECCIONADOS)
   let fotoMasivo = null;
+  let tagsMasivo = [];
+  const gActivo = E.grupos.find(g => g.id === E.grupoActivoId) || E.grupos[0];
+  const sugsMasivo = obtenerSugerenciasEtiquetasGrupo(gActivo);
   const fbHtml = E.feedbackMasivo
     ? `<div class="msg ${esc(E.feedbackMasivo.tipo)}"><b>${esc(E.feedbackMasivo.titulo)}</b>${esc(E.feedbackMasivo.detalle)}</div>`
     : '';
@@ -2065,7 +2227,27 @@ function pintarInspectorLateral(){
     </div>
 
     <div class="inspector-sec">
+      <h4>Añadir etiquetas en bloque</h4>
+      <div class="tag-add-row">
+        <input id="masTagInput" placeholder="Añade etiquetas para los ${selArchs.length} archivos">
+        <button type="button" class="btn-xs" id="bAddTagMasivo">Añade</button>
+      </div>
+      <div class="tags-pills-wrap" id="masTagsPills"></div>
+      ${sugsMasivo.length ? `
+        <div class="sug-box">
+          <span class="sug-tit">Sugerencias del esquema (clic para añadir):</span>
+          <div class="sug-chips">
+            ${sugsMasivo.map(s => `<button type="button" class="sug-chip" data-mas-sug="${esc(s)}">+ ${esc(s)}</button>`).join('')}
+          </div>
+        </div>` : ''}
+    </div>
+
+    <div class="inspector-sec">
       <h4>Metadatos compartidos <span class="req">opcional</span></h4>
+      <div class="campo" style="margin-bottom:9px">
+        <label for="masFecha">Corregir fecha de captura en bloque</label>
+        <input type="date" id="masFecha">
+      </div>
       <div class="campo" style="margin-bottom:9px">
         <label for="masLugar">Lugar (dejar vacío para no modificar)</label>
         <input id="masLugar" placeholder="Aplicar lugar a los ${selArchs.length} archivos">
@@ -2074,13 +2256,9 @@ function pintarInspectorLateral(){
         <label for="masTema">Especies o tema</label>
         <input id="masTema" placeholder="Aplicar especie o tema a los ${selArchs.length} archivos">
       </div>
-      <div class="campo" style="margin-bottom:9px">
-        <label for="masDesc">Descripción breve</label>
-        <textarea id="masDesc" rows="2" placeholder="Aplicar descripción a los ${selArchs.length} archivos"></textarea>
-      </div>
       <div class="campo">
-        <label for="masTags">Añadir etiquetas adicionales (separadas por coma)</label>
-        <input id="masTags" placeholder="Se sumarán sin borrar las etiquetas IA existentes">
+        <label for="masDescripcion">Descripción</label>
+        <textarea id="masDescripcion" rows="2" placeholder="Aplicar descripción a los ${selArchs.length} archivos"></textarea>
       </div>
     </div>
 
@@ -2096,24 +2274,50 @@ function pintarInspectorLateral(){
     onTabChange: t => { E._masivoFotoTab = t; }
   });
 
+  function pintarPillsMasivo(){
+    const wrap = panel.querySelector('#masTagsPills');
+    wrap.innerHTML = tagsMasivo.map((t, idx) =>
+      `<span class="tag-pill-ed">${esc(t)}<button type="button" data-del-mtag="${idx}">×</button></span>`
+    ).join('');
+    wrap.querySelectorAll('[data-del-mtag]').forEach(b => b.onclick = () => {
+      tagsMasivo.splice(+b.dataset.delMtag, 1);
+      pintarPillsMasivo();
+    });
+  }
+  function addTagMasivo(txt){
+    const items = txt.split(',').map(s => limpiarEspacios(s)).filter(Boolean);
+    if (!items.length) return;
+    tagsMasivo = normalizarListaTags([...tagsMasivo, ...items]);
+    pintarPillsMasivo();
+  }
+  const masTagInp = panel.querySelector('#masTagInput');
+  panel.querySelector('#bAddTagMasivo').onclick = () => { addTagMasivo(masTagInp.value); masTagInp.value = ''; };
+  masTagInp.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); addTagMasivo(masTagInp.value); masTagInp.value = ''; } };
+  panel.querySelectorAll('[data-mas-sug]').forEach(b => b.onclick = () => addTagMasivo(b.dataset.masSug));
+
   panel.querySelector('#bAplicarMasivo').onclick = () => {
+    if (masTagInp.value.trim()){
+      addTagMasivo(masTagInp.value);
+      masTagInp.value = '';
+    }
+    const fec = panel.querySelector('#masFecha').value;
     const lug = panel.querySelector('#masLugar').value.trim();
     const tem = panel.querySelector('#masTema').value.trim();
-    const des = panel.querySelector('#masDesc').value.trim();
-    const extraTags = panel.querySelector('#masTags').value.split(',').map(s => s.trim()).filter(Boolean);
+    const des = panel.querySelector('#masDescripcion').value.trim();
 
     const camposAplicados = [];
     if (fotoMasivo) camposAplicados.push('Fotógrafo/a');
+    if (tagsMasivo.length) camposAplicados.push('Etiquetas');
+    if (fec) camposAplicados.push('Fecha de captura');
     if (lug) camposAplicados.push('Lugar');
     if (tem) camposAplicados.push('Especies o tema');
     if (des) camposAplicados.push('Descripción');
-    if (extraTags.length) camposAplicados.push('Etiquetas');
 
     if (!camposAplicados.length){
       E.feedbackMasivo = {
         tipo: 'warn',
         titulo: 'Sin cambios para aplicar',
-        detalle: 'Completa al menos un campo (fotógrafo/a, lugar, tema, descripción o etiquetas) antes de aplicar.'
+        detalle: 'Completa al menos un campo antes de aplicar en bloque.'
       };
       pintarInspectorLateral();
       return;
@@ -2121,13 +2325,16 @@ function pintarInspectorLateral(){
 
     selArchs.forEach(a => {
       if (fotoMasivo){ a.fotografo = JSON.parse(JSON.stringify(fotoMasivo)); a.fotografoManual = true; }
+      if (tagsMasivo.length){
+        a.etiquetas_ia = normalizarListaTags([...(a.etiquetas_ia || []), ...tagsMasivo]);
+      }
+      if (fec){
+        const horaOrig = (a.fechaCapturaOrig && a.fechaCapturaOrig.length > 10) ? a.fechaCapturaOrig.slice(10) : ' 00:00:00';
+        a.fechaCapturaManual = fec + horaOrig;
+      }
       if (lug) a.lugar = lug;
       if (tem) a.especiesTema = tem;
-      if (des) a.descripcion = des;
-      if (extraTags.length){
-        const set = new Set([...(a.etiquetas_ia || []), ...extraTags]);
-        a.etiquetas_ia = [...set];
-      }
+      if (des) a.descripcion_ia = des;
     });
 
     E.feedbackMasivo = {
@@ -2135,7 +2342,7 @@ function pintarInspectorLateral(){
       titulo: `Cambios aplicados a ${selArchs.length} archivo(s)`,
       detalle: `Campos actualizados: ${camposAplicados.join(', ')}.`
     };
-    pintarMesaCatalogacion();
+    revisarTodosArchivos();
   };
 }
 
@@ -2197,7 +2404,7 @@ async function leerFechaVideo(file){
   return null;
 }
 
-function fechaDe(a){ return (a.exif && a.exif.fecha) || a.fechaVideo || null; }
+function fechaDe(a){ return a.fechaCapturaManual || a.fechaCapturaOrig || (a.exif && a.exif.fecha) || a.fechaVideo || null; }
 
 function dibujarMiniaturaCanvas(fuente, anchoOrig, altoOrig){
   const maxDim = 800;
@@ -2312,8 +2519,12 @@ async function analizarArchivoIndividual(a){
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-    a.etiquetas_ia = Array.isArray(data.etiquetas_ia) ? data.etiquetas_ia : [];
-    a.descripcion_ia = typeof data.descripcion_ia === 'string' ? data.descripcion_ia : '';
+    const nuevasIa = normalizarListaTags(Array.isArray(data.etiquetas_ia) ? data.etiquetas_ia : []);
+    a.etiquetasIaSet = new Set(nuevasIa.map(t => normTxt(t)));
+    a.etiquetas_ia = normalizarListaTags([...nuevasIa, ...(a.etiquetas_ia || [])]);
+    if (!a.descripcion_ia && typeof data.descripcion_ia === 'string'){
+      a.descripcion_ia = data.descripcion_ia.trim();
+    }
     a.iaEstado = 'ok';
   } catch(e){
     a.iaEstado = 'error';
@@ -2360,6 +2571,9 @@ async function agregarArchivosAGrupo(files, grupoId){
     };
     if (['jpg','jpeg'].includes(ext(f.name))) a.exif = await leerExif(f);
     if (['mp4','mov','m4v','3gp'].includes(ext(f.name))) a.fechaVideo = await leerFechaVideo(f);
+    a.fechaCapturaOrig = (a.exif && a.exif.fecha) || a.fechaVideo || null;
+    a.fechaCapturaManual = null;
+    a.etiquetasIaSet = new Set();
     E.archivos.push(a);
     nuevos.push(a);
   }
@@ -2513,7 +2727,7 @@ function pintarRevision(){
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <div>
           <b style="color:var(--azul-prof);font-size:15px">Grupo ${idx + 1} · ${esc(g.actividad || 'Sin actividad')}</b>
-          ${g.lineaEstrategica ? `<span class="st st-ia" style="margin-left:6px">${esc(g.lineaEstrategica)}</span>` : ''}
+          ${g.lineaEstrategica ? `<span style="margin-left:6px">${renderBadgeLineaHtml(g.lineaEstrategica, 'st')}</span>` : ''}
           <div style="font-size:12.5px;color:var(--muted)">${esc(rutaGrupo(g).join(' › ') || 'Contexto incompleto')}</div>
         </div>
         ${!okG
@@ -2721,7 +2935,8 @@ function construirManifiesto(codigo){
         tipo: a.tipo,
         modificado: a.modificado,
         fecha_captura: fechaDe(a),
-        fecha_captura_fuente: (a.exif && a.exif.fecha) ? 'exif' : (a.fechaVideo ? 'video' : null),
+        fecha_captura_fuente: a.fechaCapturaManual ? 'manual' : ((a.exif && a.exif.fecha) ? 'exif' : (a.fechaVideo ? 'video' : null)),
+        fecha_captura_original: a.fechaCapturaOrig || null,
         fotografo: a.fotografo ? {
           tipo: a.fotografo.tipo,
           entra_id: a.fotografo.entraId || null,
@@ -2735,11 +2950,11 @@ function construirManifiesto(codigo){
         detalles: {
           lugar: (a.lugar || '').trim(),
           especies_tema: (a.especiesTema || '').trim(),
-          descripcion: (a.descripcion || '').trim()
+          descripcion: (a.descripcion_ia || '').trim()
         },
         ia: {
           estado: a.iaEstado,
-          etiquetas_ia: a.etiquetas_ia || [],
+          etiquetas_ia: normalizarListaTags(a.etiquetas_ia),
           descripcion_ia: (a.descripcion_ia || '').trim()
         },
         avisos: a.avisos
