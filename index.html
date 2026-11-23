@@ -984,6 +984,7 @@ function crearGrupoObj(base = {}){
     lineaEstrategica: base.lineaEstrategica !== undefined ? base.lineaEstrategica : '',
     lineaAuto: base.lineaAuto !== undefined ? base.lineaAuto : true,
     fotografoDefault: base.fotografoDefault ? JSON.parse(JSON.stringify(base.fotografoDefault)) : null,
+    _fotoTab: base._fotoTab || (base.fotografoDefault ? base.fotografoDefault.tipo : 'interno'),
     editandoCtx: base.editandoCtx || false
   };
 }
@@ -995,6 +996,7 @@ const E = {
   grupoActivoId: 'G1',
   archivos: [],                // Cada archivo tiene grupoId
   seleccionados: new Set(),
+  _masivoFotoTab: 'interno',
   feedbackMasivo: null,        // Persiste tras re-render del inspector
   enviando: false,
   ultimo: null,
@@ -1246,10 +1248,15 @@ function pintarEtapa1(){
   if (mostrarFotoDef){
     renderSelectorFotografo($('#fotoDefaultContainer'), g.fotografoDefault, nuevoFoto => {
       g.fotografoDefault = nuevoFoto;
+      if (nuevoFoto) g._fotoTab = nuevoFoto.tipo;
       E.archivos.filter(a => a.grupoId === g.id && !a.fotografoManual).forEach(a => {
         a.fotografo = nuevoFoto ? JSON.parse(JSON.stringify(nuevoFoto)) : null;
+        if (nuevoFoto) a._fotoTab = nuevoFoto.tipo;
       });
       actualizarPie();
+    }, {
+      tabInicial: g._fotoTab,
+      onTabChange: t => { g._fotoTab = t; }
     });
   }
 
@@ -1262,8 +1269,8 @@ function pintarEtapa1(){
    - Todos los usuarios internos @armonia-bo.org vía Graph /users paginado
    - Catálogo externo refrescable durante la sesión sin recargar
    ============================================================================ */
-function renderSelectorFotografo(cont, valorActual, alCambiar){
-  const modo = valorActual ? valorActual.tipo : 'interno';
+function renderSelectorFotografo(cont, valorActual, alCambiar, opts = {}){
+  const modo = valorActual ? valorActual.tipo : (opts.tabInicial || 'interno');
   cont.innerHTML = `
     <div class="foto-tabs" role="group" aria-label="Tipo de fotógrafo/a">
       <button type="button" data-tf="interno" aria-pressed="${modo === 'interno'}">Interno (${CONFIG.dominioInterno})</button>
@@ -1277,6 +1284,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
   `;
 
   let tipoActivo = modo;
+  let seleccionadoActual = valorActual || null;
   const btns = cont.querySelectorAll('.foto-tabs button');
   const input = cont.querySelector('.in-foto-busq');
   const lista = cont.querySelector('.ac-lista');
@@ -1295,6 +1303,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
   }
 
   function pintarChip(val){
+    seleccionadoActual = val || null;
     if (!val){ feedback.innerHTML = ''; return; }
     const sub = val.tipo === 'interno'
       ? (val.correo || val.upn || 'Equipo Armonía')
@@ -1311,22 +1320,32 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
       </div>`;
     feedback.querySelector('button').onclick = () => {
       input.value = '';
-      feedback.innerHTML = '';
-      alCambiar(null);
+      pintarChip(null);
+      alCambiar(null, { enfocar: true });
     };
   }
 
   pintarChip(valorActual);
 
   btns.forEach(b => b.onclick = () => {
-    tipoActivo = b.dataset.tf;
+    const nuevoTipo = b.dataset.tf;
+    if (nuevoTipo === tipoActivo && !seleccionadoActual){
+      input.focus();
+      return;
+    }
+    tipoActivo = nuevoTipo;
+    if (opts.onTabChange) opts.onTabChange(tipoActivo);
     btns.forEach(x => x.setAttribute('aria-pressed', x.dataset.tf === tipoActivo ? 'true' : 'false'));
     input.placeholder = tipoActivo === 'interno' ? 'Buscar por nombre o correo institucional…' : 'Buscar o escribir nombre de fotógrafo/a externo…';
     input.value = '';
     lista.classList.add('oculto');
-    feedback.innerHTML = '';
-    alCambiar(null);
-    input.focus();
+    if (seleccionadoActual){
+      pintarChip(null);
+      alCambiar(null, { enfocar: true });
+    } else {
+      pintarChip(null);
+      input.focus();
+    }
   });
 
   async function seleccionarInterno(u){
@@ -1391,6 +1410,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
         matches.slice(0, 40).forEach(u => {
           const div = document.createElement('div');
           div.className = 'ac-item';
+          div.dataset.clickable = '1';
           div.innerHTML = `<b>${esc(u.nombre)}</b><span>${esc(u.correo || u.upn)}</span>`;
           div.onmousedown = e => { e.preventDefault(); seleccionarInterno(u); };
           lista.appendChild(div);
@@ -1413,6 +1433,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
       matches.slice(0, 40).forEach(n => {
         const div = document.createElement('div');
         div.className = 'ac-item';
+        div.dataset.clickable = '1';
         div.innerHTML = `<b>${esc(n)}</b><span>Opción vigente en SharePoint</span>`;
         div.onmousedown = e => {
           e.preventDefault();
@@ -1429,6 +1450,7 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
       if (limpio.length >= 2 && !DIRECTORIO.externos.some(x => normTxt(x) === normTxt(limpio))){
         const divAdd = document.createElement('div');
         divAdd.className = 'ac-item nuevo';
+        divAdd.dataset.clickable = '1';
         divAdd.textContent = `+ Registrar nuevo fotógrafo/a externo: «${limpio}»`;
         divAdd.onmousedown = e => {
           e.preventDefault();
@@ -1472,7 +1494,24 @@ function renderSelectorFotografo(cont, valorActual, alCambiar){
       mostrarSugerencias();
     }
   });
-  input.addEventListener('input', mostrarSugerencias);
+  input.addEventListener('input', () => {
+    if (!seleccionadoActual && tipoActivo === 'externo'){
+      const limpio = limpiarEspacios(input.value);
+      feedback.innerHTML = limpio.length >= 2
+        ? `<div style="font-size:12px;color:var(--azul-osc);margin-top:5px">Presiona <b>Enter</b> o haz clic en la opción desplegable para asignar «${esc(limpio)}».</div>`
+        : '';
+    }
+    mostrarSugerencias();
+  });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter'){
+      e.preventDefault();
+      const opcion = lista.querySelector('.ac-item[data-clickable="1"]');
+      if (opcion){
+        opcion.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+      }
+    }
+  });
   input.addEventListener('blur', () => setTimeout(() => lista.classList.add('oculto'), 200));
 }
 
@@ -1855,11 +1894,24 @@ function renderEditorContextoGrupo(cont, g){
   cont.querySelector('.ge-ges').onchange = e => { g.gestion = e.target.value || null; revisarTodosArchivos(); };
   cont.querySelector('.ge-lin').onchange = e => { g.lineaEstrategica = e.target.value; g.lineaAuto = false; pintarMesaCatalogacion(); };
 
-  renderSelectorFotografo(cont.querySelector('.ge-foto'), g.fotografoDefault, nf => {
+  renderSelectorFotografo(cont.querySelector('.ge-foto'), g.fotografoDefault, (nf, meta = {}) => {
     g.fotografoDefault = nf;
-    E.archivos.filter(a => a.grupoId === g.id && !a.fotografoManual).forEach(a => { a.fotografo = nf ? JSON.parse(JSON.stringify(nf)) : null; });
+    if (nf) g._fotoTab = nf.tipo;
+    g._enfocarFoto = !!meta.enfocar;
+    E.archivos.filter(a => a.grupoId === g.id && !a.fotografoManual).forEach(a => {
+      a.fotografo = nf ? JSON.parse(JSON.stringify(nf)) : null;
+      if (nf) a._fotoTab = nf.tipo;
+    });
     pintarMesaCatalogacion();
+  }, {
+    tabInicial: g._fotoTab,
+    onTabChange: t => { g._fotoTab = t; }
   });
+  if (g._enfocarFoto){
+    g._enfocarFoto = false;
+    const inp = cont.querySelector('.ge-foto .in-foto-busq');
+    if (inp) setTimeout(() => inp.focus(), 0);
+  }
 }
 
 /* ============================================================================
@@ -1956,11 +2008,21 @@ function pintarInspectorLateral(){
     }
     prev.onclick = () => abrirVisor(a);
 
-    renderSelectorFotografo(panel.querySelector('#inspFotoWrap'), a.fotografo, nf => {
+    renderSelectorFotografo(panel.querySelector('#inspFotoWrap'), a.fotografo, (nf, meta = {}) => {
       a.fotografo = nf;
       a.fotografoManual = true;
+      if (nf) a._fotoTab = nf.tipo;
+      a._enfocarFoto = !!meta.enfocar;
       pintarMesaCatalogacion();
+    }, {
+      tabInicial: a._fotoTab || (a.fotografo ? a.fotografo.tipo : 'interno'),
+      onTabChange: t => { a._fotoTab = t; }
     });
+    if (a._enfocarFoto){
+      a._enfocarFoto = false;
+      const inp = panel.querySelector('#inspFotoWrap .in-foto-busq');
+      if (inp) setTimeout(() => inp.focus(), 0);
+    }
 
     panel.querySelector('#inspLugar').oninput = e => { a.lugar = e.target.value; };
     panel.querySelector('#inspTema').oninput = e => { a.especiesTema = e.target.value; };
@@ -2021,7 +2083,13 @@ function pintarInspectorLateral(){
     <div id="masivoFeedback">${fbHtml}</div>
   `;
 
-  renderSelectorFotografo(panel.querySelector('#masivoFotoWrap'), null, nf => { fotoMasivo = nf; });
+  renderSelectorFotografo(panel.querySelector('#masivoFotoWrap'), null, nf => {
+    fotoMasivo = nf;
+    if (nf) E._masivoFotoTab = nf.tipo;
+  }, {
+    tabInicial: E._masivoFotoTab,
+    onTabChange: t => { E._masivoFotoTab = t; }
+  });
 
   panel.querySelector('#bAplicarMasivo').onclick = () => {
     const lug = panel.querySelector('#masLugar').value.trim();
@@ -2274,6 +2342,7 @@ async function agregarArchivosAGrupo(files, grupoId){
       thumbB64: null,
       thumbDataUrl: null,
       fotografo: gObj.fotografoDefault ? JSON.parse(JSON.stringify(gObj.fotografoDefault)) : null,
+      _fotoTab: gObj.fotografoDefault ? gObj.fotografoDefault.tipo : (gObj._fotoTab || 'interno'),
       fotografoManual: false,
       lugar: '',
       especiesTema: '',
