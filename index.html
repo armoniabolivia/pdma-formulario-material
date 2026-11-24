@@ -2073,9 +2073,19 @@ function pintarMesaCatalogacion(){
     };
     const bDel = card.querySelector('[data-act="del"]');
     if (bDel) bDel.onclick = () => {
-      if (archsGrupo.length && !confirm(`¿Eliminar el Grupo ${idx + 1} y quitar sus ${archsGrupo.length} archivo(s)?`)) return;
-      E.archivos = E.archivos.filter(a => a.grupoId !== g.id);
-      E.grupos = E.grupos.filter(x => x.id !== g.id);
+    if (archsGrupo.length && !confirm(`¿Eliminar el Grupo ${idx + 1} y quitar sus ${archsGrupo.length} archivo(s)? Los archivos originales de tu equipo no se eliminarán.`)) return;
+
+    // Obtener los identificadores de los archivos del grupo.
+    const idsRetirar = new Set(archsGrupo.map(a => a.id));
+
+    // Retirar los archivos del grupo.
+    E.archivos = E.archivos.filter(a => a.grupoId !== g.id);
+
+    // Limpiar sus identificadores de la selección global.
+    idsRetirar.forEach(id => E.seleccionados.delete(id));
+
+    // Eliminar el grupo.
+    E.grupos = E.grupos.filter(x => x.id !== g.id);
       if (E.grupoActivoId === g.id) E.grupoActivoId = E.grupos[0].id;
       revisarTodosArchivos();
     };
