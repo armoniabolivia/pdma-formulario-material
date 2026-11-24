@@ -550,7 +550,6 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
   <!-- PANTALLA DE ACCESO (SOLO VISIBLE SI NO HAY SESIÓN O HUBO ERROR) -->
   <section class="panel oculto" id="login" style="max-width:620px;margin:24px auto">
     <div class="recibo">
-      <div style="margin-bottom:8px"><span class="st st-av" id="loginEstadoPill">Sesión no iniciada</span></div>
       <h2 id="loginTitulo">Inicia sesión para compartir material</h2>
       <p class="sub" style="max-width:500px;margin:6px auto 14px">Usa tu cuenta institucional de Armonía (Microsoft 365). La contraseña la recibe únicamente Microsoft; este portal no la almacena.</p>
       <button type="button" class="btn p" id="bEntrar">Iniciar sesión con Microsoft</button>
@@ -580,10 +579,6 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
             <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--azul)">Remitente autenticado</div>
             <b id="cardUNombre" style="font-size:16px;color:var(--azul-prof)"></b>
             <div id="cardUCorreo" style="font-size:13px;color:var(--muted)"></div>
-          </div>
-          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-            <span class="st st-ok" id="cardUStatus">Sesión activa</span>
-            <span class="entorno-tag" id="cardUEntorno">Entorno de pruebas</span>
           </div>
         </div>
 
@@ -1090,7 +1085,6 @@ function actualizarEstadoSesion(tipo, textoPersonalizado){
   const info = mapa[tipo] || mapa.comprobando;
   const textoFinal = textoPersonalizado || info.txt;
   if (badge){ badge.className = info.cls; badge.textContent = textoFinal; }
-  if (loginPill){ loginPill.className = info.cls; loginPill.textContent = textoFinal; }
 }
 
 function aplicarIdentidadEntorno(){
@@ -1099,12 +1093,10 @@ function aplicarIdentidadEntorno(){
     esPruebas: cfgEnt.esPruebas !== false,
     nombreVisible: cfgEnt.nombreVisible || 'Entorno de pruebas'
   };
-  ['#entornoBadge', '#cardUEntorno'].forEach(sel => {
-    const el = $(sel);
-    if (!el) return;
-    el.textContent = CONFIG.entorno.nombreVisible;
-    el.classList.toggle('prod', !CONFIG.entorno.esPruebas);
-  });
+  const el = $('#entornoBadge');
+  if (!el) return;
+  el.textContent = CONFIG.entorno.nombreVisible;
+  el.classList.toggle('oculto', !CONFIG.entorno.esPruebas);
 }
 
 /* ============================================================================
@@ -3609,8 +3601,6 @@ async function iniciar(){
     $('#uCorreo').textContent = CONFIG.usuario.correo;
     $('#cardUNombre').textContent = CONFIG.usuario.nombre;
     $('#cardUCorreo').textContent = CONFIG.usuario.correo;
-    $('#cardUStatus').className = 'st st-neu';
-    $('#cardUStatus').textContent = 'Modo local sin conexión';
     actualizarEstadoSesion('simulado');
     await cargarDirectorioInternosCompleto();
     irA(0);
