@@ -260,7 +260,20 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
   background:var(--blanco);border:1px solid var(--azul);border-radius:8px;
   box-shadow:var(--shadow-md);max-height:240px;overflow-y:auto;
 }
+
 .ac-lista.arriba{top:auto;bottom:calc(100% + 4px)}
+/* Selector de especies del catálogo Birds of Bolivia */
+.especie-selector{position:relative}
+.especie-selector .especie-busqueda{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--blanco);font-size:13.5px}
+.especie-selector .especie-busqueda:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px var(--celeste-cl)}
+.especie-seleccionada{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-top:8px;padding:9px 11px;background:var(--celeste-cl);border:1px solid var(--celeste);border-radius:9px}
+.especie-seleccionada .especie-info{min-width:0}
+.especie-seleccionada b{display:block;color:var(--azul-prof);font-size:13px}
+.especie-seleccionada span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.especie-seleccionada button{flex:none;border:0;background:rgba(0,51,102,.08);color:var(--azul-prof);border-radius:6px;width:25px;height:25px;cursor:pointer;font-weight:700}
+.especie-ayuda{font-size:11.5px;color:var(--muted);margin-top:4px}
+.especie-sin-resultados{padding:10px 12px;color:var(--muted);font-size:12.5px}
+
 .ac-head{
   padding:6px 12px;background:var(--fondo);border-bottom:1px solid var(--line);
   font-size:11.5px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -2269,6 +2282,149 @@ function renderEditorContextoGrupo(cont, g){
 /* ============================================================================
    PANEL LATERAL DERECHO (INSPECTOR INDIVIDUAL Y MASIVO ESTILO INATURALIST)
    ============================================================================ */
+
+/* ============================================================================
+   CATÁLOGO DE ESPECIES · Birds of Bolivia (JSON local)
+   Una especie se identifica por su ID, independientemente del idioma buscado.
+   ============================================================================ */
+let CATALOGO_ESPECIES = [];
+let ERROR_CATALOGO_ESPECIES = '';
+
+function normalizarBusquedaEspecie(valor){
+  return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+async function cargarCatalogoEspecies(){
+  try{
+    const resp = await fetch('./data/aves.json', { cache: 'no-cache' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const datos = await resp.json();
+    if (!datos || !Array.isArray(datos.especies) || !datos.especies.length){
+      throw new Error('El archivo no contiene el arreglo especies.');
+    }
+    CATALOGO_ESPECIES = datos.especies.filter(x =>
+      x && x.id && x.nombre_cientifico && x.nombre_comun_es && x.nombre_comun_en
+    );
+    if (!CATALOGO_ESPECIES.length) throw new Error('No hay registros completos para el selector.');
+    ERROR_CATALOGO_ESPECIES = '';
+    console.info(`Catálogo de aves cargado: ${CATALOGO_ESPECIES.length} especies.`);
+  } catch(e){
+    CATALOGO_ESPECIES = [];
+    ERROR_CATALOGO_ESPECIES = String(e.message || e);
+    console.error('No se pudo cargar data/aves.json:', ERROR_CATALOGO_ESPECIES);
+  }
+}
+
+function textoEspecieSeleccionada(especie){
+  if (!especie) return '';
+  return `${especie.nombre_cientifico} | ${especie.nombre_comun_es} | ${especie.nombre_comun_en}`;
+}
+
+function buscarEspeciesCatalogo(consulta){
+  const q = normalizarBusquedaEspecie(consulta);
+  if (!q) return [];
+  const palabras = q.split(/\s+/).filter(Boolean);
+  return CATALOGO_ESPECIES.map(especie => {
+    const nombres = [
+      especie.nombre_cientifico,
+      especie.nombre_comun_es,
+      especie.nombre_comun_en
+    ].map(normalizarBusquedaEspecie);
+    const combinado = nombres.join(' ');
+    if (!palabras.every(p => combinado.includes(p))) return null;
+    const exacto = nombres.some(n => n === q);
+    const inicio = nombres.some(n => n.startsWith(q));
+    return { especie, orden: exacto ? 0 : (inicio ? 1 : 2) };
+  }).filter(Boolean).sort((a,b) =>
+    a.orden - b.orden ||
+    a.especie.nombre_cientifico.localeCompare(b.especie.nombre_cientifico)
+  ).slice(0, 12).map(x => x.especie);
+}
+
+function renderEspecieSeleccionada(wrap, especie, onChange){
+  const actual = wrap.querySelector('.especie-seleccionada');
+  if (!especie){
+    if (actual) actual.remove();
+    return;
+  }
+  const div = document.createElement('div');
+  div.className = 'especie-seleccionada';
+  div.innerHTML = `
+    <div class="especie-info">
+      <b>${esc(especie.nombre_cientifico)}</b>
+      <span>${esc(especie.nombre_comun_es)} · ${esc(especie.nombre_comun_en)}</span>
+    </div>
+    <button type="button" title="Quitar especie" aria-label="Quitar especie">×</button>`;
+  div.querySelector('button').onclick = () => onChange(null);
+  if (actual) actual.replaceWith(div);
+  else wrap.appendChild(div);
+}
+
+function configurarSelectorEspecie(wrap, seleccionInicial, onChange, prefijo){
+  const input = wrap.querySelector('.especie-busqueda');
+  const lista = wrap.querySelector('.especie-resultados');
+  let seleccion = seleccionInicial || null;
+  let resultados = [];
+
+  function pintarResultados(){
+    const q = input.value.trim();
+    if (!q){
+      lista.innerHTML = '';
+      lista.classList.add('oculto');
+      return;
+    }
+    if (!CATALOGO_ESPECIES.length){
+      lista.innerHTML = `<div class="especie-sin-resultados">No se pudo cargar el catálogo de aves. ${esc(ERROR_CATALOGO_ESPECIES || '')}</div>`;
+      lista.classList.remove('oculto');
+      return;
+    }
+    resultados = buscarEspeciesCatalogo(q);
+    lista.innerHTML = resultados.length ? resultados.map((e,i) => `
+      <div class="ac-item" role="option" data-especie-idx="${i}" id="${prefijo}-op-${i}">
+        <b>${esc(e.nombre_cientifico)}</b>
+        <span>${esc(e.nombre_comun_es)} · ${esc(e.nombre_comun_en)}</span>
+      </div>`).join('') : '<div class="especie-sin-resultados">No se encontraron coincidencias. Prueba con otro nombre.</div>';
+    lista.classList.remove('oculto');
+    lista.querySelectorAll('[data-especie-idx]').forEach(item => {
+      item.onmousedown = ev => ev.preventDefault();
+      item.onclick = () => {
+        const e = resultados[Number(item.dataset.especieIdx)];
+        seleccion = {
+          id: e.id,
+          nombre_cientifico: e.nombre_cientifico,
+          nombre_comun_es: e.nombre_comun_es,
+          nombre_comun_en: e.nombre_comun_en
+        };
+        input.value = '';
+        lista.innerHTML = '';
+        lista.classList.add('oculto');
+        renderEspecieSeleccionada(wrap, seleccion, cambiar);
+        onChange(seleccion);
+      };
+    });
+  }
+
+  function cambiar(nueva){
+    seleccion = nueva;
+    renderEspecieSeleccionada(wrap, seleccion, cambiar);
+    onChange(seleccion);
+  }
+
+  input.addEventListener('input', pintarResultados);
+  input.addEventListener('focus', () => { if (input.value.trim()) pintarResultados(); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){
+      lista.classList.add('oculto');
+      input.blur();
+    }
+  });
+  input.addEventListener('blur', () => {
+    setTimeout(() => lista.classList.add('oculto'), 120);
+  });
+
+  renderEspecieSeleccionada(wrap, seleccion, cambiar);
+}
+
 function pintarInspectorLateral(){
   const panel = $('#inspectorContenido');
   const selArchs = E.archivos.filter(a => E.seleccionados.has(a.id));
@@ -2282,7 +2438,7 @@ function pintarInspectorLateral(){
       <p class="sub">Haz clic (o presiona Enter) sobre una fotografía, video o audio en la galería para editar sus datos individuales, revisar las etiquetas generadas por IA o seleccionar varios elementos para edición masiva.</p>
       <div class="msg info">
         <b>Atajo de edición múltiple</b>
-        Marca la casilla superior izquierda de varias tarjetas (o usa <i>Seleccionar todos</i>) para asignar fotógrafo/a, lugar o tema en bloque.
+        Marca la casilla superior izquierda de varias tarjetas (o usa <i>Seleccionar todos</i>) para asignar fotógrafo/a, lugar o especie en bloque.
       </div>
     `;
     return;
@@ -2355,8 +2511,14 @@ function pintarInspectorLateral(){
           <input id="inspLugar" value="${esc(a.lugar || '')}" placeholder="Comunidad, sector o punto de monitoreo">
         </div>
         <div class="campo" style="margin-bottom:9px">
-          <label for="inspTema">Especies o tema <small>· opcional</small></label>
-          <input id="inspTema" value="${esc(a.especiesTema || '')}" placeholder="Ej.: Paraba Frente Roja, vivero, taller">
+          <label for="inspEspecieBusq">Especie <small>· opcional</small></label>
+          <div class="especie-selector" id="inspEspecieWrap">
+            <input class="especie-busqueda" id="inspEspecieBusq" type="search" autocomplete="off"
+              placeholder="Buscar por nombre científico, español o inglés"
+              aria-label="Buscar especie de ave">
+            <div class="ac-lista especie-resultados oculto" role="listbox"></div>
+          </div>
+          <div class="especie-ayuda">Escriba cualquier nombre conocido. Seleccione una única especie del catálogo.</div>
         </div>
         <div class="campo">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px">
@@ -2446,7 +2608,12 @@ function pintarInspectorLateral(){
     };
 
     panel.querySelector('#inspLugar').oninput = e => { a.lugar = e.target.value; };
-    panel.querySelector('#inspTema').oninput = e => { a.especiesTema = e.target.value; };
+    configurarSelectorEspecie(
+      panel.querySelector('#inspEspecieWrap'),
+      a.especie || null,
+      especie => { a.especie = especie; },
+      'insp-especie-' + a.id
+    );
     panel.querySelector('#inspDescripcion').oninput = e => { a.descripcion_ia = e.target.value; };
 
     if (puedeIA){
@@ -2460,6 +2627,7 @@ function pintarInspectorLateral(){
 
   // MODO EDICIÓN MASIVA EXPLÍCITA (X > 1 ARCHIVOS SELECCIONADOS)
   let fotoMasivo = null;
+  let especieMasiva = null;
   let tagsMasivo = [];
   const gActivo = E.grupos.find(g => g.id === E.grupoActivoId) || E.grupos[0];
   const sugsMasivo = obtenerSugerenciasEtiquetasGrupo(gActivo);
@@ -2506,8 +2674,14 @@ function pintarInspectorLateral(){
         <input id="masLugar" placeholder="Aplicar lugar a los ${selArchs.length} archivos">
       </div>
       <div class="campo" style="margin-bottom:9px">
-        <label for="masTema">Especies o tema</label>
-        <input id="masTema" placeholder="Aplicar especie o tema a los ${selArchs.length} archivos">
+        <label for="masEspecieBusq">Especie</label>
+        <div class="especie-selector" id="masEspecieWrap">
+          <input class="especie-busqueda" id="masEspecieBusq" type="search" autocomplete="off"
+            placeholder="Buscar especie para aplicar a los ${selArchs.length} archivos"
+            aria-label="Buscar especie de ave para edición masiva">
+          <div class="ac-lista especie-resultados oculto" role="listbox"></div>
+        </div>
+        <div class="especie-ayuda">La especie seleccionada se asignará a todos los archivos marcados.</div>
       </div>
       <div class="campo">
         <label for="masDescripcion">Descripción</label>
@@ -2526,6 +2700,13 @@ function pintarInspectorLateral(){
     tabInicial: E._masivoFotoTab,
     onTabChange: t => { E._masivoFotoTab = t; }
   });
+
+  configurarSelectorEspecie(
+    panel.querySelector('#masEspecieWrap'),
+    null,
+    especie => { especieMasiva = especie; },
+    'mas-especie'
+  );
 
   function pintarPillsMasivo(){
     const wrap = panel.querySelector('#masTagsPills');
@@ -2555,7 +2736,6 @@ function pintarInspectorLateral(){
     }
     const fec = panel.querySelector('#masFecha').value;
     const lug = panel.querySelector('#masLugar').value.trim();
-    const tem = panel.querySelector('#masTema').value.trim();
     const des = panel.querySelector('#masDescripcion').value.trim();
 
     const camposAplicados = [];
@@ -2563,7 +2743,7 @@ function pintarInspectorLateral(){
     if (tagsMasivo.length) camposAplicados.push('Etiquetas');
     if (fec) camposAplicados.push('Fecha de captura');
     if (lug) camposAplicados.push('Lugar');
-    if (tem) camposAplicados.push('Especies o tema');
+    if (especieMasiva) camposAplicados.push('Especie');
     if (des) camposAplicados.push('Descripción');
 
     if (!camposAplicados.length){
@@ -2586,7 +2766,7 @@ function pintarInspectorLateral(){
         a.fechaCapturaManual = fec + horaOrig;
       }
       if (lug) a.lugar = lug;
-      if (tem) a.especiesTema = tem;
+      if (especieMasiva) a.especie = JSON.parse(JSON.stringify(especieMasiva));
       if (des) a.descripcion_ia = des;
     });
 
@@ -2814,7 +2994,7 @@ async function agregarArchivosAGrupo(files, grupoId){
       _fotoTab: gObj.fotografoDefault ? gObj.fotografoDefault.tipo : (gObj._fotoTab || 'interno'),
       fotografoManual: false,
       lugar: '',
-      especiesTema: '',
+      especie: null,
       descripcion: '',
       etiquetas_ia: [],
       descripcion_ia: '',
@@ -3008,7 +3188,7 @@ function pintarRevision(){
             <div style="font-size:12px;color:var(--muted)">
               ${a.fotografo ? '📷 ' + esc(fotografoTexto(a.fotografo)) : '<span style="color:var(--amber);font-weight:700">Falta asignar fotógrafo/a</span>'}
               ${a.lugar ? ' · 📍 ' + esc(a.lugar) : ''}
-              ${a.especiesTema ? ' · 🦜 ' + esc(a.especiesTema) : ''}
+              ${a.especie ? ' · ' + esc(a.especie.nombre_cientifico) : ''}
             </div>
             ${(a.etiquetas_ia && a.etiquetas_ia.length) ? `<div style="font-size:11.5px;color:var(--azul-osc);margin-top:2px">✨ ${esc(a.etiquetas_ia.join(', '))}</div>` : ''}
           </div>
@@ -3202,7 +3382,13 @@ function construirManifiesto(codigo){
         } : null,
         detalles: {
           lugar: (a.lugar || '').trim(),
-          especies_tema: (a.especiesTema || '').trim(),
+          especie: a.especie ? {
+            id: a.especie.id,
+            nombre_cientifico: a.especie.nombre_cientifico,
+            nombre_comun_es: a.especie.nombre_comun_es,
+            nombre_comun_en: a.especie.nombre_comun_en,
+            nombres_busqueda: textoEspecieSeleccionada(a.especie)
+          } : null,
           descripcion: (a.descripcion_ia || '').trim()
         },
         ia: {
@@ -3820,6 +4006,7 @@ async function entrar(){
 
 async function iniciar(){
   aplicarIdentidadEntorno();
+  await cargarCatalogoEspecies();
   actualizarEstadoSesion('comprobando');
   mostrarSoloPantalla('carga');
 
