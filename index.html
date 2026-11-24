@@ -322,6 +322,28 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 .eco-dot{width:9px;height:9px;border-radius:999px;background:var(--eco-color, var(--azul));flex:none}
 .grupo-ruta{font-size:12.5px;color:var(--muted);margin-top:4px}
 .grupo-btns{display:flex;gap:6px;flex-wrap:wrap}
+.grupo-archivos-tools{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex-wrap:wrap;
+  padding:9px 10px;
+  margin:0 0 10px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:var(--fondo);
+}
+
+.grupo-archivos-tools .grupo-sel-info{
+  margin-left:auto;
+  font-size:12px;
+  color:var(--muted);
+  white-space:nowrap;
+}
+
+.grupo-archivos-tools .btn-xs{
+  min-height:32px;
+}
 .btn-xs{
   border:1px solid var(--line);background:var(--blanco);color:var(--azul-prof);
   border-radius:7px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;
@@ -514,6 +536,21 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
   .inspector.movil-abierto{display:block}
   .btn-volver-gal{display:block}
   .destino b{white-space:normal}
+  .grupo-archivos-tools{
+    gap:6px;
+    padding:8px;
+  }
+
+  .grupo-archivos-tools .btn-xs{
+    flex:1 1 calc(50% - 6px);
+    min-height:38px;
+  }
+
+  .grupo-archivos-tools .grupo-sel-info{
+    flex:1 0 100%;
+    margin:0;
+    text-align:left;
+  }
 }
 </style>
 </head>
@@ -1814,31 +1851,212 @@ function pintarMesaCatalogacion(){
     const okCtx = grupoValido(g);
 
     card.innerHTML = `
-      <div class="grupo-head">
-        <div class="grupo-tit">
-          <b>
-            Grupo ${idx + 1} · ${esc(g.actividad || 'Actividad por definir')}
-            ${g.paisaje ? `<span class="eco-pill"><i class="eco-dot"></i>${esc(g.paisaje)}</span>` : ''}
-            <span class="st ${okCtx && validosGrupo.length ? 'st-ok' : 'st-av'}">${archsGrupo.length} archivo(s)</span>
-            ${g.lineaEstrategica ? renderBadgeLineaHtml(g.lineaEstrategica, 'st') : ''}
-          </b>
-          <div class="grupo-ruta">${esc(rutaTxt)}${g.fotografoDefault ? ' · 📷 ' + esc(fotografoTexto(g.fotografoDefault)) : ''}</div>
-        </div>
-        <div class="grupo-btns">
-          <button type="button" class="btn-xs" data-act="ctx">${g.editandoCtx ? 'Ocultar contexto' : 'Editar contexto'}</button>
-          ${esMultiple ? '<button type="button" class="btn-xs" data-act="dup">Duplicar grupo</button>' : ''}
-          ${(esMultiple && E.grupos.length > 1) ? '<button type="button" class="btn-xs peligro" data-act="del">Eliminar grupo</button>' : ''}
-        </div>
+    <div class="grupo-head">
+      <div class="grupo-tit">
+        <b>
+          Grupo ${idx + 1} · ${esc(g.actividad || 'Actividad por definir')}
+          ${g.paisaje ? `<span class="eco-pill"><i class="eco-dot"></i>${esc(g.paisaje)}</span>` : ''}
+          <span class="st ${okCtx && validosGrupo.length ? 'st-ok' : 'st-av'}">${archsGrupo.length} archivo(s)</span>
+          ${g.lineaEstrategica ? renderBadgeLineaHtml(g.lineaEstrategica, 'st') : ''}
+        </b>
+        <div class="grupo-ruta">${esc(rutaTxt)}${g.fotografoDefault ? ' · 📷 ' + esc(fotografoTexto(g.fotografoDefault)) : ''}</div>
       </div>
-      <div class="grupo-editor ${g.editandoCtx ? '' : 'oculto'}"></div>
-      ${esVacioConOtros ? `<div class="msg warn" style="margin:0 0 10px"><b>Grupo ${idx + 1} está vacío</b>Añade al menos 1 archivo a este grupo o elimínalo para poder continuar.</div>` : ''}
-      <div class="zona" tabindex="0" role="button" aria-label="Añadir archivos al Grupo ${idx + 1}">
-        <b>+ Arrastra fotos, videos o audios aquí o haz clic para añadir al Grupo ${idx + 1}</b>
-        <span>Soporta JPG, PNG, RAW (CR2, NEF, ARW, DNG), MP4, MOV y WAV/MP3 · hasta ${fmtBytes(CONFIG.umbralBytes)} por archivo</span>
-      </div>
-      <div class="cards-grid" role="list" aria-label="Archivos del Grupo ${idx + 1}"></div>
-    `;
 
+      <div class="grupo-btns">
+        <button type="button" class="btn-xs" data-act="ctx">${g.editandoCtx ? 'Ocultar contexto' : 'Editar contexto'}</button>
+        ${esMultiple ? '<button type="button" class="btn-xs" data-act="dup">Duplicar grupo</button>' : ''}
+        ${(esMultiple && E.grupos.length > 1) ? '<button type="button" class="btn-xs peligro" data-act="del">Eliminar grupo</button>' : ''}
+      </div>
+    </div>
+
+    <!-- BARRA DE ACCIONES DE ARCHIVOS: va aquí, fuera de grupo-head -->
+    <div class="grupo-archivos-tools"
+        aria-label="Acciones de archivos del Grupo ${idx + 1}">
+
+      <button type="button"
+              class="btn-xs"
+              data-grupo-act="seleccionar"
+              ${archsGrupo.length ? '' : 'disabled'}>
+        Seleccionar todo
+      </button>
+
+      <button type="button"
+              class="btn-xs"
+              data-grupo-act="quitar"
+              disabled>
+        Quitar seleccionadas (0)
+      </button>
+
+      <button type="button"
+              class="btn-xs peligro"
+              data-grupo-act="vaciar"
+              ${archsGrupo.length ? '' : 'disabled'}>
+        Vaciar grupo
+      </button>
+
+      <span class="grupo-sel-info" aria-live="polite">
+        0 seleccionadas de ${archsGrupo.length}
+      </span>
+    </div>
+
+    <div class="grupo-editor ${g.editandoCtx ? '' : 'oculto'}"></div>
+    ${esVacioConOtros ? `<div class="msg warn" style="margin:0 0 10px"><b>Grupo ${idx + 1} está vacío</b>Añade al menos 1 archivo a este grupo o elimínalo para poder continuar.</div>` : ''}
+    <div class="zona" tabindex="0" role="button" aria-label="Añadir archivos al Grupo ${idx + 1}">
+      <b>+ Arrastra fotos, videos o audios aquí o haz clic para añadir al Grupo ${idx + 1}</b>
+      <span>Soporta JPG, PNG, RAW (CR2, NEF, ARW, DNG), MP4, MOV y WAV/MP3 · hasta ${fmtBytes(CONFIG.umbralBytes)} por archivo</span>
+    </div>
+    <div class="cards-grid" role="list" aria-label="Archivos del Grupo ${idx + 1}"></div>
+  `;
+
+  // =====================================================
+  // ACCIONES DE SELECCIÓN Y ELIMINACIÓN POR GRUPO
+  // =====================================================
+
+  const bSelGrupo = card.querySelector(
+    '[data-grupo-act="seleccionar"]'
+  );
+
+  const bQuitarGrupo = card.querySelector(
+    '[data-grupo-act="quitar"]'
+  );
+
+  const bVaciarGrupo = card.querySelector(
+    '[data-grupo-act="vaciar"]'
+  );
+
+  const infoSelGrupo = card.querySelector(
+    '.grupo-sel-info'
+  );
+
+  // Actualiza los controles según la selección global,
+  // pero contando únicamente los archivos de este grupo.
+  const actualizarAccionesGrupo = () => {
+
+    const ids = archsGrupo.map(a => a.id);
+
+    const n = ids.filter(id =>
+      E.seleccionados.has(id)
+    ).length;
+
+    const todosSeleccionados =
+      ids.length > 0 && n === ids.length;
+
+    bSelGrupo.textContent = todosSeleccionados
+      ? 'Deseleccionar grupo'
+      : 'Seleccionar todo';
+
+    bSelGrupo.disabled = ids.length === 0;
+
+    bQuitarGrupo.textContent =
+      `Quitar seleccionadas (${n})`;
+
+    bQuitarGrupo.disabled = n === 0;
+
+    bVaciarGrupo.disabled = ids.length === 0;
+
+    infoSelGrupo.textContent =
+      `${n} seleccionada(s) de ${ids.length}`;
+  };
+
+
+  // Seleccionar o deseleccionar todos los archivos
+  // pertenecientes exclusivamente a este grupo.
+  bSelGrupo.onclick = () => {
+
+    const ids = archsGrupo.map(a => a.id);
+
+    const todosSeleccionados =
+      ids.length > 0 &&
+      ids.every(id => E.seleccionados.has(id));
+
+    ids.forEach(id => {
+
+      if (todosSeleccionados) {
+        E.seleccionados.delete(id);
+      } else {
+        E.seleccionados.add(id);
+      }
+
+    });
+
+    E.grupoActivoId = g.id;
+    E.feedbackMasivo = null;
+
+    pintarMesaCatalogacion();
+  };
+
+
+  // Quitar únicamente los archivos seleccionados
+  // que pertenecen al grupo actual.
+  bQuitarGrupo.onclick = () => {
+
+    const ids = archsGrupo
+      .map(a => a.id)
+      .filter(id => E.seleccionados.has(id));
+
+    if (!ids.length) return;
+
+    const confirmar = confirm(
+      `¿Quitar ${ids.length} archivo(s) seleccionado(s) ` +
+      `del Grupo ${idx + 1}? ` +
+      `Los archivos originales de tu equipo no se eliminarán.`
+    );
+
+    if (!confirmar) return;
+
+    const retirar = new Set(ids);
+
+    E.archivos = E.archivos.filter(a =>
+      !retirar.has(a.id)
+    );
+
+    // Limpiar referencias de la selección global.
+    retirar.forEach(id =>
+      E.seleccionados.delete(id)
+    );
+
+    E.feedbackMasivo = null;
+
+    revisarTodosArchivos();
+  };
+
+
+  // Vaciar completamente el grupo,
+  // conservando su estructura y contexto.
+  bVaciarGrupo.onclick = () => {
+
+    if (!archsGrupo.length) return;
+
+    const confirmar = confirm(
+      `¿Vaciar el Grupo ${idx + 1}? ` +
+      `Se quitarán sus ${archsGrupo.length} archivo(s) ` +
+      `de esta carga. El grupo y su contexto se conservarán. ` +
+      `Los archivos originales no se eliminarán.`
+    );
+
+    if (!confirmar) return;
+
+    const retirar = new Set(
+      archsGrupo.map(a => a.id)
+    );
+
+    E.archivos = E.archivos.filter(a =>
+      !retirar.has(a.id)
+    );
+
+    // Evitar IDs de archivos inexistentes en la selección.
+    retirar.forEach(id =>
+      E.seleccionados.delete(id)
+    );
+
+    E.feedbackMasivo = null;
+
+    revisarTodosArchivos();
+  };
+
+
+  // Primera actualización al dibujar la tarjeta.
+  actualizarAccionesGrupo();  
     card.querySelector('[data-act="ctx"]').onclick = () => { g.editandoCtx = !g.editandoCtx; E.grupoActivoId = g.id; pintarMesaCatalogacion(); };
     const bDup = card.querySelector('[data-act="dup"]');
     if (bDup) bDup.onclick = () => {
