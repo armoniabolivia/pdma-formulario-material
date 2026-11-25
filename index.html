@@ -820,7 +820,10 @@ const CONFIG = {
   siteUrl: 'https://armoniabolivia.sharepoint.com/sites/BibliotecaAudiovisualArmonia',
   siteId: 'armoniabolivia.sharepoint.com,43966133-0473-4585-9ae5-92535cc35529,0f6c4c16-f87c-4c5a-855e-1008fabb5c6c',
   listId: '010ed055-74bb-4337-8874-07323bc06b16',
-  gestiones: ['2026', '2025', '2024', '2023', '2022', '2021', '2020'],
+gestiones: Array.from(
+    { length: Math.max(1, new Date().getFullYear() - 2020 + 1) },
+    (_, i) => String(new Date().getFullYear() - i)
+  ),
   sinFecha: 'Sin fecha de captura',
   porDefinir: 'Por definir',
   extensiones: {
@@ -3932,7 +3935,10 @@ async function refrescarFotografosExternos(forzar = false){
     }
     const colGes = cols.find(c => c.name === 'Gestion');
     if (colGes && colGes.choice && Array.isArray(colGes.choice.choices) && colGes.choice.choices.length){
-      const yrs = colGes.choice.choices.filter(v => /^\d{4}$/.test(v)).sort((a, b) => b.localeCompare(a));
+      const anioActual = new Date().getFullYear();
+      const yrs = colGes.choice.choices
+        .filter(v => /^\d{4}$/.test(v) && Number(v) <= anioActual)
+        .sort((a, b) => b.localeCompare(a));
       if (yrs.length) CONFIG.gestiones = yrs;
     }
     DIRECTORIO.externosUltimaCarga = Date.now();
