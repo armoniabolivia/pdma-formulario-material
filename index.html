@@ -305,11 +305,12 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
    ETAPA 2 · MESA DE CATALOGACIÓN VISUAL (ESTILO INATURALIST + GRUPOS)
    ========================================================================== */
 .mesa-toolbar{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
   background:var(--blanco);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:14px;
   box-shadow:var(--shadow-sm);
 }
-.mesa-toolbar .grp-acciones{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.mesa-toolbar .grp-acciones{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.toolbar-sep{width:1px;height:24px;background:var(--line);margin:0 4px;flex:none}
 .mesa-leyenda{
   display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
   font-size:12px;color:var(--muted);margin:-6px 0 12px;padding:0 4px;
@@ -358,16 +359,22 @@ h3 .req.auto{color:var(--ok);background:var(--ok-cl);border:1px solid var(--ok-b
 }
 
 .grupo-archivos-tools .btn-xs{
-  min-height:32px;
+  min-height:36px;
 }
 .btn-xs{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:36px;
   border:1px solid var(--line);background:var(--blanco);color:var(--azul-prof);
-  border-radius:7px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;
+  border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;
+  transition:background .14s,border-color .14s,color .14s;
 }
+.btn-xs svg{width:15px;height:15px;flex:none}
 .btn-xs:hover:not(:disabled){border-color:var(--azul);background:var(--celeste-cl)}
 .btn-xs.prim{background:var(--azul);border-color:var(--azul);color:var(--blanco)}
-.btn-xs.prim:hover:not(:disabled){background:var(--azul-osc)}
+.btn-xs.prim:hover:not(:disabled){background:var(--azul-osc);border-color:var(--azul-osc)}
+.btn-xs.peligro{border-color:#E4A9A5;background:#FFF8F7;color:var(--red)}
 .btn-xs.peligro:hover:not(:disabled){border-color:var(--red);background:var(--redbg);color:var(--red)}
+.btn-xs.sep-peligro{margin-left:8px}
 .btn-xs:disabled{opacity:.45;cursor:not-allowed}
 
 .grupo-editor{
@@ -695,18 +702,34 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
          ETAPA 2 · MATERIAL Y ARCHIVOS (GALERÍA POR GRUPOS + PANEL LATERAL)
          ==================================================================== -->
     <section class="oculto" data-paso="1">
-      <div class="mesa-toolbar">
+      <div class="mesa-toolbar" role="toolbar" aria-label="Herramientas de selección y organización">
         <div class="grp-acciones">
-          <button type="button" class="btn-xs prim" id="bNuevoGrupo">+ Crear nuevo grupo de material</button>
-          <button type="button" class="btn-xs" id="bSelTodos">Seleccionar todos</button>
-          <button type="button" class="btn-xs" id="bDeselTodos" disabled>Deseleccionar</button>
+          <button type="button" class="btn-xs prim" id="bNuevoGrupo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+            <span>Crear nuevo grupo</span>
+          </button>
+          <span class="toolbar-sep" id="sepNuevoGrupo" aria-hidden="true"></span>
+          <button type="button" class="btn-xs" id="bSelTodos">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12l3 3 5-6"/></svg>
+            <span id="txtSelTodos">Seleccionar todo</span>
+          </button>
+          <button type="button" class="btn-xs" id="bDeselTodos" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            <span id="txtDeselTodos">Limpiar selección</span>
+          </button>
         </div>
         <div class="grp-acciones" id="accionesSeleccion">
-          <select id="selMoverGrupo" class="linea-select" style="min-width:170px;padding:4px 8px;font-size:12px" disabled title="Mover archivos seleccionados a otro grupo">
+          <select id="selMoverGrupo" class="linea-select" style="min-width:185px;min-height:36px;padding:5px 10px;font-size:12.5px" disabled title="Mover archivos seleccionados a otro grupo">
             <option value="">Mover seleccionados a…</option>
           </select>
-          <button type="button" class="btn-xs" id="bDividirGrupo" disabled>Dividir en nuevo grupo</button>
-          <button type="button" class="btn-xs peligro" id="bQuitarSel" disabled>Quitar seleccionados</button>
+          <button type="button" class="btn-xs" id="bDividirGrupo" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+            <span>Dividir en grupo</span>
+          </button>
+          <button type="button" class="btn-xs peligro sep-peligro" id="bQuitarSel" disabled title="Retira los archivos seleccionados de esta carga (no borra los originales de tu equipo)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span id="txtQuitarSel">Eliminar de la carga</span>
+          </button>
         </div>
       </div>
 
@@ -805,7 +828,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
    CONFIGURACIÓN MAESTRA Y CATÁLOGO OFICIAL PDMA
    ============================================================================ */
 const CONFIG = {
-  version: '1.3 · 23-11-2026',
+  version: '1.4 · 27-11-2026',
   modo: 'simulado',
   chunkBytes: 32 * 320 * 1024,             // 10 MiB por bloque (múltiplo de 320 KiB)
   carpetaTecnica: 'PDMA-PRUEBA-FORMULARIO',
@@ -1797,7 +1820,9 @@ $('#bDividirGrupo').onclick = () => {
 };
 
 $('#bQuitarSel').onclick = () => {
-  if (!E.seleccionados.size) return;
+  const n = E.seleccionados.size;
+  if (!n) return;
+  if (!confirm(`¿Eliminar ${n} archivo(s) seleccionado(s) de esta carga? Los archivos originales en tu equipo no se borrarán.`)) return;
   E.archivos = E.archivos.filter(a => !E.seleccionados.has(a.id));
   E.seleccionados.clear();
   E.feedbackMasivo = null;
@@ -1833,14 +1858,20 @@ function pintarMesaCatalogacion(){
   const esMultiple = E.modoOrg === 'multiple';
 
   // Controles de modo individual vs mixto
+  const totArch = E.archivos.length;
   const nSel = E.seleccionados.size;
   $('#bNuevoGrupo').classList.toggle('oculto', !esMultiple);
+  $('#sepNuevoGrupo').classList.toggle('oculto', !esMultiple);
   $('#selMoverGrupo').classList.toggle('oculto', !esMultiple);
   $('#bDividirGrupo').classList.toggle('oculto', !esMultiple);
 
+  $('#bSelTodos').disabled = totArch === 0 || nSel === totArch;
+  $('#txtSelTodos').textContent = totArch ? `Seleccionar todo (${totArch})` : 'Seleccionar todo';
   $('#bDeselTodos').disabled = nSel === 0;
+  $('#txtDeselTodos').textContent = nSel ? `Limpiar selección (${nSel})` : 'Limpiar selección';
   $('#bDividirGrupo').disabled = !esMultiple || nSel === 0;
   $('#bQuitarSel').disabled = nSel === 0;
+  $('#txtQuitarSel').textContent = nSel ? `Eliminar de la carga (${nSel})` : 'Eliminar de la carga';
   const selMover = $('#selMoverGrupo');
   selMover.disabled = !esMultiple || nSel === 0 || E.grupos.length < 2;
   selMover.innerHTML = '<option value="">Mover seleccionados a…</option>' +
@@ -1888,22 +1919,22 @@ function pintarMesaCatalogacion(){
       </div>
     </div>
 
-    <!-- BARRA DE ACCIONES DE ARCHIVOS: va aquí, fuera de grupo-head -->
-    <div class="grupo-archivos-tools"
+    <!-- BARRA DE ACCIONES POR GRUPO (solo visible cuando hay 2 o más grupos) -->
+    <div class="grupo-archivos-tools ${E.grupos.length > 1 ? '' : 'oculto'}"
         aria-label="Acciones de archivos del Grupo ${idx + 1}">
 
       <button type="button"
               class="btn-xs"
               data-grupo-act="seleccionar"
               ${archsGrupo.length ? '' : 'disabled'}>
-        Seleccionar todo
+        Seleccionar grupo
       </button>
 
       <button type="button"
-              class="btn-xs"
+              class="btn-xs peligro"
               data-grupo-act="quitar"
               disabled>
-        Quitar seleccionadas (0)
+        Eliminar seleccionadas (0)
       </button>
 
       <button type="button"
@@ -1914,7 +1945,7 @@ function pintarMesaCatalogacion(){
       </button>
 
       <span class="grupo-sel-info" aria-live="polite">
-        0 seleccionadas de ${archsGrupo.length}
+        0 seleccionada(s) de ${archsGrupo.length}
       </span>
     </div>
 
@@ -1961,13 +1992,13 @@ function pintarMesaCatalogacion(){
       ids.length > 0 && n === ids.length;
 
     bSelGrupo.textContent = todosSeleccionados
-      ? 'Deseleccionar grupo'
-      : 'Seleccionar todo';
+      ? 'Limpiar selección del grupo'
+      : 'Seleccionar grupo';
 
     bSelGrupo.disabled = ids.length === 0;
 
     bQuitarGrupo.textContent =
-      `Quitar seleccionadas (${n})`;
+      `Eliminar seleccionadas (${n})`;
 
     bQuitarGrupo.disabled = n === 0;
 
@@ -2431,6 +2462,7 @@ function configurarSelectorEspecie(wrap, seleccionInicial, onChange, prefijo){
 function pintarInspectorLateral(){
   const panel = $('#inspectorContenido');
   const selArchs = E.archivos.filter(a => E.seleccionados.has(a.id));
+  if (selArchs.length <= 1) window._aplicarPendientesMasivo = null;
 
   if (!selArchs.length){
     panel.innerHTML = `
@@ -2632,32 +2664,45 @@ function pintarInspectorLateral(){
   }
 
   // MODO EDICIÓN MASIVA EXPLÍCITA (X > 1 ARCHIVOS SELECCIONADOS)
-  let fotoMasivo = null;
   let especieMasiva = null;
   let tagsMasivo = [];
   const gActivo = E.grupos.find(g => g.id === E.grupoActivoId) || E.grupos[0];
   const sugsMasivo = obtenerSugerenciasEtiquetasGrupo(gActivo);
   const fbHtml = E.feedbackMasivo
-    ? `<div class="msg ${esc(E.feedbackMasivo.tipo)}"><b>${esc(E.feedbackMasivo.titulo)}</b>${esc(E.feedbackMasivo.detalle)}</div>`
+    ? `<div class="msg ${esc(E.feedbackMasivo.tipo)}" style="margin:8px 0 0"><b>${esc(E.feedbackMasivo.titulo)}</b>${esc(E.feedbackMasivo.detalle)}</div>`
     : '';
 
   panel.innerHTML = `
-    <div class="inspector-head">
-      <div class="kicker">Edición masiva explícita</div>
+    <div class="inspector-head" style="position:sticky;top:-16px;background:var(--blanco);z-index:10;padding-top:12px;margin-top:-12px">
+      <div class="kicker">Edición masiva</div>
       <h3>Editando ${selArchs.length} archivos</h3>
+      <div id="masivoFeedback">${fbHtml}</div>
+      <button type="button" class="btn p oculto" id="bAplicarMasivoTop" style="width:100%;margin-top:8px">
+        Guardar cambios en ${selArchs.length} seleccionados
+      </button>
     </div>
-    <p class="sub">Completa únicamente los campos que quieras aplicar en bloque a los <b>${selArchs.length} archivos</b> marcados.</p>
+    <p class="sub">El <b>fotógrafo/a</b> y la <b>especie</b> se aplican al instante. Los campos de texto se guardan con el botón superior o al pulsar <i>Continuar</i>.</p>
 
     <div class="inspector-sec">
-      <h4>Asignar fotógrafo/a en bloque</h4>
+      <h4>Fotógrafo/a para los ${selArchs.length} archivos</h4>
       <div id="masivoFotoWrap"></div>
+    </div>
+
+    <div class="inspector-sec">
+      <h4>Especie para los ${selArchs.length} archivos <span class="req">opcional</span></h4>
+      <div class="especie-selector" id="masEspecieWrap">
+        <input class="especie-busqueda" id="masEspecieBusq" type="search" autocomplete="off"
+          placeholder="Buscar especie para aplicar a los ${selArchs.length} archivos"
+          aria-label="Buscar especie de ave para edición masiva">
+        <div class="ac-lista especie-resultados oculto" role="listbox"></div>
+      </div>
     </div>
 
     <div class="inspector-sec">
       <h4>Añadir etiquetas en bloque</h4>
       <div class="tag-add-row">
         <input id="masTagInput" placeholder="Añade etiqueta en bloque…">
-        <button type="button" class="btn-xs prim btn-add-tag" id="bAddTagMasivo" title="Añadir etiqueta en bloque" aria-label="Añadir etiqueta en bloque">+</button>
+        <button type="button" class="btn-xs prim btn-add-tag" id="bAddTagMasivo" title="Añadir etiqueta en bloque">+</button>
       </div>
       <div class="tags-pills-wrap" id="masTagsPills"></div>
       ${sugsMasivo.length ? `
@@ -2670,7 +2715,7 @@ function pintarInspectorLateral(){
     </div>
 
     <div class="inspector-sec">
-      <h4>Metadatos compartidos <span class="req">opcional</span></h4>
+      <h4>Metadatos de texto compartidos <span class="req">opcional</span></h4>
       <div class="campo" style="margin-bottom:9px">
         <label for="masFecha">Corregir fecha de captura en bloque</label>
         <input type="date" id="masFecha">
@@ -2679,40 +2724,75 @@ function pintarInspectorLateral(){
         <label for="masLugar">Lugar (dejar vacío para no modificar)</label>
         <input id="masLugar" placeholder="Aplicar lugar a los ${selArchs.length} archivos">
       </div>
-      <div class="campo" style="margin-bottom:9px">
-        <label for="masEspecieBusq">Especie</label>
-        <div class="especie-selector" id="masEspecieWrap">
-          <input class="especie-busqueda" id="masEspecieBusq" type="search" autocomplete="off"
-            placeholder="Buscar especie para aplicar a los ${selArchs.length} archivos"
-            aria-label="Buscar especie de ave para edición masiva">
-          <div class="ac-lista especie-resultados oculto" role="listbox"></div>
-        </div>
-        <div class="especie-ayuda">La especie seleccionada se asignará a todos los archivos marcados.</div>
-      </div>
       <div class="campo">
         <label for="masDescripcion">Descripción</label>
         <textarea id="masDescripcion" rows="2" placeholder="Aplicar descripción a los ${selArchs.length} archivos"></textarea>
       </div>
     </div>
 
-    <button type="button" class="btn p" id="bAplicarMasivo" style="width:100%;margin-top:14px">Aplicar a los ${selArchs.length} seleccionados</button>
-    <div id="masivoFeedback">${fbHtml}</div>
+    <button type="button" class="btn p" id="bAplicarMasivo" style="width:100%;margin-top:14px">
+      Guardar cambios en ${selArchs.length} seleccionados
+    </button>
   `;
 
+  // 1. Fotógrafo/a se aplica INMEDIATAMENTE al seleccionarlo
   renderSelectorFotografo(panel.querySelector('#masivoFotoWrap'), null, nf => {
-    fotoMasivo = nf;
-    if (nf) E._masivoFotoTab = nf.tipo;
+    if (!nf) return;
+    E._masivoFotoTab = nf.tipo;
+    selArchs.forEach(a => {
+      a.fotografo = JSON.parse(JSON.stringify(nf));
+      a.fotografoManual = true;
+    });
+    E.feedbackMasivo = {
+      tipo: 'ok',
+      titulo: `Fotógrafo/a asignado a ${selArchs.length} archivo(s)`,
+      detalle: fotografoTexto(nf)
+    };
+    revisarTodosArchivos();
   }, {
     tabInicial: E._masivoFotoTab,
     onTabChange: t => { E._masivoFotoTab = t; }
   });
 
+  // 2. Especie se aplica INMEDIATAMENTE al seleccionarla
   configurarSelectorEspecie(
     panel.querySelector('#masEspecieWrap'),
     null,
-    especie => { especieMasiva = especie; },
+    especie => {
+      if (!especie) return;
+      selArchs.forEach(a => { a.especie = JSON.parse(JSON.stringify(especie)); });
+      E.feedbackMasivo = {
+        tipo: 'ok',
+        titulo: `Especie asignada a ${selArchs.length} archivo(s)`,
+        detalle: especie.nombre_cientifico
+      };
+      revisarTodosArchivos();
+    },
     'mas-especie'
   );
+
+  const masTagInp = panel.querySelector('#masTagInput');
+  const btnTop = panel.querySelector('#bAplicarMasivoTop');
+
+  function hayTextoPendiente(){
+    return !!(
+      masTagInp.value.trim() ||
+      tagsMasivo.length ||
+      panel.querySelector('#masFecha').value ||
+      panel.querySelector('#masLugar').value.trim() ||
+      panel.querySelector('#masDescripcion').value.trim()
+    );
+  }
+
+  function actualizarVisibilidadBotonTop(){
+    btnTop.classList.toggle('oculto', !hayTextoPendiente());
+  }
+
+  ['#masFecha', '#masLugar', '#masDescripcion'].forEach(sel => {
+    panel.querySelector(sel).addEventListener('input', actualizarVisibilidadBotonTop);
+    panel.querySelector(sel).addEventListener('change', actualizarVisibilidadBotonTop);
+  });
+  masTagInp.addEventListener('input', actualizarVisibilidadBotonTop);
 
   function pintarPillsMasivo(){
     const wrap = panel.querySelector('#masTagsPills');
@@ -2722,6 +2802,7 @@ function pintarInspectorLateral(){
     wrap.querySelectorAll('[data-del-mtag]').forEach(b => b.onclick = () => {
       tagsMasivo.splice(+b.dataset.delMtag, 1);
       pintarPillsMasivo();
+      actualizarVisibilidadBotonTop();
     });
   }
   function addTagMasivo(txt){
@@ -2729,13 +2810,13 @@ function pintarInspectorLateral(){
     if (!items.length) return;
     tagsMasivo = normalizarListaTags([...tagsMasivo, ...items]);
     pintarPillsMasivo();
+    actualizarVisibilidadBotonTop();
   }
-  const masTagInp = panel.querySelector('#masTagInput');
-  panel.querySelector('#bAddTagMasivo').onclick = () => { addTagMasivo(masTagInp.value); masTagInp.value = ''; };
-  masTagInp.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); addTagMasivo(masTagInp.value); masTagInp.value = ''; } };
+  panel.querySelector('#bAddTagMasivo').onclick = () => { addTagMasivo(masTagInp.value); masTagInp.value = ''; actualizarVisibilidadBotonTop(); };
+  masTagInp.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); addTagMasivo(masTagInp.value); masTagInp.value = ''; actualizarVisibilidadBotonTop(); } };
   panel.querySelectorAll('[data-mas-sug]').forEach(b => b.onclick = () => addTagMasivo(b.dataset.masSug));
 
-  panel.querySelector('#bAplicarMasivo').onclick = () => {
+  function aplicarCambiosTextoMasivo(silencioso = false){
     if (masTagInp.value.trim()){
       addTagMasivo(masTagInp.value);
       masTagInp.value = '';
@@ -2745,44 +2826,46 @@ function pintarInspectorLateral(){
     const des = panel.querySelector('#masDescripcion').value.trim();
 
     const camposAplicados = [];
-    if (fotoMasivo) camposAplicados.push('Fotógrafo/a');
     if (tagsMasivo.length) camposAplicados.push('Etiquetas');
     if (fec) camposAplicados.push('Fecha de captura');
     if (lug) camposAplicados.push('Lugar');
-    if (especieMasiva) camposAplicados.push('Especie');
     if (des) camposAplicados.push('Descripción');
 
     if (!camposAplicados.length){
-      E.feedbackMasivo = {
-        tipo: 'warn',
-        titulo: 'Sin cambios para aplicar',
-        detalle: 'Completa al menos un campo antes de aplicar en bloque.'
-      };
-      pintarInspectorLateral();
-      return;
+      if (!silencioso){
+        E.feedbackMasivo = {
+          tipo: 'warn',
+          titulo: 'Sin cambios de texto para guardar',
+          detalle: 'El fotógrafo/a y la especie ya se guardan al seleccionarlos.'
+        };
+        pintarInspectorLateral();
+      }
+      return false;
     }
 
     selArchs.forEach(a => {
-      if (fotoMasivo){ a.fotografo = JSON.parse(JSON.stringify(fotoMasivo)); a.fotografoManual = true; }
-      if (tagsMasivo.length){
-        a.etiquetas_ia = normalizarListaTags([...(a.etiquetas_ia || []), ...tagsMasivo]);
-      }
+      if (tagsMasivo.length) a.etiquetas_ia = normalizarListaTags([...(a.etiquetas_ia || []), ...tagsMasivo]);
       if (fec){
         const horaOrig = (a.fechaCapturaOrig && a.fechaCapturaOrig.length > 10) ? a.fechaCapturaOrig.slice(10) : ' 00:00:00';
         a.fechaCapturaManual = fec + horaOrig;
       }
       if (lug){ a.lugar = lug; a.lugarFuente = 'manual'; }
-      if (especieMasiva) a.especie = JSON.parse(JSON.stringify(especieMasiva));
       if (des) a.descripcion_ia = des;
     });
 
     E.feedbackMasivo = {
       tipo: 'ok',
-      titulo: `Cambios aplicados a ${selArchs.length} archivo(s)`,
+      titulo: `Cambios guardados en ${selArchs.length} archivo(s)`,
       detalle: `Campos actualizados: ${camposAplicados.join(', ')}.`
     };
+    window._aplicarPendientesMasivo = null;
     revisarTodosArchivos();
-  };
+    return true;
+  }
+
+  window._aplicarPendientesMasivo = () => aplicarCambiosTextoMasivo(true);
+  btnTop.onclick = () => aplicarCambiosTextoMasivo(false);
+  panel.querySelector('#bAplicarMasivo').onclick = () => aplicarCambiosTextoMasivo(false);
 }
 
 /* ============================================================================
@@ -3444,6 +3527,9 @@ document.querySelectorAll('#opModoOrg button').forEach(b => b.onclick = () => {
 });
 
 $('#bSig').onclick = () => {
+  if (E.paso === 1 && typeof window._aplicarPendientesMasivo === 'function'){
+    window._aplicarPendientesMasivo();
+  }
   if (E.paso < 2) irA(E.paso + 1);
   else if (E.paso === 2) ejecutarEnvio(false);
 };
