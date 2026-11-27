@@ -828,7 +828,7 @@ details summary{cursor:pointer;color:var(--azul);font-weight:700;font-size:14px;
    CONFIGURACIÓN MAESTRA Y CATÁLOGO OFICIAL PDMA
    ============================================================================ */
 const CONFIG = {
-  version: '1.4 · 27-11-2026',
+  version: '1.5 · 27-11-2026',
   modo: 'simulado',
   chunkBytes: 32 * 320 * 1024,             // 10 MiB por bloque (múltiplo de 320 KiB)
   carpetaTecnica: 'PDMA-PRUEBA-FORMULARIO',
@@ -1852,6 +1852,45 @@ function actualizarIndicadorColaIA(){
   }
 }
 
+function renderContenidoTarjetaHtml(a){
+  const fc = fechaDe(a);
+  const det = fmtBytes(a.bytes) + (fc ? ' · ' + fc.slice(0,10) : '');
+
+  let stBadge = '';
+  if (a.bloqueo) stBadge = `<span class="st st-mal">${esc(a.bloqueo)}</span>`;
+  else if (!a.fotografo) stBadge = `<span class="st st-av">Falta fotógrafo/a</span>`;
+  else if (a.avisos.length) stBadge = `<span class="st st-av">${esc(a.avisos[0])}</span>`;
+  else stBadge = `<span class="st st-ok">Listo</span>`;
+
+  let iaBadge = '';
+  if (a.iaEstado === 'analizando') iaBadge = `<span class="st st-ia">✨ IA…</span>`;
+  else if (a.iaEstado === 'pendiente') iaBadge = `<span class="st st-neu">En cola IA</span>`;
+  else if (a.iaEstado === 'ok') iaBadge = `<span class="st st-ia">IA lista</span>`;
+  else if (a.iaEstado === 'error') iaBadge = `<span class="st st-av">IA error</span>`;
+
+  const tags = normalizarListaTags(a.etiquetas_ia);
+  const tagsHtml = tags.slice(0, 3).map(t => `<span class="tag-mini">${esc(t)}</span>`).join('') +
+    (tags.length > 3 ? `<span class="tag-mini">+${tags.length - 3}</span>` : '');
+
+  return `
+    <div class="media-name" title="${esc(a.nombre)}">${esc(a.nombre)}</div>
+    <div class="media-meta num">${esc(det)}</div>
+    ${a.fotografo ? `<div class="media-meta" title="${esc(a.fotografo.nombre)}">📷 ${esc(a.fotografo.nombre)}</div>` : ''}
+    ${a.lugar ? `<div class="media-meta" title="${esc(a.lugar)}">📍 ${esc(a.lugar)}</div>` : ''}
+    ${a.especie ? `<div class="media-meta" title="${esc(a.especie.nombre_cientifico)}"><i>${esc(a.especie.nombre_cientifico)}</i></div>` : ''}
+    ${tagsHtml ? `<div class="media-tags">${tagsHtml}</div>` : ''}
+    <div class="media-foot">${stBadge}${iaBadge}</div>
+  `;
+}
+
+function actualizarTarjetasDOM(listaArchs){
+  for (const a of (listaArchs || E.archivos)){
+    const focusEl = document.querySelector(`.media-card[data-arch-id="${a.id}"] .media-focus`);
+    if (focusEl) focusEl.innerHTML = renderContenidoTarjetaHtml(a);
+  }
+  actualizarPie();
+}
+
 function pintarMesaCatalogacion(){
   const cont = $('#contenedorGrupos');
   cont.innerHTML = '';
@@ -2162,23 +2201,7 @@ function pintarMesaCatalogacion(){
       mc.setAttribute('role', 'listitem');
       const isSel = E.seleccionados.has(a.id);
       mc.className = 'media-card' + (isSel ? ' sel' : '') + (a.bloqueo ? ' bloq' : '');
-      const fc = fechaDe(a);
-      const det = fmtBytes(a.bytes) + (fc ? ' · ' + fc.slice(0,10) : '');
-
-      let stBadge = '';
-      if (a.bloqueo) stBadge = `<span class="st st-mal">${esc(a.bloqueo)}</span>`;
-      else if (!a.fotografo) stBadge = `<span class="st st-av">Falta fotógrafo/a</span>`;
-      else if (a.avisos.length) stBadge = `<span class="st st-av">${esc(a.avisos[0])}</span>`;
-      else stBadge = `<span class="st st-ok">Listo</span>`;
-
-      let iaBadge = '';
-      if (a.iaEstado === 'analizando') iaBadge = `<span class="st st-ia">✨ IA…</span>`;
-      else if (a.iaEstado === 'pendiente') iaBadge = `<span class="st st-neu">En cola IA</span>`;
-      else if (a.iaEstado === 'ok') iaBadge = `<span class="st st-ia">IA lista</span>`;
-      else if (a.iaEstado === 'error') iaBadge = `<span class="st st-av">IA error</span>`;
-
-      const tagsHtml = (a.etiquetas_ia || []).slice(0, 3).map(t => `<span class="tag-mini">${esc(t)}</span>`).join('');
-
+      mc.dataset.archId = a.id;
       mc.innerHTML = `
         <div class="media-thumb">
           <input type="checkbox" class="media-chk" ${isSel ? 'checked' : ''} aria-label="Seleccionar ${esc(a.nombre)}">
@@ -2186,11 +2209,7 @@ function pintarMesaCatalogacion(){
           <button type="button" class="media-del" aria-label="Quitar ${esc(a.nombre)}">×</button>
         </div>
         <div class="media-focus" tabindex="0" role="button" aria-pressed="${isSel}" aria-label="Editar metadatos de ${esc(a.nombre)}">
-          <div class="media-name" title="${esc(a.nombre)}">${esc(a.nombre)}</div>
-          <div class="media-meta num">${esc(det)}</div>
-          ${a.fotografo ? `<div class="media-meta">📷 ${esc(a.fotografo.nombre)}</div>` : ''}
-          ${tagsHtml ? `<div class="media-tags">${tagsHtml}</div>` : ''}
-          <div class="media-foot">${stBadge}${iaBadge}</div>
+          ${renderContenidoTarjetaHtml(a)}
         </div>
       `;
 
@@ -2206,7 +2225,10 @@ function pintarMesaCatalogacion(){
       } else {
         const eb = document.createElement('div'); eb.className = 'ext-badge';
         const iconoTipo = a.tipo === 'video' ? '🎬 ' : (a.tipo === 'audio' ? '🎵 ' : '📷 ');
-        eb.innerHTML = `${iconoTipo}${esc((ext(a.nombre) || 'ARCH').toUpperCase())}<div style="font-size:10px;font-weight:400;opacity:.82;margin-top:3px">Vista previa en OneDrive</div>`;
+        const subThumb = a.thumbEstado === 'cargando'
+          ? 'Generando vista previa…'
+          : (a.tipo === 'audio' ? 'Audio local' : 'Formato sin miniatura local');
+        eb.innerHTML = `${iconoTipo}${esc((ext(a.nombre) || 'ARCH').toUpperCase())}<div style="font-size:10px;font-weight:400;opacity:.82;margin-top:3px">${subThumb}</div>`;
         eb.style.textAlign = 'center';
         thumbBox.prepend(eb);
       }
@@ -2462,7 +2484,7 @@ function configurarSelectorEspecie(wrap, seleccionInicial, onChange, prefijo){
 function pintarInspectorLateral(){
   const panel = $('#inspectorContenido');
   const selArchs = E.archivos.filter(a => E.seleccionados.has(a.id));
-  if (selArchs.length <= 1) window._aplicarPendientesMasivo = null;
+  window._aplicarPendientesMasivo = null;
 
   if (!selArchs.length){
     panel.innerHTML = `
@@ -2473,7 +2495,7 @@ function pintarInspectorLateral(){
       <p class="sub">Haz clic (o presiona Enter) sobre una fotografía, video o audio en la galería para editar sus datos individuales, revisar las etiquetas generadas por IA o seleccionar varios elementos para edición masiva.</p>
       <div class="msg info">
         <b>Atajo de edición múltiple</b>
-        Marca la casilla superior izquierda de varias tarjetas (o usa <i>Seleccionar todos</i>) para asignar fotógrafo/a, lugar o especie en bloque.
+        Marca la casilla superior izquierda de varias tarjetas (o usa <i>Seleccionar todo</i>) para asignar fotógrafo/a, especie, etiquetas, lugar o descripción en bloque.
       </div>
     `;
     return;
@@ -2577,7 +2599,8 @@ function pintarInspectorLateral(){
     if (a.thumbDataUrl){
       prev.innerHTML = `<img src="${a.thumbDataUrl}" alt="">` + (a.tipo === 'video' ? '<span class="play-badge">▶</span>' : '');
     } else {
-      prev.innerHTML = `<span style="color:#fff;font-weight:700">${esc((ext(a.nombre)||'VER').toUpperCase())} · Clic para abrir</span>`;
+      const subPrev = a.thumbEstado === 'cargando' ? 'Generando vista previa local…' : 'Clic para abrir archivo local';
+      prev.innerHTML = `<span style="color:#fff;font-weight:700;text-align:center">${esc((ext(a.nombre)||'VER').toUpperCase())}<small style="display:block;font-weight:400;font-size:11.5px;opacity:.82;margin-top:3px">${subPrev}</small></span>`;
     }
     prev.onclick = () => abrirVisor(a);
 
@@ -2597,7 +2620,6 @@ function pintarInspectorLateral(){
       if (inp) setTimeout(() => inp.focus(), 0);
     }
 
-    // Gestión de etiquetas estilo iNaturalist
     function agregarTagsDesdeTexto(txt){
       const nuevas = txt.split(',').map(s => limpiarEspacios(s)).filter(Boolean);
       if (!nuevas.length) return;
@@ -2625,7 +2647,6 @@ function pintarInspectorLateral(){
       agregarTagsDesdeTexto(btn.dataset.addSug);
     });
 
-    // Fecha de captura editable
     panel.querySelector('#inspFecha').onchange = e => {
       const val = e.target.value;
       if (!val){
@@ -2645,14 +2666,18 @@ function pintarInspectorLateral(){
     panel.querySelector('#inspLugar').oninput = e => {
       a.lugar = e.target.value;
       a.lugarFuente = e.target.value.trim() ? 'manual' : null;
+      actualizarTarjetasDOM([a]);
     };
     configurarSelectorEspecie(
       panel.querySelector('#inspEspecieWrap'),
       a.especie || null,
-      especie => { a.especie = especie; },
+      especie => { a.especie = especie; actualizarTarjetasDOM([a]); },
       'insp-especie-' + a.id
     );
-    panel.querySelector('#inspDescripcion').oninput = e => { a.descripcion_ia = e.target.value; };
+    panel.querySelector('#inspDescripcion').oninput = e => {
+      a.descripcion_ia = e.target.value;
+      actualizarTarjetasDOM([a]);
+    };
 
     if (puedeIA){
       panel.querySelector('#bReanalizarInsp').onclick = () => {
@@ -2663,51 +2688,97 @@ function pintarInspectorLateral(){
     return;
   }
 
-  // MODO EDICIÓN MASIVA EXPLÍCITA (X > 1 ARCHIVOS SELECCIONADOS)
-  let especieMasiva = null;
-  let tagsMasivo = [];
+  // MODO EDICIÓN MASIVA ESTILO INATURALIST (X > 1 ARCHIVOS SELECCIONADOS)
+  // Hidrata cada campo con el estado real compartido de los archivos marcados
+  const totalSel = selArchs.length;
+
+  // 1. Fotógrafo compartido vs mixto
+  const fotosUnicas = new Map();
+  selArchs.forEach(a => {
+    const k = a.fotografo ? `${a.fotografo.tipo}|${normTxt(a.fotografo.nombre)}` : '__VACIO__';
+    fotosUnicas.set(k, a.fotografo);
+  });
+  const fotografoComun = fotosUnicas.size === 1 ? [...fotosUnicas.values()][0] : null;
+  const fotografoMixto = fotosUnicas.size > 1;
+
+  // 2. Especie compartida vs mixta
+  const especiesUnicas = new Map();
+  selArchs.forEach(a => {
+    const k = a.especie ? a.especie.id : '__VACIO__';
+    especiesUnicas.set(k, a.especie);
+  });
+  const especieComun = especiesUnicas.size === 1 ? [...especiesUnicas.values()][0] : null;
+  const especieMixta = especiesUnicas.size > 1;
+
+  // 3. Etiquetas agregadas de todos los archivos seleccionados
+  const mapaTags = new Map();
+  selArchs.forEach(a => {
+    const lista = normalizarListaTags(a.etiquetas_ia);
+    for (const t of lista){
+      const k = normTxt(t);
+      const prev = mapaTags.get(k);
+      const esIa = !!(a.etiquetasIaSet && a.etiquetasIaSet.has(k));
+      if (prev){
+        prev.count += 1;
+        prev.esIa = prev.esIa || esIa;
+      } else {
+        mapaTags.set(k, { texto: t, count: 1, esIa });
+      }
+    }
+  });
+  const tagsAgregados = [...mapaTags.values()];
+
   const gActivo = E.grupos.find(g => g.id === E.grupoActivoId) || E.grupos[0];
-  const sugsMasivo = obtenerSugerenciasEtiquetasGrupo(gActivo);
-  const fbHtml = E.feedbackMasivo
-    ? `<div class="msg ${esc(E.feedbackMasivo.tipo)}" style="margin:8px 0 0"><b>${esc(E.feedbackMasivo.titulo)}</b>${esc(E.feedbackMasivo.detalle)}</div>`
-    : '';
+  const sugsMasivo = obtenerSugerenciasEtiquetasGrupo(gActivo)
+    .filter(s => {
+      const entry = mapaTags.get(normTxt(s));
+      return !entry || entry.count < totalSel;
+    });
+
+  const pillsMasivoHtml = tagsAgregados.map((item, idx) => {
+    const sufijo = item.count < totalSel ? ` (${item.count}/${totalSel})` : '';
+    return `<span class="tag-pill-ed ${item.esIa ? 'ia' : ''}">${item.esIa ? '✨ ' : ''}${esc(item.texto + sufijo)}<button type="button" data-del-mtag-idx="${idx}" title="Quitar de los ${totalSel} archivos" aria-label="Quitar etiqueta ${esc(item.texto)}">×</button></span>`;
+  }).join('');
+
+  // 4. Fecha, Lugar y Descripción compartidos vs mixtos
+  const fechasUnicas = new Set(selArchs.map(a => {
+    const fc = fechaDe(a);
+    return fc ? fc.slice(0, 10) : '';
+  }));
+  const fechaComun = fechasUnicas.size === 1 ? [...fechasUnicas][0] : '';
+  const fechaMixta = fechasUnicas.size > 1;
+
+  const lugaresUnicos = new Set(selArchs.map(a => (a.lugar || '').trim()));
+  const lugarComun = lugaresUnicos.size === 1 ? [...lugaresUnicos][0] : '';
+  const lugarMixto = lugaresUnicos.size > 1;
+
+  const descsUnicas = new Set(selArchs.map(a => (a.descripcion_ia || '').trim()));
+  const descComun = descsUnicas.size === 1 ? [...descsUnicas][0] : '';
+  const descMixta = descsUnicas.size > 1;
 
   panel.innerHTML = `
-    <div class="inspector-head" style="position:sticky;top:-16px;background:var(--blanco);z-index:10;padding-top:12px;margin-top:-12px">
-      <div class="kicker">Edición masiva</div>
-      <h3>Editando ${selArchs.length} archivos</h3>
-      <div id="masivoFeedback">${fbHtml}</div>
-      <button type="button" class="btn p oculto" id="bAplicarMasivoTop" style="width:100%;margin-top:8px">
-        Guardar cambios en ${selArchs.length} seleccionados
-      </button>
+    <div class="inspector-head">
+      <div class="kicker">Edición en lote · ${totalSel} seleccionados</div>
+      <h3>Editando ${totalSel} archivos</h3>
     </div>
-    <p class="sub">El <b>fotógrafo/a</b> y la <b>especie</b> se aplican al instante. Los campos de texto se guardan con el botón superior o al pulsar <i>Continuar</i>.</p>
+    <p class="sub" style="margin-bottom:8px">Cada cambio se aplica <b>en tiempo real</b> a las <b>${totalSel} tarjetas</b> seleccionadas.</p>
 
     <div class="inspector-sec">
-      <h4>Fotógrafo/a para los ${selArchs.length} archivos</h4>
+      <h4>Fotógrafo/a <span class="req">obligatorio</span></h4>
+      ${fotografoMixto ? `<div style="font-size:11.5px;color:var(--amber);margin-bottom:6px">⚠ Hay distintos fotógrafos en esta selección. Elige uno para unificar.</div>` : ''}
       <div id="masivoFotoWrap"></div>
     </div>
 
     <div class="inspector-sec">
-      <h4>Especie para los ${selArchs.length} archivos <span class="req">opcional</span></h4>
-      <div class="especie-selector" id="masEspecieWrap">
-        <input class="especie-busqueda" id="masEspecieBusq" type="search" autocomplete="off"
-          placeholder="Buscar especie para aplicar a los ${selArchs.length} archivos"
-          aria-label="Buscar especie de ave para edición masiva">
-        <div class="ac-lista especie-resultados oculto" role="listbox"></div>
-      </div>
-    </div>
-
-    <div class="inspector-sec">
-      <h4>Añadir etiquetas en bloque</h4>
+      <h4>Etiquetas <span class="st st-neu num">${tagsAgregados.length}</span></h4>
       <div class="tag-add-row">
-        <input id="masTagInput" placeholder="Añade etiqueta en bloque…">
-        <button type="button" class="btn-xs prim btn-add-tag" id="bAddTagMasivo" title="Añadir etiqueta en bloque">+</button>
+        <input id="masTagInput" placeholder="Añade etiqueta a los ${totalSel} archivos…">
+        <button type="button" class="btn-xs prim btn-add-tag" id="bAddTagMasivo" title="Añadir etiqueta a todos" aria-label="Añadir etiqueta a todos">+</button>
       </div>
-      <div class="tags-pills-wrap" id="masTagsPills"></div>
+      ${pillsMasivoHtml ? `<div class="tags-pills-wrap" id="masTagsPills">${pillsMasivoHtml}</div>` : ''}
       ${sugsMasivo.length ? `
         <div class="sug-box">
-          <span class="sug-tit">Sugerencias del esquema (clic para añadir):</span>
+          <span class="sug-tit">Sugerencias para esta carpeta (clic para añadir a todos):</span>
           <div class="sug-chips">
             ${sugsMasivo.map(s => `<button type="button" class="sug-chip" data-mas-sug="${esc(s)}">+ ${esc(s)}</button>`).join('')}
           </div>
@@ -2715,157 +2786,125 @@ function pintarInspectorLateral(){
     </div>
 
     <div class="inspector-sec">
-      <h4>Metadatos de texto compartidos <span class="req">opcional</span></h4>
+      <h4>Información descriptiva <span class="req">opcional</span></h4>
       <div class="campo" style="margin-bottom:9px">
-        <label for="masFecha">Corregir fecha de captura en bloque</label>
-        <input type="date" id="masFecha">
+        <label for="masFecha">Fecha de captura ${fechaMixta ? '<small>· varios valores en selección</small>' : ''}</label>
+        <input type="date" id="masFecha" value="${esc(fechaComun)}">
       </div>
       <div class="campo" style="margin-bottom:9px">
-        <label for="masLugar">Lugar (dejar vacío para no modificar)</label>
-        <input id="masLugar" placeholder="Aplicar lugar a los ${selArchs.length} archivos">
+        <label for="masLugar">Lugar ${lugarMixto ? '<small>· varios lugares en selección</small>' : '<small>· opcional</small>'}</label>
+        <input id="masLugar" value="${esc(lugarComun)}" placeholder="${lugarMixto ? 'Varios lugares (escribe para unificar en los ' + totalSel + ' archivos)' : 'Comunidad, sector o punto de monitoreo'}">
+      </div>
+      <div class="campo" style="margin-bottom:9px">
+        <label for="masEspecieBusq">Especie ${especieMixta ? '<small>· varias especies en selección</small>' : '<small>· opcional</small>'}</label>
+        <div class="especie-selector" id="masEspecieWrap">
+          <input class="especie-busqueda" id="masEspecieBusq" type="search" autocomplete="off"
+            placeholder="${especieMixta ? 'Varias especies (busca para unificar en los ' + totalSel + ' archivos)' : 'Buscar por nombre científico, español o inglés'}"
+            aria-label="Buscar especie de ave para edición masiva">
+          <div class="ac-lista especie-resultados oculto" role="listbox"></div>
+        </div>
+        <div class="especie-ayuda">Se asignará a las ${totalSel} tarjetas seleccionadas.</div>
       </div>
       <div class="campo">
-        <label for="masDescripcion">Descripción</label>
-        <textarea id="masDescripcion" rows="2" placeholder="Aplicar descripción a los ${selArchs.length} archivos"></textarea>
+        <label for="masDescripcion">Descripción ${descMixta ? '<small>· varias descripciones en selección</small>' : '<small>· opcional</small>'}</label>
+        <textarea id="masDescripcion" rows="2" maxlength="500" placeholder="${descMixta ? 'Varias descripciones (escribe para reemplazar en los ' + totalSel + ' archivos)' : 'Oración objetiva sobre lo que se observa'}">${esc(descComun)}</textarea>
       </div>
     </div>
-
-    <button type="button" class="btn p" id="bAplicarMasivo" style="width:100%;margin-top:14px">
-      Guardar cambios en ${selArchs.length} seleccionados
-    </button>
   `;
 
-  // 1. Fotógrafo/a se aplica INMEDIATAMENTE al seleccionarlo
-  renderSelectorFotografo(panel.querySelector('#masivoFotoWrap'), null, nf => {
-    if (!nf) return;
-    E._masivoFotoTab = nf.tipo;
+  // Fotógrafo: refleja el valor compartido y actualiza todos al instante
+  renderSelectorFotografo(panel.querySelector('#masivoFotoWrap'), fotografoComun, (nf, meta = {}) => {
+    if (nf) E._masivoFotoTab = nf.tipo;
+    E._enfocarMasivoFoto = !!meta.enfocar;
     selArchs.forEach(a => {
-      a.fotografo = JSON.parse(JSON.stringify(nf));
+      a.fotografo = nf ? JSON.parse(JSON.stringify(nf)) : null;
       a.fotografoManual = true;
+      if (nf) a._fotoTab = nf.tipo;
     });
-    E.feedbackMasivo = {
-      tipo: 'ok',
-      titulo: `Fotógrafo/a asignado a ${selArchs.length} archivo(s)`,
-      detalle: fotografoTexto(nf)
-    };
     revisarTodosArchivos();
   }, {
-    tabInicial: E._masivoFotoTab,
+    tabInicial: fotografoComun ? fotografoComun.tipo : E._masivoFotoTab,
     onTabChange: t => { E._masivoFotoTab = t; }
   });
+  if (E._enfocarMasivoFoto){
+    E._enfocarMasivoFoto = false;
+    const inp = panel.querySelector('#masivoFotoWrap .in-foto-busq');
+    if (inp) setTimeout(() => inp.focus(), 0);
+  }
 
-  // 2. Especie se aplica INMEDIATAMENTE al seleccionarla
+  // Etiquetas: añadir / quitar en tiempo real sobre todos los seleccionados
+  function agregarTagsMasivoDesdeTexto(txt){
+    const nuevas = txt.split(',').map(s => limpiarEspacios(s)).filter(Boolean);
+    if (!nuevas.length) return;
+    selArchs.forEach(a => {
+      a.etiquetas_ia = normalizarListaTags([...(a.etiquetas_ia || []), ...nuevas]);
+    });
+    pintarMesaCatalogacion();
+  }
+  const masTagInp = panel.querySelector('#masTagInput');
+  panel.querySelector('#bAddTagMasivo').onclick = () => agregarTagsMasivoDesdeTexto(masTagInp.value);
+  masTagInp.onkeydown = e => {
+    if (e.key === 'Enter'){
+      e.preventDefault();
+      agregarTagsMasivoDesdeTexto(masTagInp.value);
+    }
+  };
+  panel.querySelectorAll('[data-del-mtag-idx]').forEach(btn => btn.onclick = () => {
+    const item = tagsAgregados[+btn.dataset.delMtagIdx];
+    if (!item) return;
+    const keyDel = normTxt(item.texto);
+    selArchs.forEach(a => {
+      a.etiquetas_ia = normalizarListaTags(a.etiquetas_ia).filter(t => normTxt(t) !== keyDel);
+    });
+    pintarMesaCatalogacion();
+  });
+  panel.querySelectorAll('[data-mas-sug]').forEach(btn => btn.onclick = () => {
+    agregarTagsMasivoDesdeTexto(btn.dataset.masSug);
+  });
+
+  // Fecha de captura: actualización inmediata
+  panel.querySelector('#masFecha').onchange = e => {
+    const val = e.target.value;
+    selArchs.forEach(a => {
+      if (!val){
+        a.fechaCapturaManual = null;
+      } else {
+        const horaOrig = (a.fechaCapturaOrig && a.fechaCapturaOrig.length > 10) ? a.fechaCapturaOrig.slice(10) : ' 00:00:00';
+        a.fechaCapturaManual = val + horaOrig;
+      }
+    });
+    revisarTodosArchivos();
+  };
+
+  // Lugar: actualización en vivo mientras escribe sin perder el foco
+  panel.querySelector('#masLugar').oninput = e => {
+    const val = e.target.value;
+    selArchs.forEach(a => {
+      a.lugar = val;
+      a.lugarFuente = val.trim() ? 'manual' : null;
+    });
+    actualizarTarjetasDOM(selArchs);
+  };
+
+  // Especie: refleja la especie compartida y actualiza todos al instante
   configurarSelectorEspecie(
     panel.querySelector('#masEspecieWrap'),
-    null,
+    especieComun,
     especie => {
-      if (!especie) return;
-      selArchs.forEach(a => { a.especie = JSON.parse(JSON.stringify(especie)); });
-      E.feedbackMasivo = {
-        tipo: 'ok',
-        titulo: `Especie asignada a ${selArchs.length} archivo(s)`,
-        detalle: especie.nombre_cientifico
-      };
-      revisarTodosArchivos();
+      selArchs.forEach(a => {
+        a.especie = especie ? JSON.parse(JSON.stringify(especie)) : null;
+      });
+      pintarMesaCatalogacion();
     },
     'mas-especie'
   );
 
-  const masTagInp = panel.querySelector('#masTagInput');
-  const btnTop = panel.querySelector('#bAplicarMasivoTop');
-
-  function hayTextoPendiente(){
-    return !!(
-      masTagInp.value.trim() ||
-      tagsMasivo.length ||
-      panel.querySelector('#masFecha').value ||
-      panel.querySelector('#masLugar').value.trim() ||
-      panel.querySelector('#masDescripcion').value.trim()
-    );
-  }
-
-  function actualizarVisibilidadBotonTop(){
-    btnTop.classList.toggle('oculto', !hayTextoPendiente());
-  }
-
-  ['#masFecha', '#masLugar', '#masDescripcion'].forEach(sel => {
-    panel.querySelector(sel).addEventListener('input', actualizarVisibilidadBotonTop);
-    panel.querySelector(sel).addEventListener('change', actualizarVisibilidadBotonTop);
-  });
-  masTagInp.addEventListener('input', actualizarVisibilidadBotonTop);
-
-  function pintarPillsMasivo(){
-    const wrap = panel.querySelector('#masTagsPills');
-    wrap.innerHTML = tagsMasivo.map((t, idx) =>
-      `<span class="tag-pill-ed">${esc(t)}<button type="button" data-del-mtag="${idx}">×</button></span>`
-    ).join('');
-    wrap.querySelectorAll('[data-del-mtag]').forEach(b => b.onclick = () => {
-      tagsMasivo.splice(+b.dataset.delMtag, 1);
-      pintarPillsMasivo();
-      actualizarVisibilidadBotonTop();
-    });
-  }
-  function addTagMasivo(txt){
-    const items = txt.split(',').map(s => limpiarEspacios(s)).filter(Boolean);
-    if (!items.length) return;
-    tagsMasivo = normalizarListaTags([...tagsMasivo, ...items]);
-    pintarPillsMasivo();
-    actualizarVisibilidadBotonTop();
-  }
-  panel.querySelector('#bAddTagMasivo').onclick = () => { addTagMasivo(masTagInp.value); masTagInp.value = ''; actualizarVisibilidadBotonTop(); };
-  masTagInp.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); addTagMasivo(masTagInp.value); masTagInp.value = ''; actualizarVisibilidadBotonTop(); } };
-  panel.querySelectorAll('[data-mas-sug]').forEach(b => b.onclick = () => addTagMasivo(b.dataset.masSug));
-
-  function aplicarCambiosTextoMasivo(silencioso = false){
-    if (masTagInp.value.trim()){
-      addTagMasivo(masTagInp.value);
-      masTagInp.value = '';
-    }
-    const fec = panel.querySelector('#masFecha').value;
-    const lug = panel.querySelector('#masLugar').value.trim();
-    const des = panel.querySelector('#masDescripcion').value.trim();
-
-    const camposAplicados = [];
-    if (tagsMasivo.length) camposAplicados.push('Etiquetas');
-    if (fec) camposAplicados.push('Fecha de captura');
-    if (lug) camposAplicados.push('Lugar');
-    if (des) camposAplicados.push('Descripción');
-
-    if (!camposAplicados.length){
-      if (!silencioso){
-        E.feedbackMasivo = {
-          tipo: 'warn',
-          titulo: 'Sin cambios de texto para guardar',
-          detalle: 'El fotógrafo/a y la especie ya se guardan al seleccionarlos.'
-        };
-        pintarInspectorLateral();
-      }
-      return false;
-    }
-
-    selArchs.forEach(a => {
-      if (tagsMasivo.length) a.etiquetas_ia = normalizarListaTags([...(a.etiquetas_ia || []), ...tagsMasivo]);
-      if (fec){
-        const horaOrig = (a.fechaCapturaOrig && a.fechaCapturaOrig.length > 10) ? a.fechaCapturaOrig.slice(10) : ' 00:00:00';
-        a.fechaCapturaManual = fec + horaOrig;
-      }
-      if (lug){ a.lugar = lug; a.lugarFuente = 'manual'; }
-      if (des) a.descripcion_ia = des;
-    });
-
-    E.feedbackMasivo = {
-      tipo: 'ok',
-      titulo: `Cambios guardados en ${selArchs.length} archivo(s)`,
-      detalle: `Campos actualizados: ${camposAplicados.join(', ')}.`
-    };
-    window._aplicarPendientesMasivo = null;
-    revisarTodosArchivos();
-    return true;
-  }
-
-  window._aplicarPendientesMasivo = () => aplicarCambiosTextoMasivo(true);
-  btnTop.onclick = () => aplicarCambiosTextoMasivo(false);
-  panel.querySelector('#bAplicarMasivo').onclick = () => aplicarCambiosTextoMasivo(false);
+  // Descripción: actualización en vivo mientras escribe sin perder el foco
+  panel.querySelector('#masDescripcion').oninput = e => {
+    const val = e.target.value;
+    selArchs.forEach(a => { a.descripcion_ia = val; });
+    actualizarTarjetasDOM(selArchs);
+  };
 }
 
 /* ============================================================================
@@ -3129,14 +3168,23 @@ async function procesarColaIA(){
   }
 }
 
+async function generarMiniaturaParaArchivo(a){
+  if (a.thumbB64 || a.thumbEstado === 'sin_preview') return;
+  a.thumbEstado = 'cargando';
+  const b64 = await generarMiniaturaBase64(a.file, a.tipo);
+  if (b64){
+    a.thumbB64 = b64;
+    a.thumbDataUrl = 'data:image/jpeg;base64,' + b64;
+    a.thumbEstado = 'lista';
+  } else {
+    a.thumbEstado = 'sin_preview';
+  }
+  if (E.paso === 1) pintarMesaCatalogacion();
+}
+
 async function analizarArchivoIndividual(a){
-  if (!a.thumbB64){
-    const b64 = await generarMiniaturaBase64(a.file, a.tipo);
-    if (b64){
-      a.thumbB64 = b64;
-      a.thumbDataUrl = 'data:image/jpeg;base64,' + b64;
-      if (E.paso === 1) pintarMesaCatalogacion();
-    }
+  if (!a.thumbB64 && a.thumbEstado !== 'sin_preview'){
+    await generarMiniaturaParaArchivo(a);
   }
   if (CONFIG.modo !== 'graph'){
     a.iaEstado = 'simulado';
@@ -3200,6 +3248,7 @@ async function agregarArchivosAGrupo(files, grupoId){
       progreso: 0,
       thumbB64: null,
       thumbDataUrl: null,
+      thumbEstado: 'cargando',
       fotografo: gObj.fotografoDefault ? JSON.parse(JSON.stringify(gObj.fotografoDefault)) : null,
       _fotoTab: gObj.fotografoDefault ? gObj.fotografoDefault.tipo : (gObj._fotoTab || 'interno'),
       fotografoManual: false,
@@ -3232,7 +3281,10 @@ async function agregarArchivosAGrupo(files, grupoId){
     E.seleccionados.add(nuevos[0].id);
   }
   revisarTodosArchivos();
-  encolarAnalisisIA(nuevos, false);
+  // Generar miniaturas locales de inmediato sin esperar la cola de IA ni OneDrive
+  Promise.all(nuevos.map(a => generarMiniaturaParaArchivo(a))).then(() => {
+    encolarAnalisisIA(nuevos, false);
+  });
 }
 
 function revisarTodosArchivos(){
